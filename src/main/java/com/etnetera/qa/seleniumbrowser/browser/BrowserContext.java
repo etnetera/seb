@@ -24,6 +24,15 @@ public interface BrowserContext extends SearchContext {
 		return getBrowser().getDriver();
 	}
 	
+	@SuppressWarnings("unchecked")
+	public default <T extends WebDriver> T getDriver(Class<T> driver) {
+		return (T) getDriver();
+	}
+	
+	public default void getUrl(String url) {
+		getBrowser().getUrl(url);
+	}
+	
 	public default double getWaitTimeout() {
 		return getBrowser().getWaitTimeout();
 	}
@@ -130,6 +139,10 @@ public interface BrowserContext extends SearchContext {
 	
 	public default boolean isNotPresent(WebElement element) {
 		return ElementManager.isNotPresent(element);
+	}
+	
+	public default void report(String label) {
+		getBrowser().report(this, label);
 	}
 	
 }

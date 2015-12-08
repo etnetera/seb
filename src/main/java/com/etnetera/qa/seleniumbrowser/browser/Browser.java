@@ -1,11 +1,22 @@
 package com.etnetera.qa.seleniumbrowser.browser;
 
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.events.EventFiringWebDriver;
 
+import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
+import com.etnetera.qa.seleniumbrowser.listener.EventConstructException;
+import com.etnetera.qa.seleniumbrowser.listener.EventFiringBrowserBridgeListener;
+import com.etnetera.qa.seleniumbrowser.listener.event.BrowserEvent;
+import com.etnetera.qa.seleniumbrowser.listener.event.ReportEvent;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.page.PageManager;
 
@@ -26,15 +37,36 @@ public class Browser implements BrowserContext {
 	protected double waitRetryInterval;
 	
 	protected Page page;
+	
+	protected String label;
+	
+	protected File outputDir;
+	
+	protected List<BrowserListener> listeners = new ArrayList<>();
+	
+	protected long eventCounter;
 
 	public Browser(BrowserConfiguration configuration) {
 		this.configuration = configuration;
-		this.driver = configuration.getDriver();
 		this.baseUrl = configuration.getBaseUrl();
 		this.baseUrlRegex = configuration.getBaseUrlRegex();
 		this.urlVerification = configuration.isUrlVerification();
 		this.waitTimeout = configuration.getWaitTimeout();
 		this.waitRetryInterval = configuration.getWaitRetryInterval();
+		this.outputDir = configuration.getOutputDir();
+		this.listeners = configuration.getListeners();
+		
+		EventFiringWebDriver driver = new EventFiringWebDriver(configuration.getDriver());
+		driver.register(new EventFiringBrowserBridgeListener(this));
+		this.driver = driver;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	public BrowserConfiguration getConfiguration() {
@@ -48,6 +80,11 @@ public class Browser implements BrowserContext {
 
 	public WebDriver getDriver() {
 		return driver;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends WebDriver> T getDriver(Class<T> driver) {
+		return (T) getDriver();
 	}
 
 	public String getBaseUrl() {
@@ -179,8 +216,48 @@ public class Browser implements BrowserContext {
 		return driver.findElement(by);
 	}
 	
+	@Override
+	public void getUrl(String url) {
+		driver.get(url);
+	}
+
 	public void quit() {
-		if (driver != null) driver.quit();
+		driver.quit();
+	}
+	
+	public void useEnclosingMethodLabel() {
+		final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
+	    final String s = e.getClassName();
+	    label = s.substring(s.lastIndexOf('.') + 1, s.length()) + "." + e.getMethodName();
+	}
+	
+	@Override
+	public void report(String label) {
+		report(this, label);
+	}
+	
+	public void report(BrowserContext context, String label) {
+		ReportEvent event = constructEvent(ReportEvent.class, context);
+		event.setLabel(label);
+		triggerEvent(event, l -> l.report(event));
+	}
+	
+	public synchronized <T extends BrowserEvent> T constructEvent(Class<T> eventCls, BrowserContext context) {
+		try {
+			Constructor<T> ctor = eventCls.getConstructor();
+			T event = (T) ctor.newInstance();
+			event.setContext(context);
+			event.setTime(new Date());
+			event.setNumber(++eventCounter);
+			return event;
+		} catch (Exception e) {
+			throw new EventConstructException("Unable to construct event " + eventCls.getName(), e);
+		}
+	}
+	
+	public void triggerEvent(BrowserEvent event, Consumer<BrowserListener> consumer) {
+		event.init();
+		listeners.forEach(l -> consumer.accept(l));
 	}
 	
 }

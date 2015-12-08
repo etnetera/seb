@@ -1,9 +1,14 @@
 package com.etnetera.qa.seleniumbrowser.browser;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+
+import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 
 abstract public class BrowserConfiguration {
 
@@ -16,6 +21,8 @@ abstract public class BrowserConfiguration {
 	
 	protected String waitTimeoutProperty = "waitTimeout";
 	protected String waitRetryIntervalProperty = "waitRetryInterval";
+	
+	protected String outputDirProperty = "outputDir";
 	
 	public WebDriver getDriver() {
 		// TODO - allow set from system property with capabilities
@@ -42,6 +49,16 @@ abstract public class BrowserConfiguration {
 		return getProperty(waitRetryIntervalProperty, getWaitRetryIntervalDef());
 	}
 	
+	protected File getOutputDir() {
+		String outputDir = getProperty(outputDirProperty, String.class);
+		return outputDir == null ? getOutputDirDef() : new File(outputDir);
+	}
+	
+	protected List<BrowserListener> getListeners() {
+		// TODO - allow set from system properties
+		return getListenersDef();
+	}
+	
 	protected WebDriver getDriverDef() {
 		return new FirefoxDriver();
 	}
@@ -62,6 +79,15 @@ abstract public class BrowserConfiguration {
 	
 	protected double getWaitRetryIntervalDef() {
 		return 0.1;
+	}
+	
+	protected File getOutputDirDef() {
+		return new File("selenium-browser-output");
+	}
+	
+	protected List<BrowserListener> getListenersDef() {
+		List<BrowserListener> listeners = new ArrayList<>();
+		return listeners;
 	}
 	
 	protected <T extends Object> T getProperty(String key, T def) {

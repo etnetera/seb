@@ -10,7 +10,6 @@ import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
-import com.etnetera.qa.seleniumbrowser.browser.BrowserManager;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
 import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
 
@@ -116,19 +115,32 @@ abstract public class Page implements BrowserContext {
 		String url = getUrl();
 		if (url == null)
 			throw new PageException("It is not possible to go to page without url " + this.getClass().getName());
-		BrowserManager.getUrl(browser, url);
+		getUrl(url);
 		return init();
 	}
 
-	public Page init() {
+	final public Page init() {
+		try {
+			beforeInit();
+			beforeInitElements();
+			initElements();
+			afterInitElements();
+			beforeVerify();
+			verify();
+			afterVerify();
+			setPage(this);
+			afterInit();
+		} catch (Exception e) {
+			throw e;
+		}
+		
+		return this;
+	}
+	
+	protected void initElements() {
 		PageFactory.initElements(
 				new ElementFieldDecorator(new DefaultElementLocatorFactory(this), this),
 				this);
-		afterInit();
-		verify();
-		afterVerification();
-		browser.setPage(this);
-		return this;
 	}
 
 	@Override
@@ -195,12 +207,28 @@ abstract public class Page implements BrowserContext {
 		// check if we are on right page
 	}
 
-	protected void afterInit() {
-		// do whatever you want, i.e. bind another modules
+	protected void beforeInit() {
+		// do whatever you want
 	}
-
-	protected void afterVerification() {
-		// do whatever you want, i.e. some logic
+	
+	protected void beforeInitElements() {
+		// do whatever you want
+	}
+	
+	protected void afterInitElements() {
+		// do whatever you want
+	}
+	
+	protected void beforeVerify() {
+		// do whatever you want
+	}
+	
+	protected void afterVerify() {
+		// do whatever you want
+	}
+	
+	protected void afterInit() {
+		// do whatever you want
 	}
 
 }

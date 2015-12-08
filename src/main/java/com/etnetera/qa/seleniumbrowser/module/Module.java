@@ -42,11 +42,23 @@ abstract public class Module implements BrowserContext, WebElement {
 		// initialize with present element only
 		if (isNotPresent())
 			return this;
-		PageFactory.initElements(new ElementFieldDecorator(new DefaultElementLocatorFactory(this), this), this);
-		afterInit();
-		verify();
-		afterVerification();
+		try {
+			beforeInit();
+			beforeInitElements();
+			initElements();
+			afterInitElements();
+			beforeVerify();
+			verify();
+			afterVerify();
+			afterInit();
+		} catch (Exception e) {
+			
+		}
 		return this;
+	}
+	
+	public void initElements() {
+		PageFactory.initElements(new ElementFieldDecorator(new DefaultElementLocatorFactory(this), this), this);
 	}
 	
 	public boolean isPresent() {
@@ -69,12 +81,28 @@ abstract public class Module implements BrowserContext, WebElement {
 		// check if we are in right module
 	}
 
-	protected void afterInit() {
-		// do whatever you want, i.e. bind another modules
+	protected void beforeInit() {
+		// do whatever you want
 	}
 	
-	protected void afterVerification() {
-		// do whatever you want, i.e. some logic
+	protected void beforeInitElements() {
+		// do whatever you want
+	}
+	
+	protected void afterInitElements() {
+		// do whatever you want
+	}
+	
+	protected void beforeVerify() {
+		// do whatever you want
+	}
+	
+	protected void afterVerify() {
+		// do whatever you want
+	}
+	
+	protected void afterInit() {
+		// do whatever you want
 	}
 	
 	@Override
