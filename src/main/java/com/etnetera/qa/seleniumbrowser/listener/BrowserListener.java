@@ -1,32 +1,38 @@
 package com.etnetera.qa.seleniumbrowser.listener;
 
+import java.io.File;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterBrowserQuitEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterChangeValueOfEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterClickOnEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterFindByEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterModuleInitEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterNavigateBackEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterNavigateForwardEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterNavigateToEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterPageInitEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterScriptEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeBrowserQuitEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeChangeValueOfEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeClickOnEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeFindByEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeModuleInitEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeNavigateBackEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeNavigateForwardEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeNavigateToEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforePageInitEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeScriptEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.OnExceptionEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.ReportEvent;
+import com.etnetera.qa.seleniumbrowser.browser.BrowserUtils;
+import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterChangeValueOfEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterClickOnEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterFindByEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterModuleInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterNavigateBackEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterNavigateForwardEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterNavigateToEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterPageInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterScriptEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeChangeValueOfEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeClickOnEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeFindByEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeModuleInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeNavigateBackEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeNavigateForwardEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeNavigateToEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforePageInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeScriptEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnExceptionEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnModuleInitExceptionEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnPageInitExceptionEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
 import com.etnetera.qa.seleniumbrowser.module.Module;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 
@@ -43,7 +49,7 @@ public class BrowserListener {
 	 *
 	 * @param event
 	 */
-	public void report(ReportEvent event) {}
+	public void onReport(OnReportEvent event) {}
 	
 	/**
 	 * Called before {@link Page#init()}.
@@ -51,6 +57,13 @@ public class BrowserListener {
 	 * @param event
 	 */
 	public void beforePageInit(BeforePageInitEvent event) {}
+	
+	/**
+	 * Called whenever an exception would be thrown in {@link Page#init()}.
+	 *
+	 * @param event
+	 */
+	public void onPageInitException(OnPageInitExceptionEvent event) {}
 	
 	/**
 	 * Called after {@link Page#init()}.
@@ -65,6 +78,13 @@ public class BrowserListener {
 	 * @param event
 	 */
 	public void beforeModuleInit(BeforeModuleInitEvent event) {}
+	
+	/**
+	 * Called whenever an exception would be thrown in {@link Module#init()}.
+	 *
+	 * @param event
+	 */
+	public void onModuleInitException(OnModuleInitExceptionEvent event) {}
 	
 	/**
 	 * Called after {@link Module#init()}.
@@ -220,8 +240,50 @@ public class BrowserListener {
 	 */
 	public void onException(OnExceptionEvent event) {}
 	
+	/**
+	 * Save string content into output file with given name and extension.
+	 * 
+	 * @param event
+	 * @param content
+	 * @param name
+	 * @param extension
+	 */
+	protected void saveFile(BrowserEvent event, String content, String name, String extension) {
+		event.saveFile(content, getListenerFileName(name), extension);
+	}
+	
+	/**
+	 * Save bytes into output file with given name and extension.
+	 * 
+	 * @param event
+	 * @param bytes
+	 * @param name
+	 * @param extension
+	 */
+	protected void saveFile(BrowserEvent event, byte[] bytes, String name, String extension) {
+		event.saveFile(bytes, getListenerFileName(name), extension);
+	}
+	
+	/**
+	 * Save file into output file with given name and extension.
+	 * 
+	 * @param event
+	 * @param file
+	 * @param name
+	 * @param extension
+	 */
+	protected void saveFile(BrowserEvent event, File file, String name, String extension) {
+		event.saveFile(file, getListenerFileName(name), extension);
+	}
+	
+	protected String getListenerFileName(String name) {
+		return BrowserUtils.join("-", label, name);
+	}
+	
 	protected String generateLabel() {
-		return getClass().getSimpleName();
+		String name = getClass().getSimpleName();
+		String endTrim = "Listener";
+		return name.endsWith(endTrim) ? name.substring(0, name.length() - endTrim.length()) : name;
 	}
 
 }

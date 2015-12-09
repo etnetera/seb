@@ -1,29 +1,27 @@
 package com.etnetera.qa.seleniumbrowser.listener;
 
-import java.util.function.Consumer;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.WebDriverEventListener;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterChangeValueOfEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterClickOnEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterFindByEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterNavigateBackEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterNavigateForwardEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterNavigateToEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.AfterScriptEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeChangeValueOfEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeClickOnEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeFindByEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeNavigateBackEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeNavigateForwardEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeNavigateToEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BeforeScriptEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.BrowserEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.OnExceptionEvent;
+import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterChangeValueOfEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterClickOnEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterFindByEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterNavigateBackEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterNavigateForwardEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterNavigateToEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterScriptEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeChangeValueOfEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeClickOnEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeFindByEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeNavigateBackEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeNavigateForwardEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeNavigateToEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeScriptEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnExceptionEvent;
 
 public class EventFiringBrowserBridgeListener implements WebDriverEventListener {
 
@@ -35,113 +33,85 @@ public class EventFiringBrowserBridgeListener implements WebDriverEventListener 
 
 	@Override
 	public void beforeNavigateTo(String url, WebDriver driver) {
-		BeforeNavigateToEvent event = constructEvent(BeforeNavigateToEvent.class);
-		event.setUrl(url);
-		triggerEvent(event, l -> l.beforeNavigateTo(event));
+		triggerEvent(constructEvent(BeforeNavigateToEvent.class).with(url));
 	}
 
 	@Override
 	public void afterNavigateTo(String url, WebDriver driver) {
-		AfterNavigateToEvent event = constructEvent(AfterNavigateToEvent.class);
-		event.setUrl(url);
-		triggerEvent(event, l -> l.afterNavigateTo(event));
+		triggerEvent(constructEvent(AfterNavigateToEvent.class).with(url));
 	}
 
 	@Override
 	public void beforeNavigateBack(WebDriver driver) {
-		BeforeNavigateBackEvent event = constructEvent(BeforeNavigateBackEvent.class);
-		triggerEvent(event, l -> l.beforeNavigateBack(event));
+		triggerEvent(constructEvent(BeforeNavigateBackEvent.class));
 	}
 
 	@Override
 	public void afterNavigateBack(WebDriver driver) {
-		AfterNavigateBackEvent event = constructEvent(AfterNavigateBackEvent.class);
-		triggerEvent(event, l -> l.afterNavigateBack(event));
+		triggerEvent(constructEvent(AfterNavigateBackEvent.class));
 	}
 
 	@Override
 	public void beforeNavigateForward(WebDriver driver) {
-		BeforeNavigateForwardEvent event = constructEvent(BeforeNavigateForwardEvent.class);
-		triggerEvent(event, l -> l.beforeNavigateForward(event));
+		triggerEvent(constructEvent(BeforeNavigateForwardEvent.class));
 	}
 
 	@Override
 	public void afterNavigateForward(WebDriver driver) {
-		AfterNavigateForwardEvent event = constructEvent(AfterNavigateForwardEvent.class);
-		triggerEvent(event, l -> l.afterNavigateForward(event));
+		triggerEvent(constructEvent(AfterNavigateForwardEvent.class));
 	}
 
 	@Override
 	public void beforeFindBy(By by, WebElement element, WebDriver driver) {
-		BeforeFindByEvent event = constructEvent(BeforeFindByEvent.class);
-		event.setBy(by);
-		event.setElement(element);
-		triggerEvent(event, l -> l.beforeFindBy(event));
+		triggerEvent(constructEvent(BeforeFindByEvent.class).with(by, element));
 	}
 
 	@Override
 	public void afterFindBy(By by, WebElement element, WebDriver driver) {
-		AfterFindByEvent event = constructEvent(AfterFindByEvent.class);
-		event.setBy(by);
-		event.setElement(element);
-		triggerEvent(event, l -> l.afterFindBy(event));
+		triggerEvent(constructEvent(AfterFindByEvent.class).with(by, element));
 	}
 
 	@Override
 	public void beforeClickOn(WebElement element, WebDriver driver) {
-		BeforeClickOnEvent event = constructEvent(BeforeClickOnEvent.class);
-		event.setElement(element);
-		triggerEvent(event, l -> l.beforeClickOn(event));
+		triggerEvent(constructEvent(BeforeClickOnEvent.class).with(element));
 	}
 
 	@Override
 	public void afterClickOn(WebElement element, WebDriver driver) {
-		AfterClickOnEvent event = constructEvent(AfterClickOnEvent.class);
-		event.setElement(element);
-		triggerEvent(event, l -> l.afterClickOn(event));
+		triggerEvent(constructEvent(AfterClickOnEvent.class).with(element));
 	}
 
 	@Override
 	public void beforeChangeValueOf(WebElement element, WebDriver driver) {
-		BeforeChangeValueOfEvent event = constructEvent(BeforeChangeValueOfEvent.class);
-		event.setElement(element);
-		triggerEvent(event, l -> l.beforeChangeValueOf(event));
+		triggerEvent(constructEvent(BeforeChangeValueOfEvent.class).with(element));
 	}
 
 	@Override
 	public void afterChangeValueOf(WebElement element, WebDriver driver) {
-		AfterChangeValueOfEvent event = constructEvent(AfterChangeValueOfEvent.class);
-		event.setElement(element);
-		triggerEvent(event, l -> l.afterChangeValueOf(event));
+		triggerEvent(constructEvent(AfterChangeValueOfEvent.class).with(element));
 	}
 
 	@Override
 	public void beforeScript(String script, WebDriver driver) {
-		BeforeScriptEvent event = constructEvent(BeforeScriptEvent.class);
-		event.setScript(script);
-		triggerEvent(event, l -> l.beforeScript(event));
+		triggerEvent(constructEvent(BeforeScriptEvent.class).with(script));
 	}
 
 	@Override
 	public void afterScript(String script, WebDriver driver) {
-		AfterScriptEvent event = constructEvent(AfterScriptEvent.class);
-		event.setScript(script);
-		triggerEvent(event, l -> l.afterScript(event));
+		triggerEvent(constructEvent(AfterScriptEvent.class).with(script));
 	}
 
 	@Override
 	public void onException(Throwable throwable, WebDriver driver) {
-		OnExceptionEvent event = constructEvent(OnExceptionEvent.class);
-		event.setThrowable(throwable);
-		triggerEvent(event, l -> l.onException(event));
+		triggerEvent(constructEvent(OnExceptionEvent.class).with(throwable));
 	}
 	
 	protected <T extends BrowserEvent> T constructEvent(Class<T> eventCls) {
 		return browser.constructEvent(eventCls, browser);
 	}
 	
-	protected void triggerEvent(BrowserEvent event, Consumer<BrowserListener> consumer) {
-		browser.triggerEvent(event, consumer);
+	protected void triggerEvent(BrowserEvent event) {
+		browser.triggerEvent(event);
 	}
 	
 }

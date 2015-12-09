@@ -12,6 +12,9 @@ import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
 import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterPageInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforePageInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnPageInitExceptionEvent;
 
 /**
  * Basic page which supports elements and modules auto loading 
@@ -121,6 +124,7 @@ abstract public class Page implements BrowserContext {
 
 	final public Page init() {
 		try {
+			triggerEvent(constructEvent(BeforePageInitEvent.class).with(this));
 			beforeInit();
 			beforeInitElements();
 			initElements();
@@ -131,9 +135,10 @@ abstract public class Page implements BrowserContext {
 			setPage(this);
 			afterInit();
 		} catch (Exception e) {
+			triggerEvent(constructEvent(OnPageInitExceptionEvent.class).with(this, e));
 			throw e;
 		}
-		
+		triggerEvent(constructEvent(AfterPageInitEvent.class).with(this));
 		return this;
 	}
 	

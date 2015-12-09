@@ -1,22 +1,23 @@
 package com.etnetera.qa.seleniumbrowser.browser;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 
+import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 import com.etnetera.qa.seleniumbrowser.listener.EventConstructException;
 import com.etnetera.qa.seleniumbrowser.listener.EventFiringBrowserBridgeListener;
-import com.etnetera.qa.seleniumbrowser.listener.event.BrowserEvent;
-import com.etnetera.qa.seleniumbrowser.listener.event.ReportEvent;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.page.PageManager;
 
@@ -40,11 +41,11 @@ public class Browser implements BrowserContext {
 	
 	protected String label;
 	
-	protected File outputDir;
+	protected boolean reported;
 	
-	protected List<BrowserListener> listeners = new ArrayList<>();
+	protected File reportDir;
 	
-	protected long eventCounter;
+	protected List<BrowserListener> listeners;
 
 	public Browser(BrowserConfiguration configuration) {
 		this.configuration = configuration;
@@ -53,8 +54,30 @@ public class Browser implements BrowserContext {
 		this.urlVerification = configuration.isUrlVerification();
 		this.waitTimeout = configuration.getWaitTimeout();
 		this.waitRetryInterval = configuration.getWaitRetryInterval();
-		this.outputDir = configuration.getOutputDir();
+		this.reported = configuration.isReported();
+		this.reportDir = configuration.getReportDir();
+		if (reported) {
+			if (reportDir == null) {
+				throw new BrowserException("Report directory is null");
+			}
+			if (!reportDir.exists()) {
+				try {
+					Files.createDirectories(reportDir.toPath());
+				} catch (IOException e) {
+					throw new BrowserException("Report directory does not exists and can not be created " + reportDir);
+				}
+			} else if (!reportDir.isDirectory()) {
+				throw new BrowserException("Report directory is not directory " + reportDir);
+			} else if (!reportDir.canWrite()) {
+				throw new BrowserException("Report directory is not writable " + reportDir);
+			}
+		}
+		
 		this.listeners = configuration.getListeners();
+		if (listeners == null) {
+			listeners = new ArrayList<>();
+		}
+		listeners.forEach(l -> l.init());
 		
 		EventFiringWebDriver driver = new EventFiringWebDriver(configuration.getDriver());
 		driver.register(new EventFiringBrowserBridgeListener(this));
@@ -74,19 +97,13 @@ public class Browser implements BrowserContext {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends BrowserConfiguration> T getConfiguration(Class<T> configuration) {
+	public <T> T getConfiguration(Class<T> configuration) {
 		return (T) getConfiguration();
 	}
 
 	public WebDriver getDriver() {
 		return driver;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public <T extends WebDriver> T getDriver(Class<T> driver) {
-		return (T) getDriver();
-	}
-
 	public String getBaseUrl() {
 		return baseUrl;
 	}
@@ -129,6 +146,14 @@ public class Browser implements BrowserContext {
 		this.waitRetryInterval = waitRetryInterval;
 	}
 	
+	public boolean isReported() {
+		return reported;
+	}
+
+	public void setReported(boolean reported) {
+		this.reported = reported;
+	}
+
 	@Override
 	public BrowserContext getContext() {
 		return this;
@@ -228,36 +253,61 @@ public class Browser implements BrowserContext {
 	public void useEnclosingMethodLabel() {
 		final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
 	    final String s = e.getClassName();
-	    label = s.substring(s.lastIndexOf('.') + 1, s.length()) + "." + e.getMethodName();
-	}
-	
-	@Override
-	public void report(String label) {
-		report(this, label);
+	    label = s.substring(s.lastIndexOf('.') + 1, s.length()) + "-" + e.getMethodName();
 	}
 	
 	public void report(BrowserContext context, String label) {
-		ReportEvent event = constructEvent(ReportEvent.class, context);
-		event.setLabel(label);
-		triggerEvent(event, l -> l.report(event));
+		triggerEvent(constructEvent(OnReportEvent.class, context).with(label));
 	}
 	
+	@SuppressWarnings("unchecked")
 	public synchronized <T extends BrowserEvent> T constructEvent(Class<T> eventCls, BrowserContext context) {
 		try {
-			Constructor<T> ctor = eventCls.getConstructor();
-			T event = (T) ctor.newInstance();
-			event.setContext(context);
-			event.setTime(new Date());
-			event.setNumber(++eventCounter);
-			return event;
+			return (T) eventCls.getConstructor().newInstance().with(context, LocalDateTime.now());
 		} catch (Exception e) {
 			throw new EventConstructException("Unable to construct event " + eventCls.getName(), e);
 		}
 	}
 	
-	public void triggerEvent(BrowserEvent event, Consumer<BrowserListener> consumer) {
+	@Override
+	public void triggerEvent(BrowserEvent event) {
 		event.init();
-		listeners.forEach(l -> consumer.accept(l));
+		listeners.forEach(l -> event.notify(l));
+	}
+	
+	public void saveFile(String content, String name, String extension) {
+		saveFile(content.getBytes(), name, extension);
+	}
+	
+	public void saveFile(byte[] bytes, String name, String extension) {
+		if (!reported) return;
+		try {
+			Files.write(getUniqueFilePath(name, extension), bytes);
+		} catch (IOException e) {
+			throw new BrowserException("Unable to save file " + name, e);
+		}
+	}
+	
+	public void saveFile(File file, String name, String extension) {
+		if (!reported) return;
+		try {
+			Files.copy(file.toPath(), getUniqueFilePath(name, extension));
+		} catch (IOException e) {
+			throw new BrowserException("Unable to save file " + name, e);
+		}
+	}
+	
+	public Path getFilePath(String name, String extension) {
+		return reportDir.toPath().resolve(BrowserUtils.join(".", name, extension));
+	}
+	
+	public Path getUniqueFilePath(String name, String extension) {
+		Path path = getFilePath(name, extension);
+		int suffix = 0;
+		while (path.toFile().exists()) {
+			path = getFilePath(BrowserUtils.join("-", name, ++suffix), extension);
+		}
+		return path;
 	}
 	
 }

@@ -1,8 +1,8 @@
 package com.etnetera.qa.seleniumbrowser.module;
 
-import org.openqa.selenium.WebDriverException;
+import com.etnetera.qa.seleniumbrowser.browser.BrowserException;
 
-public class ModuleConstructException extends WebDriverException {
+public class ModuleConstructException extends BrowserException {
 
 	private static final long serialVersionUID = -456856708024115000L;
 

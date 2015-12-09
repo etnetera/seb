@@ -16,6 +16,9 @@ import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
 import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
 import com.etnetera.qa.seleniumbrowser.element.ElementManager;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterModuleInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeModuleInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnModuleInitExceptionEvent;
 
 /**
  * Basic module which supports elements and modules auto loading.
@@ -43,6 +46,7 @@ abstract public class Module implements BrowserContext, WebElement {
 		if (isNotPresent())
 			return this;
 		try {
+			triggerEvent(constructEvent(BeforeModuleInitEvent.class).with(this));
 			beforeInit();
 			beforeInitElements();
 			initElements();
@@ -52,8 +56,10 @@ abstract public class Module implements BrowserContext, WebElement {
 			afterVerify();
 			afterInit();
 		} catch (Exception e) {
-			
+			triggerEvent(constructEvent(OnModuleInitExceptionEvent.class).with(this, e));
+			throw e;
 		}
+		triggerEvent(constructEvent(AfterModuleInitEvent.class).with(this));
 		return this;
 	}
 	

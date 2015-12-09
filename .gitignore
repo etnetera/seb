@@ -60,3 +60,7 @@ target
 .project
 .settings/
 classes/
+
+# Selenium browser directories #
+################################
+selenium-browser-report/*

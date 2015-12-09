@@ -1,8 +1,8 @@
 package com.etnetera.qa.seleniumbrowser.context;
 
-import org.openqa.selenium.WebDriverException;
+import com.etnetera.qa.seleniumbrowser.browser.BrowserException;
 
-public class VerificationException extends WebDriverException {
+public class VerificationException extends BrowserException {
 
 	private static final long serialVersionUID = 911749792790433730L;
 

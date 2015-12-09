@@ -9,6 +9,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
+import com.etnetera.qa.seleniumbrowser.listener.impl.PageSourceListener;
+import com.etnetera.qa.seleniumbrowser.listener.impl.ScreenshotListener;
 
 abstract public class BrowserConfiguration {
 
@@ -22,7 +24,8 @@ abstract public class BrowserConfiguration {
 	protected String waitTimeoutProperty = "waitTimeout";
 	protected String waitRetryIntervalProperty = "waitRetryInterval";
 	
-	protected String outputDirProperty = "outputDir";
+	protected String reportedProperty = "reported";
+	protected String reportDirProperty = "reportDir";
 	
 	public WebDriver getDriver() {
 		// TODO - allow set from system property with capabilities
@@ -49,9 +52,13 @@ abstract public class BrowserConfiguration {
 		return getProperty(waitRetryIntervalProperty, getWaitRetryIntervalDef());
 	}
 	
-	protected File getOutputDir() {
-		String outputDir = getProperty(outputDirProperty, String.class);
-		return outputDir == null ? getOutputDirDef() : new File(outputDir);
+	public boolean isReported() {
+		return getProperty(reportedProperty, isReportedDef());
+	}
+	
+	protected File getReportDir() {
+		String outputDir = getProperty(reportDirProperty, String.class);
+		return outputDir == null ? getReportDirDef() : new File(outputDir);
 	}
 	
 	protected List<BrowserListener> getListeners() {
@@ -81,12 +88,18 @@ abstract public class BrowserConfiguration {
 		return 0.1;
 	}
 	
-	protected File getOutputDirDef() {
-		return new File("selenium-browser-output");
+	protected boolean isReportedDef() {
+		return true;
+	}
+	
+	protected File getReportDirDef() {
+		return new File("selenium-browser-report");
 	}
 	
 	protected List<BrowserListener> getListenersDef() {
 		List<BrowserListener> listeners = new ArrayList<>();
+		listeners.add(new PageSourceListener());
+		listeners.add(new ScreenshotListener());
 		return listeners;
 	}
 	
