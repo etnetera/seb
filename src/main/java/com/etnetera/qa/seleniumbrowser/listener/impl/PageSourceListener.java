@@ -2,6 +2,7 @@ package com.etnetera.qa.seleniumbrowser.listener.impl;
 
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforePageInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 
 public class PageSourceListener extends BrowserListener {
@@ -11,6 +12,11 @@ public class PageSourceListener extends BrowserListener {
 		savePageSource(event);
 	}
 	
+	@Override
+	public void onReport(OnReportEvent event) {
+		savePageSource(event);
+	}
+
 	protected void savePageSource(BrowserEvent event) {
 		if (event.getBrowser().isReported())
 			saveFile(event, event.getDriver().getPageSource(), null, "html");

@@ -277,7 +277,7 @@ public class BrowserListener {
 	}
 	
 	protected String getListenerFileName(String name) {
-		return BrowserUtils.join("-", label, name);
+		return BrowserUtils.join(Browser.LABEL_DELIMITER, label, name);
 	}
 	
 	protected String generateLabel() {

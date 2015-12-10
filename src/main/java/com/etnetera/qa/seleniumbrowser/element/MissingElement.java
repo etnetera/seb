@@ -9,13 +9,12 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
 
 /**
  * Is used when decorated field is not present on page while
- * using PageFactory and field is annotated with OptionalWebElement.
- * 
- * @author zdenek
- * 
+ * using {@link PageFactory} and field is annotated with {@link OptionalElement}.
+ * Every method throws {@link NoSuchElementException}.
  */
 public class MissingElement implements WebElement {
 

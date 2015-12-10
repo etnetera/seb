@@ -8,7 +8,6 @@ public class HomePageTest extends BrowserTest {
 	
 	@Test
 	public void valid() {
-		browser.useEnclosingMethodLabel();
 		browser.goTo(HomePage.class);
 	}
 	

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 
+import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 import com.etnetera.qa.seleniumbrowser.listener.EventConstructException;
@@ -21,7 +25,17 @@ import com.etnetera.qa.seleniumbrowser.listener.EventFiringBrowserBridgeListener
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.page.PageManager;
 
+/**
+ * Wrapper class for {@link WebDriver}. It is configured
+ * using {@link BrowserConfiguration}.
+ * Controls automatic reporting using listeners provided
+ * by configuration.
+ */
 public class Browser implements BrowserContext {
+	
+	public static final String LABEL_DELIMITER = "-";
+	
+	public static final DateTimeFormatter FILE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 	
 	protected BrowserConfiguration configuration;
 	
@@ -47,6 +61,11 @@ public class Browser implements BrowserContext {
 	
 	protected List<BrowserListener> listeners;
 
+	/**
+	 * Constructs a new instance and configures it.
+	 * 
+	 * @param configuration The configuration
+	 */
 	public Browser(BrowserConfiguration configuration) {
 		this.configuration = configuration;
 		this.baseUrl = configuration.getBaseUrl();
@@ -84,46 +103,83 @@ public class Browser implements BrowserContext {
 		this.driver = driver;
 	}
 
+	/**
+	 * Browser label which is mainly used for reporting.
+	 * 
+	 * @return Browser label
+	 */
 	public String getLabel() {
 		return label;
 	}
 
+	/**
+	 * Modify browser label
+	 * 
+	 * @param label Browser label
+	 */
 	public void setLabel(String label) {
 		this.label = label;
 	}
-
-	public BrowserConfiguration getConfiguration() {
-		return configuration;
+	
+	/**
+	 * Modify browser label joining given labels.
+	 * 
+	 * @param label Browser label
+	 */
+	public void setLabel(String... labels) {
+		this.label = BrowserUtils.join(LABEL_DELIMITER, (Object[]) labels);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T> T getConfiguration(Class<T> configuration) {
-		return (T) getConfiguration();
-	}
-
-	public WebDriver getDriver() {
-		return driver;
-	}
+	/**
+	 * Base URL for pages.
+	 * 
+	 * @return The base URL
+	 */
 	public String getBaseUrl() {
 		return baseUrl;
 	}
 
+	/**
+	 * Updates base URL
+	 * 
+	 * @param baseUrl New base URL
+	 */
 	public void setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 
+	/**
+	 * Base URL regex for pages.
+	 * 
+	 * @return The base URL regex
+	 */
 	public String getBaseUrlRegex() {
 		return baseUrlRegex;
 	}
 
+	/**
+	 * Updates base URL regex
+	 * 
+	 * @param baseUrlRegex New base URL regex
+	 */
 	public void setBaseUrlRegex(String baseUrlRegex) {
 		this.baseUrlRegex = baseUrlRegex;
 	}
 
+	/**
+	 * Is URL on pages verified?
+	 * 
+	 * @return Verification status
+	 */
 	public boolean isUrlVerification() {
 		return urlVerification;
 	}
 
+	/**
+	 * Toggles pages URL verification.
+	 * 
+	 * @param urlVerification The new status
+	 */
 	public void setUrlVerification(boolean urlVerification) {
 		this.urlVerification = urlVerification;
 	}
@@ -133,6 +189,11 @@ public class Browser implements BrowserContext {
 		return waitTimeout;
 	}
 
+	/**
+	 * Sets default wait timeout.
+	 * 
+	 * @param waitTimeout The default wait timeout.
+	 */
 	public void setWaitTimeout(double waitTimeout) {
 		this.waitTimeout = waitTimeout;
 	}
@@ -142,16 +203,76 @@ public class Browser implements BrowserContext {
 		return waitRetryInterval;
 	}
 
+	/**
+	 * Sets default wait retry interval.
+	 * 
+	 * @param waitRetryInterval The default wait retry interval.
+	 */
 	public void setWaitRetryInterval(double waitRetryInterval) {
 		this.waitRetryInterval = waitRetryInterval;
 	}
 	
+	/**
+	 * Is storing files using browser enabled.
+	 * 
+	 * @return Reporting status.
+	 */
 	public boolean isReported() {
 		return reported;
 	}
 
+	/**
+	 * Toggles storing files using browser.
+	 * 
+	 * @param reported
+	 */
 	public void setReported(boolean reported) {
 		this.reported = reported;
+	}
+	
+	/**
+	 * Quits browser and wrapped {@link WebDriver}.
+	 */
+	public void quit() {
+		triggerEvent(constructEvent(BeforeBrowserQuitEvent.class));
+		driver.quit();
+		triggerEvent(constructEvent(AfterBrowserQuitEvent.class));
+	}
+	
+	/**
+	 * Sets label using enclosing method class name and method name.
+	 */
+	public void useEnclosingMethodLabel() {
+		final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
+	    final String s = e.getClassName();
+	    setLabel(s.substring(s.lastIndexOf('.') + 1, s.length()), e.getMethodName());
+	}
+	
+	/**
+	 * Triggers {@link OnReportEvent} with given context and label.
+	 * 
+	 * @param context The report context
+	 * @param label The report label
+	 */
+	public void report(BrowserContext context, String label) {
+		triggerEvent(constructEvent(OnReportEvent.class, context).with(label));
+	}
+	
+	/**
+	 * Constructs a new instance of {@link BrowserEvent} subclass
+	 * with given context and local time. 
+	 * 
+	 * @param eventCls The event class to construct
+	 * @param context The context to use
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public synchronized <T extends BrowserEvent> T constructEvent(Class<T> eventCls, BrowserContext context) {
+		try {
+			return (T) eventCls.getConstructor().newInstance().with(context, LocalDateTime.now());
+		} catch (Exception e) {
+			throw new EventConstructException("Unable to construct event " + eventCls.getName(), e);
+		}
 	}
 
 	@Override
@@ -163,6 +284,28 @@ public class Browser implements BrowserContext {
 	public Browser getBrowser() {
 		return this;
 	}
+	
+	@Override
+	public BrowserConfiguration getConfiguration() {
+		return configuration;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> T getConfiguration(Class<T> configuration) {
+		return (T) this.configuration;
+	}
+
+	@Override
+	public WebDriver getDriver() {
+		return driver;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> T getDriver(Class<T> driver) {
+		return (T) this.driver;
+	}
 
 	@Override
 	public Page getPage() {
@@ -171,13 +314,7 @@ public class Browser implements BrowserContext {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Object> T getPage(Class<T> page) {
-		return (T) this.page;
-	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends Object> T getPage(T page) {
+	public <T> T getPage(Class<T> page) {
 		return (T) this.page;
 	}
 
@@ -242,31 +379,8 @@ public class Browser implements BrowserContext {
 	}
 	
 	@Override
-	public void getUrl(String url) {
+	public void goToUrl(String url) {
 		driver.get(url);
-	}
-
-	public void quit() {
-		driver.quit();
-	}
-	
-	public void useEnclosingMethodLabel() {
-		final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
-	    final String s = e.getClassName();
-	    label = s.substring(s.lastIndexOf('.') + 1, s.length()) + "-" + e.getMethodName();
-	}
-	
-	public void report(BrowserContext context, String label) {
-		triggerEvent(constructEvent(OnReportEvent.class, context).with(label));
-	}
-	
-	@SuppressWarnings("unchecked")
-	public synchronized <T extends BrowserEvent> T constructEvent(Class<T> eventCls, BrowserContext context) {
-		try {
-			return (T) eventCls.getConstructor().newInstance().with(context, LocalDateTime.now());
-		} catch (Exception e) {
-			throw new EventConstructException("Unable to construct event " + eventCls.getName(), e);
-		}
 	}
 	
 	@Override
@@ -275,10 +389,12 @@ public class Browser implements BrowserContext {
 		listeners.forEach(l -> event.notify(l));
 	}
 	
+	@Override
 	public void saveFile(String content, String name, String extension) {
 		saveFile(content.getBytes(), name, extension);
 	}
 	
+	@Override
 	public void saveFile(byte[] bytes, String name, String extension) {
 		if (!reported) return;
 		try {
@@ -288,6 +404,7 @@ public class Browser implements BrowserContext {
 		}
 	}
 	
+	@Override
 	public void saveFile(File file, String name, String extension) {
 		if (!reported) return;
 		try {
@@ -297,15 +414,15 @@ public class Browser implements BrowserContext {
 		}
 	}
 	
-	public Path getFilePath(String name, String extension) {
+	protected Path getFilePath(String name, String extension) {
 		return reportDir.toPath().resolve(BrowserUtils.join(".", name, extension));
 	}
 	
-	public Path getUniqueFilePath(String name, String extension) {
+	protected Path getUniqueFilePath(String name, String extension) {
 		Path path = getFilePath(name, extension);
 		int suffix = 0;
 		while (path.toFile().exists()) {
-			path = getFilePath(BrowserUtils.join("-", name, ++suffix), extension);
+			path = getFilePath(BrowserUtils.join(LABEL_DELIMITER, name, ++suffix), extension);
 		}
 		return path;
 	}

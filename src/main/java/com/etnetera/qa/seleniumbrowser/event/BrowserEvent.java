@@ -2,7 +2,6 @@ package com.etnetera.qa.seleniumbrowser.event;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.openqa.selenium.WebDriver;
 
@@ -12,8 +11,6 @@ import com.etnetera.qa.seleniumbrowser.browser.BrowserUtils;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 
 abstract public class BrowserEvent {
-
-	public static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 	
 	protected BrowserContext context;
 	
@@ -39,7 +36,7 @@ abstract public class BrowserEvent {
 	public void init() {
 		browserLabel = context.getBrowser().getLabel();
 		label = generateLabel();
-		filePrefix = BrowserUtils.join("-", time.format(dateFormatter), browserLabel, label);  
+		filePrefix = BrowserUtils.join(Browser.LABEL_DELIMITER, time.format(Browser.FILE_DATE_FORMATTER), browserLabel, context.getClass().getSimpleName(), label);  
 	}
 	
 	public BrowserContext getContext() {
@@ -79,7 +76,7 @@ abstract public class BrowserEvent {
 	}
 	
 	protected String getEventFileName(String name) {
-		return BrowserUtils.join("-", filePrefix, name);
+		return BrowserUtils.join(Browser.LABEL_DELIMITER, filePrefix, name);
 	}
 	
 	protected String generateLabel() {

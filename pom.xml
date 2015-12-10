@@ -4,7 +4,7 @@
 
 	<groupId>com.etnetera.qa</groupId>
 	<artifactId>seleniumbrowser</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 	<packaging>jar</packaging>
 
 	<name>SeleniumBrowser</name>
@@ -65,7 +65,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!-- plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.10.3</version>
 				<executions>
@@ -75,7 +75,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin -->
 		</plugins>
 	</build>
 </project>

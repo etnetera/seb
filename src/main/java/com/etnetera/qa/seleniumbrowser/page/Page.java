@@ -118,7 +118,7 @@ abstract public class Page implements BrowserContext {
 		String url = getUrl();
 		if (url == null)
 			throw new PageException("It is not possible to go to page without url " + this.getClass().getName());
-		getUrl(url);
+		goToUrl(url);
 		return init();
 	}
 

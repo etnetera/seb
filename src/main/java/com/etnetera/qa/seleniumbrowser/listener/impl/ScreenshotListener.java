@@ -5,12 +5,18 @@ import org.openqa.selenium.TakesScreenshot;
 
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforePageInitEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 
 public class ScreenshotListener extends BrowserListener {
 
 	@Override
 	public void beforePageInit(BeforePageInitEvent event) {
+		takeScreenshot(event);
+	}
+	
+	@Override
+	public void onReport(OnReportEvent event) {
 		takeScreenshot(event);
 	}
 

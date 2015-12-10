@@ -5,13 +5,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.support.PageFactory;
+
 /**
- * Should be used for element which are not required
- * when using PageFactory. If they are not present MissingWebElement
- * is instantiated instead.
- * 
- * @author zdenek
- *
+ * Identifies element which is not required to be present when using {@link PageFactory}. 
+ * If they are not present {@link MissingElement} is instantiated instead 
+ * of {@link NoSuchElementException} being thrown.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

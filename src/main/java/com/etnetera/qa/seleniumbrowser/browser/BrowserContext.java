@@ -8,38 +8,113 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Sleeper;
 
+import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.element.ElementManager;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 
 public interface BrowserContext extends SearchContext {
 
+	/**
+	 * Returns parent {@link BrowserContext} instance.
+	 * 
+	 * @return The parent browser context.
+	 */
 	public BrowserContext getContext();
 	
+	/**
+	 * Returns parent {@link BrowserContext} instance casted to specific type.
+	 * 
+	 * @return The parent browser context.
+	 */
+	@SuppressWarnings("unchecked")
+	public default <T> T getContext(Class<T> context) {
+		return (T) getContext();
+	}
+	
+	/**
+	 * Returns {@link Browser} instance.
+	 * 
+	 * @return The browser
+	 */
 	public Browser getBrowser();
 	
+	/**
+	 * Returns {@link Browser} instance casted to specific type.
+	 * 
+	 * @return The browser
+	 */
 	@SuppressWarnings("unchecked")
 	public default <T> T getBrowser(Class<T> browser) {
 		return (T) getBrowser();
 	}
 	
+	/**
+	 * Returns {@link BrowserConfiguration} instance.
+	 * 
+	 * @return The browser configuration
+	 */
+	public default BrowserConfiguration getConfiguration() {
+		return getBrowser().getConfiguration();
+	}
+	
+	/**
+	 * Returns {@link BrowserConfiguration} instance casted to specific type.
+	 * 
+	 * @return The browser configuration
+	 */
+	public default <T> T getConfiguration(Class<T> configuration) {
+		return getBrowser().getConfiguration(configuration);
+	}
+	
+	/**
+	 * Returns wrapped {@link WebDriver} instance.
+	 * 
+	 * @return The driver
+	 */
 	public default WebDriver getDriver() {
 		return getBrowser().getDriver();
 	}
 	
-	@SuppressWarnings("unchecked")
+	/**
+	 * Returns wrapped {@link WebDriver} instance casted to specific type.
+	 * 
+	 * @return The driver
+	 */
 	public default <T> T getDriver(Class<T> driver) {
-		return (T) getDriver();
+		return getBrowser().getDriver(driver);
 	}
 	
-	public default void getUrl(String url) {
-		getBrowser().getUrl(url);
+	public default Page getPage() {
+		return getBrowser().getPage();
 	}
 	
+	public default <T> T getPage(Class<T> page) {
+		return getBrowser().getPage(page);
+	}
+
+	public default void setPage(Page page) {
+		getBrowser().setPage(page);
+	}
+	
+	public default void goToUrl(String url) {
+		getBrowser().goToUrl(url);
+	}
+	
+	/**
+	 * Returns default wait timeout.
+	 * 
+	 * @return The default wait timeout.
+	 */
 	public default double getWaitTimeout() {
 		return getBrowser().getWaitTimeout();
 	}
 	
+	/**
+	 * Returns default wait retry interval.
+	 * 
+	 * @return The default wait retry interval.
+	 */
 	public default double getWaitRetryInterval() {
 		return getBrowser().getWaitRetryInterval();
 	}
@@ -58,22 +133,6 @@ public interface BrowserContext extends SearchContext {
 
 	public default BrowserContextWait waiting() {
 		return new BrowserContextWait(this);
-	}
-	
-	public default Page getPage() {
-		return getBrowser().getPage();
-	}
-	
-	public default <T extends Object> T getPage(Class<T> page) {
-		return getBrowser().getPage(page);
-	}
-	
-	public default <T extends Object> T getPage(T page) {
-		return getBrowser().getPage(page);
-	}
-
-	public default void setPage(Page page) {
-		getBrowser().setPage(page);
 	}
 
 	/**
