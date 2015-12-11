@@ -31,6 +31,10 @@ abstract public class Page implements BrowserContext {
 	protected String baseUrl;
 
 	protected String baseUrlRegex;
+	
+	protected String url;
+
+	protected String urlRegex;
 
 	protected Boolean urlVerification;
 	
@@ -55,6 +59,10 @@ abstract public class Page implements BrowserContext {
 				baseUrlRegex = config.baseUrlRegex()[0];
 			if (config.urlVerification().length > 0)
 				urlVerification = config.urlVerification()[0];
+			if (config.url().length > 0)
+				url = config.url()[0];
+			if (config.urlRegex().length > 0)
+				urlRegex = config.urlRegex()[0];
 			if (config.waitTimeout().length > 0)
 				waitTimeout = config.waitTimeout()[0];
 			if (config.waitRetryInterval().length > 0)
@@ -100,11 +108,15 @@ abstract public class Page implements BrowserContext {
 	}
 
 	public String getUrl() {
+		if (url != null)
+			return url;
 		String uri = getUri();
 		return uri == null ? null : (getBaseUrl() + uri);
 	}
 
 	public String getUrlRegex() {
+		if (urlRegex != null)
+			return urlRegex;
 		String baseUrlRegex = getBaseUrlRegex();
 		if (baseUrlRegex == null)
 			return null;

@@ -24,6 +24,10 @@ public @interface PageConfig {
 	
 	public String[] baseUrlRegex() default {};
 	
+	public String[] url() default {};
+	
+	public String[] urlRegex() default {};
+	
 	public boolean[] urlVerification() default {};
 	
 	public double[] waitTimeout() default {};
