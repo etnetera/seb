@@ -18,7 +18,7 @@ public class HomePageTest2 {
 	public void before() {
 		browser = new Browser(
 				new ChainedBrowserConfig()
-						.addConfiguration(new PropertiesBrowserConfig().addProperties(System.getProperties())
+						.addConfiguration(new PropertiesBrowserConfig().addSystemProperties()
 								.addProperties(
 										"com.etnetera.qa.seleniumbrowser.test.selenium/customProperties.properties")
 						.addDefaultProperties()).addConfiguration(new DefaultBrowserConfig()));

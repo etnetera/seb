@@ -72,7 +72,7 @@ public class Browser implements BrowserContext {
 	 */
 	public Browser() {
 		this(new ChainedBrowserConfiguration().addConfiguration(
-				new PropertiesBrowserConfiguration().addProperties(System.getProperties()).addDefaultProperties())
+				new PropertiesBrowserConfiguration().addSystemProperties().addDefaultProperties())
 				.addConfiguration(new DefaultBrowserConfiguration()));
 	}
 

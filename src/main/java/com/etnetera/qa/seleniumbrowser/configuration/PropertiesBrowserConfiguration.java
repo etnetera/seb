@@ -74,6 +74,24 @@ public class PropertiesBrowserConfiguration implements PropertyBrowserConfigurat
 	public PropertiesBrowserConfiguration pushDefaultProperties() {
 		return pushProperties(DEFAULT_PROPERTIES_RESOURCE_NAME);
 	}
+	
+	/**
+	 * Adds {@link System#getProperties()} into actual properties list.
+	 * 
+	 * @return Same instance
+	 */
+	public PropertiesBrowserConfiguration addSystemProperties() {
+		return addProperties(System.getProperties());
+	}
+	
+	/**
+	 * Pushes {@link System#getProperties()} into actual properties list.
+	 * 
+	 * @return Same instance
+	 */
+	public PropertiesBrowserConfiguration pushSystemProperties() {
+		return pushProperties(System.getProperties());
+	}
 
 	/**
 	 * Adds properties into actual properties list.
