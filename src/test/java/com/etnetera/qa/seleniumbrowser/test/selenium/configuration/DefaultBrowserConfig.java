@@ -1,8 +1,15 @@
 package com.etnetera.qa.seleniumbrowser.test.selenium.configuration;
 
-import com.etnetera.qa.seleniumbrowser.configuration.BasicDefaultBrowserConfiguration;
+import java.util.Arrays;
+import java.util.List;
 
-public class DefaultBrowserConfig extends BasicDefaultBrowserConfiguration implements BrowserConfig {
+import com.etnetera.qa.seleniumbrowser.configuration.DefaultBrowserConfiguration;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
+import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
+import com.etnetera.qa.seleniumbrowser.listener.impl.PageSourceListener;
+import com.etnetera.qa.seleniumbrowser.listener.impl.ScreenshotListener;
+
+public class DefaultBrowserConfig extends DefaultBrowserConfiguration implements BrowserConfig {
 
 	@Override
 	public String getBaseUrl() {
@@ -17,6 +24,17 @@ public class DefaultBrowserConfig extends BasicDefaultBrowserConfiguration imple
 	@Override
 	public String getPassword() {
 		return "pass";
+	}
+
+	@Override
+	public Boolean isReported() {
+		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<BrowserListener> getListeners() {
+		return Arrays.asList(new PageSourceListener().disable(OnReportEvent.class), new ScreenshotListener());
 	}
 
 }

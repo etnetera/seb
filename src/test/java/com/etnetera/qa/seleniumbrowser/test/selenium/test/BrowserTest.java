@@ -6,7 +6,6 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
-import com.etnetera.qa.seleniumbrowser.test.selenium.configuration.DefaultBrowserConfig;
 
 abstract public class BrowserTest {
 
@@ -16,7 +15,7 @@ abstract public class BrowserTest {
 	
 	@Before
 	public void before() {
-		browser = new Browser(new DefaultBrowserConfig());
+		browser = new Browser();
 		browser.setLabel(getClass().getSimpleName(), name.getMethodName());
 	}
 	

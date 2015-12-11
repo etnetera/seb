@@ -1,6 +1,8 @@
 package com.etnetera.qa.seleniumbrowser.listener;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -8,6 +10,7 @@ import org.openqa.selenium.WebElement;
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserUtils;
+import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterChangeValueOfEvent;
@@ -22,6 +25,7 @@ import com.etnetera.qa.seleniumbrowser.event.impl.AfterScriptEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeChangeValueOfEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeClickOnEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.BeforeDriverConstructEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeFindByEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeModuleInitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeNavigateBackEvent;
@@ -40,8 +44,69 @@ public class BrowserListener {
 
 	protected String label;
 	
+	protected Set<Class<? extends BrowserEvent>> enabledEvents;
+	
+	protected Set<Class<? extends BrowserEvent>> disabledEvents;
+	
+	/**
+	 * Initialize listener.
+	 * Is called from Browser directly
+	 * and should not be called manually.
+	 */
 	public void init() {
 		label = generateLabel();
+	}
+	
+	public boolean isEnabled(BrowserEvent event) {
+		return isEnabled(event.getClass());
+	}
+	
+	public boolean isEnabled(Class<? extends BrowserEvent> event) {
+		if (enabledEvents != null)
+			return enabledEvents.contains(event);
+		if (disabledEvents != null)
+			return !disabledEvents.contains(event);
+		return true;
+	}
+	
+	/**
+	 * Enables specific events only.
+	 * It overrides all disabled events.
+	 * 
+	 * @param events Events to enable
+	 * @return This instance
+	 */
+	@SuppressWarnings("unchecked")
+	public BrowserListener enable(Class<? extends BrowserEvent>... events) {
+		if (events != null) {
+			disabledEvents = null;
+			if (enabledEvents == null)
+				enabledEvents = new HashSet<>();
+			for (Class<? extends BrowserEvent> event : events) {
+				enabledEvents.add(event);
+			}
+		}
+		return this;
+	}
+	
+	/**
+	 * Disables specific events only.
+	 * It overrides all enabled events.
+	 * 
+	 * @param events Events to enable
+	 * @return This instance
+	 */
+	@SuppressWarnings("unchecked")
+	public BrowserListener disable(Class<? extends BrowserEvent>... events) {
+		if (events != null) {
+			enabledEvents = null;
+			if (disabledEvents == null)
+				disabledEvents = new HashSet<>();
+			for (Class<? extends BrowserEvent> event : events) {
+				disabledEvents.add(event);
+			}
+		}
+		return this;
 	}
 	
 	/**
@@ -50,6 +115,13 @@ public class BrowserListener {
 	 * @param event
 	 */
 	public void onReport(OnReportEvent event) {}
+	
+	/**
+	 * Called before {@link BrowserConfiguration#getDriver(org.openqa.selenium.remote.DesiredCapabilities)}.
+	 *
+	 * @param event
+	 */
+	public void beforeDriverConstruct(BeforeDriverConstructEvent event) {}
 	
 	/**
 	 * Called before {@link Page#init()}.

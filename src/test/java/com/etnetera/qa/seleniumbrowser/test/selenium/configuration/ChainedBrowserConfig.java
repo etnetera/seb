@@ -1,16 +1,8 @@
 package com.etnetera.qa.seleniumbrowser.test.selenium.configuration;
 
-import com.etnetera.qa.seleniumbrowser.configuration.BasicChainedBrowserConfiguration;
+import com.etnetera.qa.seleniumbrowser.configuration.ChainedBrowserConfiguration;
 
-public class ChainedBrowserConfig extends BasicChainedBrowserConfiguration implements BrowserConfig {
-
-	public ChainedBrowserConfig() {
-		super();
-	}
-
-	public ChainedBrowserConfig(Object... configurations) {
-		super(configurations);
-	}
+public class ChainedBrowserConfig extends ChainedBrowserConfiguration implements BrowserConfig {
 
 	@Override
 	public String getUsername() {

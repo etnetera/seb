@@ -1,57 +1,70 @@
 package com.etnetera.qa.seleniumbrowser.configuration;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
-import com.etnetera.qa.seleniumbrowser.listener.impl.PageSourceListener;
-import com.etnetera.qa.seleniumbrowser.listener.impl.ScreenshotListener;
 
 /**
  * Basic implementation of {@link BrowserConfiguration}
- * with values directly defined.
+ * with directly defined values.
  */
-abstract public class BasicDefaultBrowserConfiguration implements BrowserConfiguration {
+public class DefaultBrowserConfiguration implements BrowserConfiguration {
 	
+	@Override
+	public String getBaseUrl() {
+		return null;
+	}
+
+	@Override
 	public String getBaseUrlRegex() {
 		String baseUrl = getBaseUrl();
 		return baseUrl == null ? null : Pattern.quote(baseUrl);
 	}
 	
+	@Override
 	public Boolean isUrlVerification() {
 		return true;
 	}
 	
-	public WebDriver getDriver() {
-		return new FirefoxDriver();
+	@Override
+	public WebDriver getDriver(DesiredCapabilities caps) {
+		return new FirefoxDriver(caps);
 	}
 	
+	@Override
+	public DesiredCapabilities getCapabilities() {
+		return null;
+	}
+	
+	@Override
 	public Double getWaitTimeout() {
 		return 5d;
 	}
 	
+	@Override
 	public Double getWaitRetryInterval() {
 		return 0.1;
 	}
 	
+	@Override
 	public Boolean isReported() {
-		return true;
+		return false;
 	}
 	
+	@Override
 	public File getReportDir() {
 		return new File("selenium-browser-report");
 	}
 	
+	@Override
 	public List<BrowserListener> getListeners() {
-		List<BrowserListener> listeners = new ArrayList<>();
-		listeners.add(new PageSourceListener());
-		listeners.add(new ScreenshotListener());
-		return listeners;
+		return null;
 	}
 	
 }

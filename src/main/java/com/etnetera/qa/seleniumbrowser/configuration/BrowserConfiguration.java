@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
@@ -17,7 +18,7 @@ import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
  * It is better to use non primitive values as it
  * can be used later in {@link ChainedBrowserConfiguration}
  * and set its default primitive value in default
- * configuration like in {@link BasicDefaultBrowserConfiguration};  
+ * configuration like in {@link DefaultBrowserConfiguration};  
  */
 public interface BrowserConfiguration {
 	
@@ -45,9 +46,17 @@ public interface BrowserConfiguration {
 	/**
 	 * Returns {@link WebDriver} instance.
 	 * 
+	 * @param caps The non null desired capabilities.
 	 * @return The driver
 	 */
-	public WebDriver getDriver();
+	public WebDriver getDriver(DesiredCapabilities caps);
+	
+	/**
+	 * Returns optional {@link DesiredCapabilities}.
+	 * 
+	 * @return The desired capabilities.
+	 */
+	public DesiredCapabilities getCapabilities();
 	
 	/**
 	 * Returns default wait timeout.

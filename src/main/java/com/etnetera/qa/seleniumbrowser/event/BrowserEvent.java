@@ -30,6 +30,12 @@ abstract public class BrowserEvent {
 
 	abstract public void notify(BrowserListener listener);
 	
+	public void notifyEnabled(BrowserListener listener) {
+		if (listener.isEnabled(this)) {
+			notify(listener);
+		}
+	}
+	
 	/**
 	 * Is called before event is triggered.
 	 */

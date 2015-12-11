@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Sleeper;
 
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
+import com.etnetera.qa.seleniumbrowser.configuration.PropertyBrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.element.ElementManager;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.page.Page;
@@ -137,6 +138,7 @@ public interface BrowserContext extends SearchContext {
 
 	/**
 	 * Check if actual page is a given class.
+	 * It performs no other redirection or verification.
 	 * 
 	 * @param page
 	 * @return
@@ -147,6 +149,7 @@ public interface BrowserContext extends SearchContext {
 	
 	/**
 	 * Check if actual page is a given object.
+	 * It performs no other redirection or verification.
 	 * 
 	 * @param page
 	 * @return
@@ -156,23 +159,44 @@ public interface BrowserContext extends SearchContext {
 	}
 	
 	/**
-	 * Check if browser is at given page class.
+	 * Asserts that actual page is a given class.
+	 * It performs no other redirection or verification.
 	 * 
 	 * @param page
 	 * @return
 	 */
-	public default boolean verifyAt(Class<? extends Page> page) {
-		return getBrowser().verifyAt(page);
+	public default void assertAt(Class<?> page) {
+		getBrowser().assertAt(page);
 	}
 	
 	/**
-	 * Check if browser is at given page.
+	 * Asserts that actual page is a given object.
+	 * It performs no other redirection or verification.
 	 * 
 	 * @param page
-	 * @return
 	 */
-	public default boolean verifyAt(Page page) {
-		return getBrowser().verifyAt(page);
+	public default void assertAt(Object page) {
+		getBrowser().assertAt(page);
+	}
+	
+	public default <T extends Page> T goToSafely(Class<T> page) {
+		return getBrowser().goToSafely(page);
+	}
+	
+	public default <T extends Page> T goToSafely(T page) {
+		return getBrowser().goToSafely(page);
+	}
+	
+	public default <T extends Page> T initPageSafely(Class<T> page) {
+		return getBrowser().initPageSafely(page);
+	}
+	
+	public default <T extends Page> T initPageSafely(T page) {
+		return getBrowser().initPageSafely(page);
+	}
+	
+	public default Page initOnePageSafely(Object ... pages) {
+		return getBrowser().initOnePageSafely(pages);
 	}
 	
 	public default <T extends Page> T goTo(Class<T> page) {
@@ -191,8 +215,8 @@ public interface BrowserContext extends SearchContext {
 		return getBrowser().initPage(page);
 	}
 	
-	public default Page initOnePage(Object firstPage, Object ... anotherPages) {
-		return getBrowser().initOnePage(firstPage, anotherPages);
+	public default Page initOnePage(Object ... pages) {
+		return getBrowser().initOnePage(pages);
 	}
 	
 	public default boolean isPresent(WebElement element) {
@@ -225,6 +249,67 @@ public interface BrowserContext extends SearchContext {
 	
 	public default void saveFile(File file, String name, String extension) {
 		getBrowser().saveFile(file, name, extension);
+	}
+	
+	/**
+	 * Returns property configuration or null if configuration
+	 * does not implement {@link PropertyBrowserConfiguration}.
+	 * 
+	 * @return The property configuration or null.
+	 */
+	public default PropertyBrowserConfiguration getPropertyConfiguration() {
+		BrowserConfiguration conf = getConfiguration();
+		return (conf instanceof PropertyBrowserConfiguration) ? (PropertyBrowserConfiguration) conf : null;
+	}
+	
+	/**
+	 * Returns property as {@link String}.
+	 * 
+	 * @param key The property key.
+	 * @return The property value or null.
+	 */
+	public default String getProperty(String key) {
+		PropertyBrowserConfiguration conf = getPropertyConfiguration();
+		return conf == null ? null : conf.getProperty(key);
+	}
+	
+	/**
+	 * Returns property as {@link String}.
+	 * If not found default value is returned.
+	 * 
+	 * @param key The property key.
+	 * @param def The default value to return.
+	 * @return The property value or default value.
+	 */
+	public default String getProperty(String key, String def) {
+		PropertyBrowserConfiguration conf = getPropertyConfiguration();
+		return conf == null ? def : conf.getProperty(key, def);
+	}
+	
+	/**
+	 * Returns property casted to given type.
+	 * 
+	 * @param key The property key.
+	 * @param cls The type for returned value.
+	 * @return The property value or null.
+	 */
+	public default <T extends Object> T getProperty(String key, Class<T> cls) {
+		PropertyBrowserConfiguration conf = getPropertyConfiguration();
+		return conf == null ? null : conf.getProperty(key, cls);
+	}
+	
+	/**
+	 * Returns property casted to given type.
+	 * If not found default value is returned.
+	 * 
+	 * @param key The property key.
+	 * @param cls The type for returned value.
+	 * @param def The default value to return.
+	 * @return The property value or default value.
+	 */
+	public default <T extends Object> T getProperty(String key, Class<T> cls, T def) {
+		PropertyBrowserConfiguration conf = getPropertyConfiguration();
+		return conf == null ? def : conf.getProperty(key, cls, def);
 	}
 	
 }

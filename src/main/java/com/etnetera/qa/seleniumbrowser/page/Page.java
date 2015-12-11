@@ -37,6 +37,8 @@ abstract public class Page implements BrowserContext {
 	protected Double waitTimeout;
 	
 	protected Double waitRetryInterval;
+	
+	protected Double waitPageBeforeInitTimeout;
 
 	protected Browser browser;
 	
@@ -57,6 +59,8 @@ abstract public class Page implements BrowserContext {
 				waitTimeout = config.waitTimeout()[0];
 			if (config.waitRetryInterval().length > 0)
 				waitRetryInterval = config.waitRetryInterval()[0];
+			if (config.waitBeforePageInitTimeout().length > 0)
+				waitPageBeforeInitTimeout = config.waitBeforePageInitTimeout()[0];
 		}
 	}
 	
@@ -123,6 +127,8 @@ abstract public class Page implements BrowserContext {
 	}
 
 	final public Page init() {
+		if (waitPageBeforeInitTimeout != null)
+			waiting(waitPageBeforeInitTimeout);
 		try {
 			triggerEvent(constructEvent(BeforePageInitEvent.class).with(this));
 			beforeInit();

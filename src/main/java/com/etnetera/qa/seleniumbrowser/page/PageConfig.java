@@ -30,4 +30,6 @@ public @interface PageConfig {
 	
 	public double[] waitRetryInterval() default {};
 	
+	public double[] waitBeforePageInitTimeout() default {};
+	
 }
