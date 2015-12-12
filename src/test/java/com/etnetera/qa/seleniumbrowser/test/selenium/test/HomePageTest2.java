@@ -18,10 +18,10 @@ public class HomePageTest2 {
 	public void before() {
 		browser = new Browser(
 				new ChainedBrowserConfig()
-						.addConfiguration(new PropertiesBrowserConfig().addSystemProperties()
-								.addProperties(
+						.addConfiguration("props", new PropertiesBrowserConfig().addSystemProperties()
+								.addResourceProperties("custom",
 										"com.etnetera.qa.seleniumbrowser.test.selenium/customProperties.properties")
-						.addDefaultProperties()).addConfiguration(new DefaultBrowserConfig()));
+						.addDefaultProperties()).addConfiguration("def", new DefaultBrowserConfig()));
 	}
 
 	@Test

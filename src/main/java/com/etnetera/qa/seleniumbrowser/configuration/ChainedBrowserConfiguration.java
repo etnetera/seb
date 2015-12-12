@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import com.etnetera.qa.seleniumbrowser.browser.BrowserException;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 
 /**
@@ -19,44 +22,113 @@ import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
  */
 public class ChainedBrowserConfiguration implements BrowserConfiguration, PropertyBrowserConfiguration {
 
-	protected List<Object> configurations = new ArrayList<>();
-	
+	protected List<ConfigurationValue> configurations = new ArrayList<>();
+
 	public List<Object> getConfigurations() {
-		return configurations;
+		return configurations.stream().map(v -> v.getConfiguration()).collect(Collectors.toList());
 	}
 
-	public void setConfigurations(List<Object> configurations) {
-		this.configurations = configurations;
+	public Map<String, Object> getConfigurationsWithKeys() {
+		return configurations.stream()
+				.collect(Collectors.toMap(ConfigurationValue::getKey, ConfigurationValue::getConfiguration));
 	}
 
 	/**
-	 * Adds configuration into actual configurations list.
+	 * Returns configuration with given key.
 	 * 
+	 * @param key
+	 *            The configuration key
+	 * @return The configuration or null
+	 */
+	public Object getConfiguration(String key) {
+		return configurations.stream().filter(v -> v.equals(key)).map(v -> v.getConfiguration()).findFirst().orElse(null);
+	}
+
+	/**
+	 * Removes configuration with given key.
+	 * 
+	 * @param key
+	 *            The configuration key
+	 * @return true if configuration was present
+	 */
+	public boolean removeConfiguration(String key) {
+		return configurations.remove(key);
+	}
+
+	/**
+	 * Adds configuration at the end of actual configurations list.
+	 * 
+	 * @param key
+	 *            The configuration key
 	 * @param configuration
 	 *            The configuration
 	 * @return Same instance
 	 */
-	public ChainedBrowserConfiguration addConfiguration(Object configuration) {
+	public ChainedBrowserConfiguration addConfiguration(String key, Object configuration) {
 		if (configuration != null) {
-			if (configurations == null)
-				configurations = new ArrayList<>();
-			configurations.add(configuration);
+			removeConfiguration(key);
+			configurations.add(new ConfigurationValue(key, configuration));
 		}
 		return this;
 	}
 
 	/**
-	 * Pushes configuration into actual configurations list.
+	 * Adds configuration before specific key in actual configurations list.
 	 * 
+	 * @param beforeKey
+	 *            The before configuration key
+	 * @param key
+	 *            The configuration key
 	 * @param configuration
 	 *            The configuration
 	 * @return Same instance
 	 */
-	public ChainedBrowserConfiguration pushConfiguration(Object configuration) {
+	public ChainedBrowserConfiguration addConfigurationBefore(String beforeKey, String key, Object configuration) {
 		if (configuration != null) {
-			if (configurations == null)
-				configurations = new ArrayList<>();
-			configurations.add(0, configuration);
+			int i = configurations.indexOf(beforeKey);
+			if (i < 0)
+				throw new BrowserException("There is no configuration with key " + beforeKey);
+			removeConfiguration(key);
+			configurations.add(i, new ConfigurationValue(key, configuration));
+		}
+		return this;
+	}
+
+	/**
+	 * Adds configuration after specific key in actual configurations list.
+	 * 
+	 * @param afterKey
+	 *            The after configuration key
+	 * @param key
+	 *            The configuration key
+	 * @param configuration
+	 *            The configuration
+	 * @return Same instance
+	 */
+	public ChainedBrowserConfiguration addConfigurationAfter(String afterKey, String key, Object configuration) {
+		if (configuration != null) {
+			int i = configurations.indexOf(afterKey);
+			if (i < 0)
+				throw new BrowserException("There is no configuration with key " + afterKey);
+			removeConfiguration(key);
+			configurations.add(i + 1, new ConfigurationValue(key, configuration));
+		}
+		return this;
+	}
+
+	/**
+	 * Pushes configuration at the start of actual configurations list.
+	 * 
+	 * @param key
+	 *            The configuration key
+	 * @param configuration
+	 *            The configuration
+	 * @return Same instance
+	 */
+	public ChainedBrowserConfiguration pushConfiguration(String key, Object configuration) {
+		if (configuration != null) {
+			removeConfiguration(key);
+			configurations.add(0, new ConfigurationValue(key, configuration));
 		}
 		return this;
 	}
@@ -85,7 +157,7 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 	public WebDriver getDriver(DesiredCapabilities caps) {
 		return getChainedValue(BrowserConfiguration.class, c -> c.getDriver(caps));
 	}
-	
+
 	@Override
 	public DesiredCapabilities getCapabilities() {
 		List<DesiredCapabilities> list = collectValues(BrowserConfiguration.class, c -> c.getCapabilities());
@@ -118,14 +190,15 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 
 	@Override
 	public List<BrowserListener> getListeners() {
-		return (List<BrowserListener>) getChainedValues(BrowserConfiguration.class, BrowserListener.class, c -> c.getListeners());
+		return (List<BrowserListener>) getChainedValues(BrowserConfiguration.class, BrowserListener.class,
+				c -> c.getListeners());
 	}
-	
+
 	/**
-	 * Iterates over {@link ChainedBrowserConfiguration#getConfigurations()} and checks
-	 * if configuration is same or subclass of configCls. If so it applies
-	 * getter and if value is not null is returned. If there is no value in any
-	 * configuration null is returned.
+	 * Iterates over {@link ChainedBrowserConfiguration#getConfigurations()} and
+	 * checks if configuration is same or subclass of configCls. If so it
+	 * applies getter and if value is not null is returned. If there is no value
+	 * in any configuration null is returned.
 	 * 
 	 * @param configCls
 	 *            The configuration class which is searched for value.
@@ -146,11 +219,11 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 	}
 
 	/**
-	 * Iterates over {@link ChainedBrowserConfiguration#getConfigurations()} and checks
-	 * if configuration is same or subclass of configCls. If so it applies
-	 * getter and if value is not null than is combined with previous values
-	 * into one {@link Collection} with cls type. If there is no value in any
-	 * configuration null is returned.
+	 * Iterates over {@link ChainedBrowserConfiguration#getConfigurations()} and
+	 * checks if configuration is same or subclass of configCls. If so it
+	 * applies getter and if value is not null than is combined with previous
+	 * values into one {@link Collection} with cls type. If there is no value in
+	 * any configuration null is returned.
 	 * 
 	 * @param configCls
 	 *            The configuration class which is searched for value.
@@ -176,10 +249,10 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 	}
 
 	/**
-	 * Iterates over {@link ChainedBrowserConfiguration#getConfigurations()} and checks
-	 * if configuration is same or subclass of configCls. If so it applies
-	 * getter and if value is not null than is added into returned list. If
-	 * there is no value in any configuration null is returned.
+	 * Iterates over {@link ChainedBrowserConfiguration#getConfigurations()} and
+	 * checks if configuration is same or subclass of configCls. If so it
+	 * applies getter and if value is not null than is added into returned list.
+	 * If there is no value in any configuration null is returned.
 	 * 
 	 * @param configCls
 	 *            The configuration class which is searched for value.
@@ -202,6 +275,39 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 			}
 		}
 		return list;
+	}
+
+	protected class ConfigurationValue {
+
+		protected String key;
+
+		protected Object configuration;
+
+		public ConfigurationValue(String key, Object configuration) {
+			if (key == null)
+				throw new BrowserException("Configuration key can not be null");
+			this.key = key;
+			this.configuration = configuration;
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public Object getConfiguration() {
+			return configuration;
+		}
+
+		@Override
+		public int hashCode() {
+			return key.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return key.equals(obj);
+		}
+
 	}
 
 }

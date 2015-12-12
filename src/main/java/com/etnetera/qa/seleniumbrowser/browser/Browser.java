@@ -37,6 +37,10 @@ import com.etnetera.qa.seleniumbrowser.page.PageManager;
  */
 public class Browser implements BrowserContext {
 
+	public static final String PROPERTIES_CONFIGURATION_KEY = "properties";
+	
+	public static final String DEFAULT_CONFIGURATION_KEY = "default";
+	
 	public static final String LABEL_DELIMITER = "-";
 
 	public static final DateTimeFormatter FILE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
@@ -71,9 +75,10 @@ public class Browser implements BrowserContext {
 	 * and {@link DefaultBrowserConfiguration} in this order.
 	 */
 	public Browser() {
-		this(new ChainedBrowserConfiguration().addConfiguration(
-				new PropertiesBrowserConfiguration().addSystemProperties().addDefaultProperties())
-				.addConfiguration(new DefaultBrowserConfiguration()));
+		this(new ChainedBrowserConfiguration()
+				.addConfiguration(PROPERTIES_CONFIGURATION_KEY,
+						new PropertiesBrowserConfiguration().addSystemProperties().addDefaultProperties())
+				.addConfiguration(DEFAULT_CONFIGURATION_KEY, new DefaultBrowserConfiguration()));
 	}
 
 	/**
