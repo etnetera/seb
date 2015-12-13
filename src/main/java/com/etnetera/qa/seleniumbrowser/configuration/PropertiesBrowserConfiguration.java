@@ -50,7 +50,7 @@ public class PropertiesBrowserConfiguration implements PropertyBrowserConfigurat
 	 * @return The properties or null
 	 */
 	public Properties getProperties(String key) {
-		return propertiesList.stream().filter(c -> c.equals(key)).map(v -> v.getProperties()).findFirst().orElse(null);
+		return propertiesList.stream().filter(v -> v.equals(key)).map(v -> v.getProperties()).findFirst().orElse(null);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class PropertiesBrowserConfiguration implements PropertyBrowserConfigurat
 	 * @return true if properties was present
 	 */
 	public boolean removeProperties(String key) {
-		return propertiesList.remove(key);
+		return propertiesList.remove(new PropertiesValue(key, null));
 	}
 	
 	/**
@@ -160,7 +160,7 @@ public class PropertiesBrowserConfiguration implements PropertyBrowserConfigurat
 	 */
 	public PropertiesBrowserConfiguration addPropertiesBefore(String beforeKey, String key, Properties properties) {
 		if (properties != null) {
-			int i = propertiesList.indexOf(beforeKey);
+			int i = propertiesList.indexOf(new PropertiesValue(beforeKey, null));
 			if (i < 0)
 				throw new BrowserException("There are no properties with key " + beforeKey);
 			removeProperties(key);
@@ -181,7 +181,7 @@ public class PropertiesBrowserConfiguration implements PropertyBrowserConfigurat
 	 */
 	public PropertiesBrowserConfiguration addPropertiesAfter(String afterKey, String key, Properties properties) {
 		if (properties != null) {
-			int i = propertiesList.indexOf(afterKey);
+			int i = propertiesList.indexOf(new PropertiesValue(afterKey, null));
 			if (i < 0)
 				throw new BrowserException("There are no properties with key " + afterKey);
 			removeProperties(key);
@@ -415,7 +415,9 @@ public class PropertiesBrowserConfiguration implements PropertyBrowserConfigurat
 
 		@Override
 		public boolean equals(Object obj) {
-			return key.equals(obj);
+			if (obj instanceof PropertiesValue)
+				return key.equals(((PropertiesValue) obj).getKey());
+			return false;
 		}
 		
 	}

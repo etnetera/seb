@@ -52,7 +52,7 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 	 * @return true if configuration was present
 	 */
 	public boolean removeConfiguration(String key) {
-		return configurations.remove(key);
+		return configurations.remove(new ConfigurationValue(key, null));
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 	 */
 	public ChainedBrowserConfiguration addConfigurationBefore(String beforeKey, String key, Object configuration) {
 		if (configuration != null) {
-			int i = configurations.indexOf(beforeKey);
+			int i = configurations.indexOf(new ConfigurationValue(beforeKey, null));
 			if (i < 0)
 				throw new BrowserException("There is no configuration with key " + beforeKey);
 			removeConfiguration(key);
@@ -107,7 +107,7 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 	 */
 	public ChainedBrowserConfiguration addConfigurationAfter(String afterKey, String key, Object configuration) {
 		if (configuration != null) {
-			int i = configurations.indexOf(afterKey);
+			int i = configurations.indexOf(new ConfigurationValue(afterKey, null));
 			if (i < 0)
 				throw new BrowserException("There is no configuration with key " + afterKey);
 			removeConfiguration(key);
@@ -305,7 +305,9 @@ public class ChainedBrowserConfiguration implements BrowserConfiguration, Proper
 
 		@Override
 		public boolean equals(Object obj) {
-			return key.equals(obj);
+			if (obj instanceof ConfigurationValue)
+				return key.equals(((ConfigurationValue) obj).getKey());
+			return false;
 		}
 
 	}
