@@ -1,6 +1,7 @@
 package com.etnetera.qa.seleniumbrowser.browser;
 
 import java.io.File;
+import java.util.Map;
 
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
@@ -9,12 +10,13 @@ import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Sleeper;
 
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
-import com.etnetera.qa.seleniumbrowser.configuration.PropertyBrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.element.ElementManager;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.page.Page;
+import com.etnetera.qa.seleniumbrowser.source.DataSource;
+import com.etnetera.qa.seleniumbrowser.source.PropertySource;
 
-public interface BrowserContext extends SearchContext {
+public interface BrowserContext extends SearchContext, PropertySource, DataSource {
 
 	/**
 	 * Returns parent {@link BrowserContext} instance.
@@ -250,66 +252,15 @@ public interface BrowserContext extends SearchContext {
 	public default void saveFile(File file, String name, String extension) {
 		getBrowser().saveFile(file, name, extension);
 	}
-	
-	/**
-	 * Returns property configuration or null if configuration
-	 * does not implement {@link PropertyBrowserConfiguration}.
-	 * 
-	 * @return The property configuration or null.
-	 */
-	public default PropertyBrowserConfiguration getPropertyConfiguration() {
-		BrowserConfiguration conf = getConfiguration();
-		return (conf instanceof PropertyBrowserConfiguration) ? (PropertyBrowserConfiguration) conf : null;
+
+	@Override
+	public default Map<String, Object> getDataHolder() {
+		return getBrowser().getDataHolder();
 	}
-	
-	/**
-	 * Returns property as {@link String}.
-	 * 
-	 * @param key The property key.
-	 * @return The property value or null.
-	 */
+
+	@Override
 	public default String getProperty(String key) {
-		PropertyBrowserConfiguration conf = getPropertyConfiguration();
-		return conf == null ? null : conf.getProperty(key);
-	}
-	
-	/**
-	 * Returns property as {@link String}.
-	 * If not found default value is returned.
-	 * 
-	 * @param key The property key.
-	 * @param def The default value to return.
-	 * @return The property value or default value.
-	 */
-	public default String getProperty(String key, String def) {
-		PropertyBrowserConfiguration conf = getPropertyConfiguration();
-		return conf == null ? def : conf.getProperty(key, def);
-	}
-	
-	/**
-	 * Returns property casted to given type.
-	 * 
-	 * @param key The property key.
-	 * @param cls The type for returned value.
-	 * @return The property value or null.
-	 */
-	public default <T extends Object> T getProperty(String key, Class<T> cls) {
-		PropertyBrowserConfiguration conf = getPropertyConfiguration();
-		return conf == null ? null : conf.getProperty(key, cls);
-	}
-	
-	/**
-	 * Returns property casted to given type.
-	 * If not found default value is returned.
-	 * 
-	 * @param key The property key.
-	 * @param cls The type for returned value.
-	 * @param def The default value to return.
-	 * @return The property value or default value.
-	 */
-	public default <T extends Object> T getProperty(String key, Class<T> cls, T def) {
-		PropertyBrowserConfiguration conf = getPropertyConfiguration();
-		return conf == null ? def : conf.getProperty(key, cls, def);
+		return getBrowser().getProperty(key);
 	}
 	
 }

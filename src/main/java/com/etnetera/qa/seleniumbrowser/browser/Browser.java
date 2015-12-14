@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -15,10 +17,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 
+import com.etnetera.qa.seleniumbrowser.configuration.BasicBrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
-import com.etnetera.qa.seleniumbrowser.configuration.ChainedBrowserConfiguration;
-import com.etnetera.qa.seleniumbrowser.configuration.DefaultBrowserConfiguration;
-import com.etnetera.qa.seleniumbrowser.configuration.PropertiesBrowserConfiguration;
+import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfigurationConstructException;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
@@ -29,6 +30,8 @@ import com.etnetera.qa.seleniumbrowser.listener.EventConstructException;
 import com.etnetera.qa.seleniumbrowser.listener.EventFiringBrowserBridgeListener;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.page.PageManager;
+import com.etnetera.qa.seleniumbrowser.source.DataSource;
+import com.etnetera.qa.seleniumbrowser.source.PropertySource;
 
 /**
  * Wrapper class for {@link WebDriver}. It is configured using
@@ -68,17 +71,33 @@ public class Browser implements BrowserContext {
 	protected File reportDir;
 
 	protected List<BrowserListener> listeners;
-
+	
+	protected Map<String, Object> dataHolder = new HashMap<String, Object>();
+	
+	protected static <T extends BrowserConfiguration> T createBrowserConfiguration(Class<T> configCls) {
+		try {
+			return (T) configCls.getConstructor().newInstance();
+		} catch (Exception e) {
+			throw new BrowserConfigurationConstructException("Unable to construct browser configuration " + configCls.getName(), e);
+		}
+	}
+	
 	/**
-	 * Constructs a new instance with default configuration. It uses
-	 * {@link System#getProperties()}, resource named seleniumbrowser.properties
-	 * and {@link DefaultBrowserConfiguration} in this order.
+	 * Constructs a new instance with default configuration. It constructs
+	 * {@link BrowserConfiguration} with system properties using {@link System#getProperties()}
+	 * and properties from resource named seleniumbrowser.properties.
 	 */
 	public Browser() {
-		this(new ChainedBrowserConfiguration()
-				.addConfiguration(PROPERTIES_CONFIGURATION_KEY,
-						new PropertiesBrowserConfiguration().addSystemProperties().addDefaultProperties())
-				.addConfiguration(DEFAULT_CONFIGURATION_KEY, new DefaultBrowserConfiguration()));
+		this(BasicBrowserConfiguration.class);
+	}
+	
+	/**
+	 * Constructs a new instance with configuration constructed
+	 * from given class. Configuration class needs to have
+	 * constructor with no parameters.
+	 */
+	public <T extends BrowserConfiguration> Browser(Class<T> configCls) {
+		this(createBrowserConfiguration(configCls));
 	}
 
 	/**
@@ -88,14 +107,15 @@ public class Browser implements BrowserContext {
 	 *            The configuration
 	 */
 	public Browser(BrowserConfiguration configuration) {
+		configuration.init();
 		this.configuration = configuration;
-		this.baseUrl = configuration.getBaseUrl();
-		this.baseUrlRegex = configuration.getBaseUrlRegex();
-		this.urlVerification = configuration.isUrlVerification();
-		this.waitTimeout = configuration.getWaitTimeout();
-		this.waitRetryInterval = configuration.getWaitRetryInterval();
-		this.reported = configuration.isReported();
-		this.reportDir = configuration.getReportDir();
+		baseUrl = configuration.getBaseUrl();
+		baseUrlRegex = configuration.getBaseUrlRegex();
+		urlVerification = configuration.isUrlVerification();
+		waitTimeout = configuration.getWaitTimeout();
+		waitRetryInterval = configuration.getWaitRetryInterval();
+		reported = configuration.isReported();
+		reportDir = configuration.getReportDir();
 		if (reported) {
 			if (reportDir == null) {
 				throw new BrowserException("Report directory is null");
@@ -112,8 +132,10 @@ public class Browser implements BrowserContext {
 				throw new BrowserException("Report directory is not writable " + reportDir);
 			}
 		}
+		if (configuration instanceof DataSource)
+			dataHolder = ((DataSource) configuration).getDataHolder();
 
-		this.listeners = configuration.getListeners();
+		listeners = configuration.getListeners();
 		if (listeners == null) {
 			listeners = new ArrayList<>();
 		}
@@ -125,10 +147,10 @@ public class Browser implements BrowserContext {
 		BeforeDriverConstructEvent befDriverConstEvent = constructEvent(BeforeDriverConstructEvent.class).with(caps);
 		triggerEvent(befDriverConstEvent);
 
-		EventFiringWebDriver driver = new EventFiringWebDriver(
+		EventFiringWebDriver drv = new EventFiringWebDriver(
 				configuration.getDriver(befDriverConstEvent.getCapabilities()));
-		driver.register(new EventFiringBrowserBridgeListener(this));
-		this.driver = driver;
+		drv.register(new EventFiringBrowserBridgeListener(this));
+		driver = drv;
 	}
 
 	/**
@@ -455,6 +477,16 @@ public class Browser implements BrowserContext {
 	public void triggerEvent(BrowserEvent event) {
 		event.init();
 		listeners.forEach(l -> event.notifyEnabled(l));
+	}
+
+	@Override
+	public Map<String, Object> getDataHolder() {
+		return dataHolder;
+	}
+
+	@Override
+	public String getProperty(String key) {
+		return configuration instanceof PropertySource ? ((PropertySource) configuration).getProperty(key) : null;
 	}
 
 	@Override

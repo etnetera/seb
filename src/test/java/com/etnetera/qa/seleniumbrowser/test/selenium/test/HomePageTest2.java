@@ -1,13 +1,14 @@
 package com.etnetera.qa.seleniumbrowser.test.selenium.test;
 
+import java.util.Properties;
+
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
-import com.etnetera.qa.seleniumbrowser.test.selenium.configuration.ChainedBrowserConfig;
-import com.etnetera.qa.seleniumbrowser.test.selenium.configuration.DefaultBrowserConfig;
-import com.etnetera.qa.seleniumbrowser.test.selenium.configuration.PropertiesBrowserConfig;
+import com.etnetera.qa.seleniumbrowser.test.selenium.configuration.BrowserConfig;
 import com.etnetera.qa.seleniumbrowser.test.selenium.page.HomePage;
 
 public class HomePageTest2 {
@@ -16,18 +17,14 @@ public class HomePageTest2 {
 
 	@Before
 	public void before() {
-		browser = new Browser(
-				new ChainedBrowserConfig()
-						.addConfiguration("props", new PropertiesBrowserConfig().addSystemProperties()
-								.addResourceProperties("custom",
-										"com.etnetera.qa.seleniumbrowser.test.selenium/customProperties.properties")
-						.addDefaultProperties()).addConfiguration("def", new DefaultBrowserConfig()));
+		browser = new Browser(BrowserConfig.class);
 	}
 
 	@Test
 	public void valid() {
 		browser.useEnclosingMethodLabel();
 		browser.goTo(HomePage.class);
+		Assert.assertTrue("Title is valid", browser.getDriver().getTitle().contains(browser.getData("custom", Properties.class).getProperty("title")));
 		browser.report(browser.getProperty("report.onHomepage", "On homepage 2"));
 	}
 

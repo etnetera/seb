@@ -10,17 +10,17 @@ import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 
 /**
- * Configures browser.
+ * Interface for browser configuration.
  * You are free to add whatever methods you want
  * as you can easily get overridden configuration
  * {@link BrowserContext#getConfiguration(Class)}.
- * 
- * It is better to use non primitive values as it
- * can be used later in {@link ChainedBrowserConfiguration}
- * and set its default primitive value in default
- * configuration like in {@link DefaultBrowserConfiguration};  
  */
 public interface BrowserConfiguration {
+	
+	/**
+	 * It is called after putting it into browser.
+	 */
+	public void init();
 	
 	/**
 	 * Base URL for pages.
@@ -41,7 +41,7 @@ public interface BrowserConfiguration {
 	 * 
 	 * @return Verification status
 	 */
-	public Boolean isUrlVerification();
+	public boolean isUrlVerification();
 	
 	/**
 	 * Returns {@link WebDriver} instance.
@@ -59,25 +59,25 @@ public interface BrowserConfiguration {
 	public DesiredCapabilities getCapabilities();
 	
 	/**
-	 * Returns default wait timeout.
+	 * Returns wait timeout.
 	 * 
-	 * @return The default wait timeout.
+	 * @return The wait timeout.
 	 */
-	public Double getWaitTimeout();
+	public double getWaitTimeout();
 	
 	/**
-	 * Returns default wait retry interval.
+	 * Returns wait retry interval.
 	 * 
-	 * @return The default wait retry interval.
+	 * @return The wait retry interval.
 	 */
-	public Double getWaitRetryInterval();
+	public double getWaitRetryInterval();
 	
 	/**
-	 * Is storing files using browser enabled.
+	 * Is storing files using browser enabled?
 	 * 
 	 * @return Reporting status.
 	 */
-	public Boolean isReported();
+	public boolean isReported();
 	
 	/**
 	 * Returns directory for storing browser files.
