@@ -10,6 +10,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.Clock;
+import org.openqa.selenium.support.ui.Duration;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Sleeper;
@@ -20,6 +21,10 @@ import com.google.common.base.Supplier;
 public class BrowserContextWait extends FluentWait<BrowserContext> {
 
 	protected BrowserContext context;
+	
+	protected final Sleeper sleeper;
+	
+	protected Duration timeout;
 
 	public BrowserContextWait(BrowserContext context, Clock clock, Sleeper sleeper, double timeout,
 			double retryInterval) {
@@ -28,6 +33,7 @@ public class BrowserContextWait extends FluentWait<BrowserContext> {
 		pollingEvery((long) (retryInterval * 1000), TimeUnit.MILLISECONDS);
 		ignoring(NotFoundException.class);
 		this.context = context;
+		this.sleeper = sleeper;
 	}
 
 	public BrowserContextWait(BrowserContext context, double timeout, double retryInterval) {
@@ -110,10 +116,26 @@ public class BrowserContextWait extends FluentWait<BrowserContext> {
 			}
 		});
 	}
+	
+	/**
+	 * Sleeps for defined timeout without checking for any
+	 * condition.
+	 */
+	public BrowserContextWait sleep() {
+		try {
+			sleeper.sleep(timeout);
+			return this;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new WebDriverException(e);
+		}
+	}
 
 	@Override
 	public BrowserContextWait withTimeout(long duration, TimeUnit unit) {
-		return (BrowserContextWait) super.withTimeout(duration, unit);
+		super.withTimeout(duration, unit);
+		this.timeout = new Duration(duration, unit);
+		return this;
 	}
 
 	@Override

@@ -18,10 +18,8 @@ import com.etnetera.qa.seleniumbrowser.event.impl.OnModuleInitExceptionEvent;
 
 /**
  * Basic module which supports elements and modules auto loading.
- * 
- * @author zdenek
  */
-abstract public class Module implements BrowserContext, WebElement {
+public class Module implements BrowserContext, WebElement {
 	
 	protected BrowserContext context;
 	
@@ -201,6 +199,13 @@ abstract public class Module implements BrowserContext, WebElement {
 	@Override
 	public String getCssValue(String propertyName) {
 		return element.getCssValue(propertyName);
+	}
+	
+	/**
+	 * Loose focus from element.
+	 */
+	public void blur() {
+		findElement(By.xpath("..")).click();
 	}
 	
 }
