@@ -10,8 +10,9 @@ import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Sleeper;
 
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
-import com.etnetera.qa.seleniumbrowser.element.ElementManager;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
+import com.etnetera.qa.seleniumbrowser.logic.Logic;
+import com.etnetera.qa.seleniumbrowser.module.Module;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.source.DataSource;
 import com.etnetera.qa.seleniumbrowser.source.PropertySource;
@@ -221,12 +222,44 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 		return getBrowser().initOnePage(pages);
 	}
 	
+	public default <T extends Page> T constructPage(Class<T> page) {
+		return getBrowser().constructPage(page);
+	}
+	
+	public default <T extends Module> T initModule(T module) {
+		return getBrowser().initModule(module);
+	}
+	
+	public default <T extends Module> T initModule(Class<T> module, WebElement element) {
+		return getBrowser().initModule(module, this, element);
+	}
+	
+	public default <T extends Module> T constructModule(Class<T> module, WebElement element) {
+		return getBrowser().constructModule(module, this, element);
+	}
+	
+	public default <T extends Logic> T initLogic(T logic) {
+		return getBrowser().initLogic(logic);
+	}
+	
+	public default <T extends Logic> T initLogic(Class<T> logic) {
+		return getBrowser().initLogic(logic, this);
+	}
+	
+	public default <T extends Logic> T constructLogic(Class<T> logic) {
+		return getBrowser().constructLogic(logic, this);
+	}
+	
+	public default void initElements() {
+		getBrowser().initElements(this);
+	}
+	
 	public default boolean isPresent(WebElement element) {
-		return ElementManager.isPresent(element);
+		return getBrowser().isPresent(element);
 	}
 	
 	public default boolean isNotPresent(WebElement element) {
-		return ElementManager.isNotPresent(element);
+		return getBrowser().isNotPresent(element);
 	}
 	
 	public default void report(String label) {
@@ -251,6 +284,10 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	
 	public default void saveFile(File file, String name, String extension) {
 		getBrowser().saveFile(file, name, extension);
+	}
+	
+	public default BrowserUtils getUtils() {
+		return getBrowser().getUtils();
 	}
 
 	@Override

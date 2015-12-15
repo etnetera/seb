@@ -9,7 +9,6 @@ import org.openqa.selenium.WebElement;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
-import com.etnetera.qa.seleniumbrowser.browser.BrowserUtils;
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
@@ -42,6 +41,8 @@ import com.etnetera.qa.seleniumbrowser.page.Page;
 
 public class BrowserListener {
 
+	protected Browser browser;
+	
 	protected String label;
 	
 	protected Set<Class<? extends BrowserEvent>> enabledEvents;
@@ -53,7 +54,8 @@ public class BrowserListener {
 	 * Is called from Browser directly
 	 * and should not be called manually.
 	 */
-	public void init() {
+	public void init(Browser browser) {
+		this.browser = browser;
 		label = generateLabel();
 	}
 	
@@ -349,7 +351,7 @@ public class BrowserListener {
 	}
 	
 	protected String getListenerFileName(String name) {
-		return BrowserUtils.join(Browser.LABEL_DELIMITER, label, name);
+		return browser.getUtils().join(Browser.LABEL_DELIMITER, label, name);
 	}
 	
 	protected String generateLabel() {

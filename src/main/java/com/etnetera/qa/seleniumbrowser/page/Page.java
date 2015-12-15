@@ -5,13 +5,10 @@ import java.util.regex.Pattern;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
-import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterPageInitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforePageInitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.OnPageInitExceptionEvent;
@@ -47,29 +44,7 @@ abstract public class Page implements BrowserContext {
 	protected Browser browser;
 	
 	public Page() {
-		PageConfig config = getClass().getDeclaredAnnotation(PageConfig.class);
-		if (config != null) {
-			if (config.uri().length > 0)
-				uri = config.uri()[0];
-			if (config.uriRegex().length > 0)
-				uriRegex = config.uriRegex()[0];
-			if (config.baseUrl().length > 0)
-				baseUrl = config.baseUrl()[0];
-			if (config.baseUrlRegex().length > 0)
-				baseUrlRegex = config.baseUrlRegex()[0];
-			if (config.urlVerification().length > 0)
-				urlVerification = config.urlVerification()[0];
-			if (config.url().length > 0)
-				url = config.url()[0];
-			if (config.urlRegex().length > 0)
-				urlRegex = config.urlRegex()[0];
-			if (config.waitTimeout().length > 0)
-				waitTimeout = config.waitTimeout()[0];
-			if (config.waitRetryInterval().length > 0)
-				waitRetryInterval = config.waitRetryInterval()[0];
-			if (config.waitBeforePageInitTimeout().length > 0)
-				waitPageBeforeInitTimeout = config.waitBeforePageInitTimeout()[0];
-		}
+		configureFromAnnotation();
 	}
 	
 	public Page with(Browser browser) {
@@ -159,12 +134,6 @@ abstract public class Page implements BrowserContext {
 		triggerEvent(constructEvent(AfterPageInitEvent.class).with(this));
 		return this;
 	}
-	
-	protected void initElements() {
-		PageFactory.initElements(
-				new ElementFieldDecorator(new DefaultElementLocatorFactory(this), this),
-				this);
-	}
 
 	@Override
 	public BrowserContext getContext() {
@@ -224,6 +193,35 @@ abstract public class Page implements BrowserContext {
 			throw new VerificationException("Unable to verify page url for " + getClass().getName()
 					+ " using url regex " + urlRegex + " against current url " + currentUrl);
 		}
+	}
+	
+	protected void configureFromAnnotation() {
+		PageConfig config = getClass().getDeclaredAnnotation(PageConfig.class);
+		if (config != null)
+			applyAnnotationConfiguration(config);
+	}
+	
+	protected void applyAnnotationConfiguration(PageConfig config) {
+		if (config.uri().length > 0)
+			uri = config.uri()[0];
+		if (config.uriRegex().length > 0)
+			uriRegex = config.uriRegex()[0];
+		if (config.baseUrl().length > 0)
+			baseUrl = config.baseUrl()[0];
+		if (config.baseUrlRegex().length > 0)
+			baseUrlRegex = config.baseUrlRegex()[0];
+		if (config.urlVerification().length > 0)
+			urlVerification = config.urlVerification()[0];
+		if (config.url().length > 0)
+			url = config.url()[0];
+		if (config.urlRegex().length > 0)
+			urlRegex = config.urlRegex()[0];
+		if (config.waitTimeout().length > 0)
+			waitTimeout = config.waitTimeout()[0];
+		if (config.waitRetryInterval().length > 0)
+			waitRetryInterval = config.waitRetryInterval()[0];
+		if (config.waitBeforePageInitTimeout().length > 0)
+			waitPageBeforeInitTimeout = config.waitBeforePageInitTimeout()[0];
 	}
 
 	protected void verifyThis() {

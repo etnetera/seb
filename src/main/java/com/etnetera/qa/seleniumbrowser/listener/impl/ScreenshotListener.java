@@ -3,6 +3,7 @@ package com.etnetera.qa.seleniumbrowser.listener.impl;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 
+import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterPageInitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
@@ -14,8 +15,8 @@ public class ScreenshotListener extends BrowserListener {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void init() {
-		super.init();
+	public void init(Browser browser) {
+		super.init(browser);
 		// enable this listener on report and before browser quit as default
 		enable(OnReportEvent.class, BeforeBrowserQuitEvent.class);
 	}

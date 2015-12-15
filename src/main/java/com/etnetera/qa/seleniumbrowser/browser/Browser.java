@@ -2,24 +2,32 @@ package com.etnetera.qa.seleniumbrowser.browser;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
+import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import com.etnetera.qa.seleniumbrowser.configuration.BasicBrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfigurationConstructException;
+import com.etnetera.qa.seleniumbrowser.context.VerificationException;
+import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
+import com.etnetera.qa.seleniumbrowser.element.MissingElement;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
@@ -28,8 +36,12 @@ import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 import com.etnetera.qa.seleniumbrowser.listener.EventConstructException;
 import com.etnetera.qa.seleniumbrowser.listener.EventFiringBrowserBridgeListener;
+import com.etnetera.qa.seleniumbrowser.logic.Logic;
+import com.etnetera.qa.seleniumbrowser.logic.LogicConstructException;
+import com.etnetera.qa.seleniumbrowser.module.Module;
+import com.etnetera.qa.seleniumbrowser.module.ModuleConstructException;
 import com.etnetera.qa.seleniumbrowser.page.Page;
-import com.etnetera.qa.seleniumbrowser.page.PageManager;
+import com.etnetera.qa.seleniumbrowser.page.PageConstructException;
 import com.etnetera.qa.seleniumbrowser.source.DataSource;
 import com.etnetera.qa.seleniumbrowser.source.PropertySource;
 
@@ -74,13 +86,7 @@ public class Browser implements BrowserContext {
 	
 	protected Map<String, Object> dataHolder = new HashMap<String, Object>();
 	
-	protected static <T extends BrowserConfiguration> T createBrowserConfiguration(Class<T> configCls) {
-		try {
-			return (T) configCls.getConstructor().newInstance();
-		} catch (Exception e) {
-			throw new BrowserConfigurationConstructException("Unable to construct browser configuration " + configCls.getName(), e);
-		}
-	}
+	protected BrowserUtils utils = new BrowserUtils();
 	
 	/**
 	 * Constructs a new instance with default configuration. It constructs
@@ -88,7 +94,7 @@ public class Browser implements BrowserContext {
 	 * and properties from resource named seleniumbrowser.properties.
 	 */
 	public Browser() {
-		this(BasicBrowserConfiguration.class);
+		initDefault();
 	}
 	
 	/**
@@ -97,7 +103,7 @@ public class Browser implements BrowserContext {
 	 * constructor with no parameters.
 	 */
 	public <T extends BrowserConfiguration> Browser(Class<T> configCls) {
-		this(createBrowserConfiguration(configCls));
+		init(configCls);
 	}
 
 	/**
@@ -107,6 +113,28 @@ public class Browser implements BrowserContext {
 	 *            The configuration
 	 */
 	public Browser(BrowserConfiguration configuration) {
+		init(configuration);
+	}
+	
+	protected void initDefault() {
+		init(BasicBrowserConfiguration.class);
+	}
+	
+	protected <T extends BrowserConfiguration> void init(Class<T> configCls) {
+		try {
+			init(configCls.getConstructor().newInstance());
+		} catch (Exception e) {
+			throw new BrowserConfigurationConstructException("Unable to construct browser configuration " + configCls.getName(), e);
+		}
+	}
+	
+	protected void init(BrowserConfiguration configuration) {
+		applyConfiguration(configuration);
+		initListeners();
+		driver = createDriver();
+	}
+	
+	protected void applyConfiguration(BrowserConfiguration configuration) {
 		configuration.init();
 		this.configuration = configuration;
 		baseUrl = configuration.getBaseUrl();
@@ -139,8 +167,14 @@ public class Browser implements BrowserContext {
 		if (listeners == null) {
 			listeners = new ArrayList<>();
 		}
-		listeners.forEach(l -> l.init());
-
+	}
+	
+	protected void initListeners() {
+		if (listeners != null)
+			listeners.forEach(l -> l.init(this));
+	}
+	
+	protected WebDriver createDriver() {
 		// collect capabilities
 		DesiredCapabilities caps = configuration.getCapabilities();
 		// notify listeners to allow its change
@@ -150,7 +184,7 @@ public class Browser implements BrowserContext {
 		EventFiringWebDriver drv = new EventFiringWebDriver(
 				configuration.getDriver(befDriverConstEvent.getCapabilities()));
 		drv.register(new EventFiringBrowserBridgeListener(this));
-		driver = drv;
+		return drv;
 	}
 
 	/**
@@ -179,7 +213,7 @@ public class Browser implements BrowserContext {
 	 *            Browser label
 	 */
 	public void setLabel(String... labels) {
-		this.label = BrowserUtils.join(LABEL_DELIMITER, (Object[]) labels);
+		this.label = utils.join(LABEL_DELIMITER, (Object[]) labels);
 	}
 
 	/**
@@ -285,6 +319,16 @@ public class Browser implements BrowserContext {
 	 */
 	public void setReported(boolean reported) {
 		this.reported = reported;
+	}
+
+	/**
+	 * Returns utils instance.
+	 * 
+	 * @return
+	 */
+	@Override
+	public BrowserUtils getUtils() {
+		return utils;
 	}
 
 	/**
@@ -410,52 +454,160 @@ public class Browser implements BrowserContext {
 
 	@Override
 	public <T extends Page> T goToSafely(Class<T> page) {
-		return PageManager.goToSafely(page, this);
+		try {
+			return goTo(page);
+		} catch (VerificationException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public <T extends Page> T goToSafely(T page) {
-		return PageManager.goToSafely(page);
+		try {
+			return goTo(page);
+		} catch (VerificationException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public <T extends Page> T initPageSafely(Class<T> page) {
-		return PageManager.initSafely(page, this);
+		try {
+			return initPage(page);
+		} catch (VerificationException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public <T extends Page> T initPageSafely(T page) {
-		return PageManager.initSafely(page);
+		try {
+			return initPage(page);
+		} catch (VerificationException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Page initOnePageSafely(Object... pages) {
-		return PageManager.initOneSafely(this, pages);
+		try {
+			return initOnePage(pages);
+		} catch (VerificationException e) {
+			return null;
+		}
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends Page> T goTo(Class<T> page) {
-		return PageManager.goTo(page, this);
+		return (T) constructPage(page).goTo();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends Page> T goTo(T page) {
-		return PageManager.goTo(page);
+		return (T) page.goTo();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends Page> T initPage(Class<T> page) {
-		return PageManager.init(page, this);
+		return (T) constructPage(page).init();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends Page> T initPage(T page) {
-		return PageManager.init(page);
+		return (T) page.init();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Page initOnePage(Object... pages) {
-		return PageManager.initOne(this, pages);
+		Page verifiedPage = null;
+		for (Object page : pages) {
+			if (page instanceof Page) {
+				verifiedPage = initPageSafely((Page) page);
+			} else {
+				verifiedPage = initPageSafely((Class<? extends Page>) page);
+			}
+			if (verifiedPage != null)
+				return verifiedPage;
+		}
+		throw new VerificationException(
+				"Unable to init any of given pages " + String.join(", ", Arrays.asList(pages).stream().map(p -> {
+					return (String) ((p instanceof Page) ? ((Page) p).getClass().getName()
+							: ((Class<? extends Page>) p).getName());
+				}).collect(Collectors.toList())));
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Page> T constructPage(Class<T> page) {
+		try {
+			Constructor<T> ctor = page.getConstructor();
+			return (T) ctor.newInstance().with(this);
+		} catch (Exception e) {
+			throw new PageConstructException("Unable to construct page " + page.getName(), e);
+		}
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Module> T initModule(T module) {
+		return (T) module.init();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends Module> T initModule(Class<T> module, BrowserContext context, WebElement element) {
+		return (T) constructModule(module, context, element).init();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends Module> T constructModule(Class<T> module, BrowserContext context, WebElement element) {
+		try {
+			Constructor<T> ctor = module.getConstructor();
+			return (T) ctor.newInstance().with(context, element);
+		} catch (Exception e) {
+			throw new ModuleConstructException("Unable to construct module " + module.getName(), e);
+		}
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Logic> T initLogic(T logic) {
+		return (T) logic.init();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends Logic> T initLogic(Class<T> logic, BrowserContext context) {
+		return (T) constructLogic(logic, context).init();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends Logic> T constructLogic(Class<T> logic, BrowserContext context) {
+		try {
+			Constructor<T> ctor = logic.getConstructor();
+			return (T) ctor.newInstance().with(context);
+		} catch (Exception e) {
+			throw new LogicConstructException("Unable to construct logic " + logic.getName(), e);
+		}
+	}
+	
+	public void initElements(BrowserContext context) {
+		PageFactory.initElements(
+				new ElementFieldDecorator(new DefaultElementLocatorFactory(context), context),
+				context);
+	}
+	
+	@Override
+	public boolean isPresent(WebElement element) {
+		return !isNotPresent(element);
+	}
+	
+	@Override
+	public boolean isNotPresent(WebElement element) {
+		return element == null || element instanceof MissingElement || (element instanceof Module && ((Module) element).isNotPresent());
 	}
 
 	@Override
@@ -517,7 +669,7 @@ public class Browser implements BrowserContext {
 	}
 
 	protected Path getFilePath(String name, String extension) {
-		return reportDir.toPath().resolve(BrowserUtils.join(".", name, extension));
+		return reportDir.toPath().resolve(utils.join(".", name, extension));
 	}
 
 	protected Path getUniqueFilePath(String name, String extension) {
@@ -525,7 +677,7 @@ public class Browser implements BrowserContext {
 		Path path = getFilePath(name, extension);
 		int suffix = 0;
 		while (path.toFile().exists()) {
-			path = getFilePath(BrowserUtils.join(LABEL_DELIMITER, name, ++suffix), extension);
+			path = getFilePath(utils.join(LABEL_DELIMITER, name, ++suffix), extension);
 		}
 		return path;
 	}

@@ -7,7 +7,6 @@ import org.openqa.selenium.WebDriver;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
-import com.etnetera.qa.seleniumbrowser.browser.BrowserUtils;
 import com.etnetera.qa.seleniumbrowser.listener.BrowserListener;
 
 abstract public class BrowserEvent {
@@ -42,7 +41,7 @@ abstract public class BrowserEvent {
 	public void init() {
 		browserLabel = context.getBrowser().getLabel();
 		label = generateLabel();
-		filePrefix = BrowserUtils.join(Browser.LABEL_DELIMITER, time.format(Browser.FILE_DATE_FORMATTER), browserLabel, context.getClass().getSimpleName(), label);  
+		filePrefix = context.getUtils().join(Browser.LABEL_DELIMITER, time.format(Browser.FILE_DATE_FORMATTER), browserLabel, context.getClass().getSimpleName(), label);  
 	}
 	
 	public BrowserContext getContext() {
@@ -82,7 +81,7 @@ abstract public class BrowserEvent {
 	}
 	
 	protected String getEventFileName(String name) {
-		return BrowserUtils.join(Browser.LABEL_DELIMITER, filePrefix, name);
+		return context.getUtils().join(Browser.LABEL_DELIMITER, filePrefix, name);
 	}
 	
 	protected String generateLabel() {

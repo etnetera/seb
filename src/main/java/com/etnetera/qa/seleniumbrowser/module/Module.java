@@ -8,14 +8,10 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import com.etnetera.qa.seleniumbrowser.browser.Browser;
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
-import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
-import com.etnetera.qa.seleniumbrowser.element.ElementManager;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterModuleInitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeModuleInitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.OnModuleInitExceptionEvent;
@@ -63,16 +59,12 @@ abstract public class Module implements BrowserContext, WebElement {
 		return this;
 	}
 	
-	public void initElements() {
-		PageFactory.initElements(new ElementFieldDecorator(new DefaultElementLocatorFactory(this), this), this);
-	}
-	
 	public boolean isPresent() {
-		return ElementManager.isPresent(element); 
+		return isPresent(element); 
 	}
 	
 	public boolean isNotPresent() {
-		return ElementManager.isNotPresent(element); 
+		return isNotPresent(element); 
 	}
 	
 	public void verify() throws VerificationException {

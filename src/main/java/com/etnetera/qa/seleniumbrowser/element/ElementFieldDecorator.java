@@ -23,7 +23,6 @@ import org.openqa.selenium.support.pagefactory.internal.LocatingElementListHandl
 
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 import com.etnetera.qa.seleniumbrowser.module.Module;
-import com.etnetera.qa.seleniumbrowser.module.ModuleManager;
 
 /**
  * Decorator used with PageFactory which allows to inject MissingWebElement when
@@ -124,7 +123,7 @@ public class ElementFieldDecorator implements FieldDecorator {
 	}
 
 	protected Module convertElementToModule(Class<? extends Module> moduleCls, WebElement element) {
-		return ModuleManager.init(moduleCls, context, element);
+		return context.initModule(moduleCls, element);
 	}
 
 }
