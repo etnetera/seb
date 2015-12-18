@@ -290,12 +290,10 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 		return getBrowser().getUtils();
 	}
 
-	@Override
 	public default Map<String, Object> getDataHolder() {
 		return getBrowser().getDataHolder();
 	}
 
-	@Override
 	public default String getProperty(String key) {
 		return getBrowser().getProperty(key);
 	}
