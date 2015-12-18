@@ -16,8 +16,6 @@ import com.etnetera.qa.seleniumbrowser.event.impl.OnPageInitExceptionEvent;
 /**
  * Basic page which supports elements and modules auto loading 
  * with fluent redirection to another pages.
- * 
- * @author zdenek
  */
 abstract public class Page implements BrowserContext {
 
@@ -43,22 +41,10 @@ abstract public class Page implements BrowserContext {
 
 	protected Browser browser;
 	
-	public Page() {
-		configureFromAnnotation();
-	}
-	
 	public Page with(Browser browser) {
 		this.browser = browser;
-		if (baseUrl == null)
-			baseUrl = browser.getBaseUrl();
-		if (baseUrlRegex == null)
-			baseUrlRegex = browser.getBaseUrlRegex();
-		if (urlVerification == null)
-			urlVerification = browser.isUrlVerification();
-		if (waitTimeout == null)
-			waitTimeout = browser.getWaitTimeout();
-		if (waitRetryInterval == null)
-			waitRetryInterval = browser.getWaitRetryInterval();
+		configureFromAnnotation();
+		configureFromBrowser();
 		return this;
 	}
 
@@ -222,6 +208,24 @@ abstract public class Page implements BrowserContext {
 			waitRetryInterval = config.waitRetryInterval()[0];
 		if (config.waitBeforePageInitTimeout().length > 0)
 			waitPageBeforeInitTimeout = config.waitBeforePageInitTimeout()[0];
+	}
+	
+	protected void configureFromBrowser() {
+		if (browser != null)
+			applyBrowserConfiguration(browser);
+	}
+	
+	protected void applyBrowserConfiguration(Browser browser) {
+		if (baseUrl == null)
+			baseUrl = browser.getBaseUrl();
+		if (baseUrlRegex == null)
+			baseUrlRegex = browser.getBaseUrlRegex();
+		if (urlVerification == null)
+			urlVerification = browser.isUrlVerification();
+		if (waitTimeout == null)
+			waitTimeout = browser.getWaitTimeout();
+		if (waitRetryInterval == null)
+			waitRetryInterval = browser.getWaitRetryInterval();
 	}
 
 	protected void verifyThis() {

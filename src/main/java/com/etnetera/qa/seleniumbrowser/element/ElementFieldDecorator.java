@@ -27,8 +27,6 @@ import com.etnetera.qa.seleniumbrowser.module.Module;
 /**
  * Decorator used with PageFactory which allows to inject MissingWebElement when
  * OptionalWebElement is not found.
- * 
- * @author zdenek
  *
  */
 public class ElementFieldDecorator implements FieldDecorator {

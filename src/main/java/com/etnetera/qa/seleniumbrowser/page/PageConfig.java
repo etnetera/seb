@@ -8,9 +8,6 @@ import java.lang.annotation.Target;
 /**
  * Allows configure page object directly instead
  * of tweaking its properties and methods.
- * 
- * @author zdenek
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

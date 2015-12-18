@@ -10,8 +10,6 @@ import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 
 /**
  * Basic logic.
- * 
- * @author zdenek
  */
 abstract public class Logic implements BrowserContext {
 	
