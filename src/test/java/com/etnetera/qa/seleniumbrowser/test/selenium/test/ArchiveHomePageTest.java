@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.etnetera.qa.seleniumbrowser.test.selenium.page.ArchiveHomePage;
+import com.etnetera.qa.seleniumbrowser.test.selenium.page.HomePage;
 
 public class ArchiveHomePageTest extends BrowserTest {
 	
@@ -19,6 +20,13 @@ public class ArchiveHomePageTest extends BrowserTest {
 		browser.waiting(2).sleep();
 		page.getSearchInput().blur();
 		browser.waiting(2).sleep();
+	}
+	
+	@Test
+	public void onePageCheck() {
+		browser.goTo(HomePage.class);
+		browser.initOnePage(ArchiveHomePage.class, HomePage.class);
+		Assert.assertEquals("Page is HomePage", HomePage.class, browser.getPage().getClass());
 	}
 	
 }

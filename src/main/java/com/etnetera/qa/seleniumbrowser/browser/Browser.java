@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.PageFactory;
@@ -459,7 +460,7 @@ public class Browser implements BrowserContext {
 	public <T extends Page> T goToSafely(Class<T> page) {
 		try {
 			return goTo(page);
-		} catch (VerificationException e) {
+		} catch (WebDriverException e) {
 			return null;
 		}
 	}
@@ -468,7 +469,7 @@ public class Browser implements BrowserContext {
 	public <T extends Page> T goToSafely(T page) {
 		try {
 			return goTo(page);
-		} catch (VerificationException e) {
+		} catch (WebDriverException e) {
 			return null;
 		}
 	}
@@ -477,7 +478,7 @@ public class Browser implements BrowserContext {
 	public <T extends Page> T initPageSafely(Class<T> page) {
 		try {
 			return initPage(page);
-		} catch (VerificationException e) {
+		} catch (WebDriverException e) {
 			return null;
 		}
 	}
@@ -486,7 +487,7 @@ public class Browser implements BrowserContext {
 	public <T extends Page> T initPageSafely(T page) {
 		try {
 			return initPage(page);
-		} catch (VerificationException e) {
+		} catch (WebDriverException e) {
 			return null;
 		}
 	}
@@ -495,7 +496,7 @@ public class Browser implements BrowserContext {
 	public Page initOnePageSafely(Object... pages) {
 		try {
 			return initOnePage(pages);
-		} catch (VerificationException e) {
+		} catch (WebDriverException e) {
 			return null;
 		}
 	}
