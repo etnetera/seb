@@ -108,6 +108,9 @@ abstract public class Page implements BrowserContext {
 			beforeInitElements();
 			initElements();
 			afterInitElements();
+			beforeSetup();
+			setup();
+			afterSetup();
 			beforeVerify();
 			verify();
 			afterVerify();
@@ -227,7 +230,20 @@ abstract public class Page implements BrowserContext {
 		if (waitRetryInterval == null)
 			waitRetryInterval = browser.getWaitRetryInterval();
 	}
+	
+	/**
+	 * Override this method to initialize
+	 * custom elements or do some other things
+	 * before verification.
+	 */
+	protected void setup() {
+		// initialize custom elements etc.
+	}
 
+	/**
+	 * Override this method to perform custom check
+	 * after all fields are initiated and setup is done.
+	 */
 	protected void verifyThis() {
 		// check if we are on right page
 	}
@@ -241,6 +257,14 @@ abstract public class Page implements BrowserContext {
 	}
 	
 	protected void afterInitElements() {
+		// do whatever you want
+	}
+	
+	protected void beforeSetup() {
+		// do whatever you want
+	}
+	
+	protected void afterSetup() {
 		// do whatever you want
 	}
 	

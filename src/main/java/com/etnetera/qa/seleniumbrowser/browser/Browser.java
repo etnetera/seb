@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -27,6 +28,7 @@ import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfigurationConstructException;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
 import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
+import com.etnetera.qa.seleniumbrowser.element.ElementLoader;
 import com.etnetera.qa.seleniumbrowser.element.MissingElement;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
@@ -44,6 +46,7 @@ import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.page.PageConstructException;
 import com.etnetera.qa.seleniumbrowser.source.DataSource;
 import com.etnetera.qa.seleniumbrowser.source.PropertySource;
+import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
 /**
  * Wrapper class for {@link WebDriver}. It is configured using
@@ -87,6 +90,10 @@ public class Browser implements BrowserContext {
 	protected Map<String, Object> dataHolder = new HashMap<String, Object>();
 	
 	protected BrowserUtils utils = new BrowserUtils();
+	
+	protected ElementLoader elementLoader = new ElementLoader(this);
+	
+	protected JavascriptLibrary javascriptLibrary = new JavascriptLibrary();
 	
 	/**
 	 * Constructs a new instance with default configuration. It constructs
@@ -209,8 +216,8 @@ public class Browser implements BrowserContext {
 	/**
 	 * Modify browser label joining given labels.
 	 * 
-	 * @param label
-	 *            Browser label
+	 * @param labels
+	 *            Browser labels
 	 */
 	public void setLabel(String... labels) {
 		this.label = utils.join(LABEL_DELIMITER, (Object[]) labels);
@@ -315,7 +322,7 @@ public class Browser implements BrowserContext {
 	/**
 	 * Toggles storing files using browser.
 	 * 
-	 * @param reported
+	 * @param reported The reported status.
 	 */
 	public void setReported(boolean reported) {
 		this.reported = reported;
@@ -324,11 +331,19 @@ public class Browser implements BrowserContext {
 	/**
 	 * Returns utils instance.
 	 * 
-	 * @return
+	 * @return The utils instance
 	 */
 	@Override
 	public BrowserUtils getUtils() {
 		return utils;
+	}
+
+	public ElementLoader getElementLoader() {
+		return elementLoader;
+	}
+
+	public JavascriptLibrary getJavascriptLibrary() {
+		return javascriptLibrary;
 	}
 
 	/**
@@ -369,8 +384,8 @@ public class Browser implements BrowserContext {
 	 *            The event class to construct
 	 * @param context
 	 *            The context to use
-	 * @return
-	 */
+	 * @return The event instance
+	 */	
 	@SuppressWarnings("unchecked")
 	public synchronized <T extends BrowserEvent> T constructEvent(Class<T> eventCls, BrowserContext context) {
 		try {
@@ -434,21 +449,9 @@ public class Browser implements BrowserContext {
 	}
 
 	@Override
-	public boolean isAt(Object page) {
-		return this.page != null && page.getClass().isAssignableFrom(this.page.getClass());
-	}
-
-	@Override
 	public void assertAt(Class<?> page) {
 		if (!isAt(page))
 			throw new AssertionError("Page " + page + " is not assignable to actual page "
-					+ (this.page == null ? null : this.page.getClass()));
-	}
-
-	@Override
-	public void assertAt(Object page) {
-		if (!isAt(page))
-			throw new AssertionError("Page " + page.getClass() + " is not assignable to actual page "
 					+ (this.page == null ? null : this.page.getClass()));
 	}
 
@@ -618,6 +621,16 @@ public class Browser implements BrowserContext {
 	@Override
 	public WebElement findElement(By by) {
 		return driver.findElement(by);
+	}
+	
+	@Override
+	public <T extends WebElement> T findElement(SearchContext context, By by, Class<T> elementCls, boolean optional) {
+		return elementLoader.findElement(context, by, elementCls, optional);
+	}
+	
+	@Override
+	public <T extends WebElement> List<T> findElements(SearchContext context, By by, Class<T> elementCls) {
+		return elementLoader.findElements(context, by, elementCls);
 	}
 
 	@Override

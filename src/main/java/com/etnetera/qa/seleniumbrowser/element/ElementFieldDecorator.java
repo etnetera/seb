@@ -5,10 +5,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.internal.Locatable;
 import org.openqa.selenium.internal.WrapsElement;
@@ -27,12 +25,11 @@ import com.etnetera.qa.seleniumbrowser.module.Module;
 /**
  * Decorator used with PageFactory which allows to inject MissingWebElement when
  * OptionalWebElement is not found.
- *
  */
 public class ElementFieldDecorator implements FieldDecorator {
 
 	protected ElementLocatorFactory factory;
-	
+
 	protected BrowserContext context;
 
 	public ElementFieldDecorator(ElementLocatorFactory factory, BrowserContext context) {
@@ -69,55 +66,27 @@ public class ElementFieldDecorator implements FieldDecorator {
 		}
 
 		if (!isList) {
-			WebElement proxy = proxyForLocator(field, loader, locator);
-			if (proxy != null && Module.class.isAssignableFrom(elementCls)) {
-				return convertElementToModule((Class<? extends Module>) elementCls, proxy);
-			} else {
-				return proxy;
-			}
+			return context.getBrowser().getElementLoader().findElement(() -> proxyForLocator(field, loader, locator), (Class<? extends WebElement>) elementCls, field.isAnnotationPresent(OptionalElement.class));
 		} else {
-			List<WebElement> proxy = proxyForListLocator(loader, locator);
-			if (proxy != null && Module.class.isAssignableFrom(elementCls)) {
-				List<Module> modules = new ArrayList<>();
-				for (WebElement element : proxy) {
-					modules.add(convertElementToModule((Class<? extends Module>) elementCls, element));
-				}
-				return modules;
-			} else {
-				return proxy;
-			}
+			return context.getBrowser().getElementLoader().findElements(() -> proxyForListLocator(loader, locator), (Class<? extends WebElement>) elementCls);
 		}
 	}
-	
+
 	protected boolean isSupported(Field field) {
-		return field.isAnnotationPresent(FindBy.class) || field.isAnnotationPresent(FindBys.class) || field.isAnnotationPresent(FindAll.class);
+		return field.isAnnotationPresent(FindByDefault.class) || field.isAnnotationPresent(FindBy.class)
+				|| field.isAnnotationPresent(FindBys.class) || field.isAnnotationPresent(FindAll.class);
 	}
 
 	protected WebElement proxyForLocator(Field field, ClassLoader loader, ElementLocator locator) {
 		InvocationHandler handler = new LocatingElementHandler(locator);
-
-		WebElement proxy;
-		try {
-			proxy = (WebElement) Proxy.newProxyInstance(loader,
-					new Class[] { WebElement.class, WrapsElement.class, Locatable.class }, handler);
-			proxy.isDisplayed();
-		} catch (final NoSuchElementException nsee) {
-			if (field.isAnnotationPresent(OptionalElement.class)) {
-				proxy = new MissingElement(nsee);
-			} else {
-				throw nsee;
-			}
-		}
-		return proxy;
+		return (WebElement) Proxy.newProxyInstance(loader,
+				new Class[] { WebElement.class, WrapsElement.class, Locatable.class }, handler);
 	}
 
 	@SuppressWarnings("unchecked")
 	protected List<WebElement> proxyForListLocator(ClassLoader loader, ElementLocator locator) {
 		InvocationHandler handler = new LocatingElementListHandler(locator);
-
-		List<WebElement> proxy;
-		proxy = (List<WebElement>) Proxy.newProxyInstance(loader, new Class[] { List.class }, handler);
-		return proxy;
+		return (List<WebElement>) Proxy.newProxyInstance(loader, new Class[] { List.class }, handler);
 	}
 
 	protected Module convertElementToModule(Class<? extends Module> moduleCls, WebElement element) {

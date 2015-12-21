@@ -253,7 +253,7 @@ public class BasicBrowserConfiguration implements BrowserConfiguration, ChainedP
 	
 	/**
 	 * Loads properties from resource 
-	 * {@link ChainedPropertiesSource#DEFAULT_PROPERTIES_RESOURCE_NAME} 
+	 * {@link BasicBrowserConfiguration#DEFAULT_PROPERTIES_RESOURCE_NAME} 
 	 * and adds them at the end of actual properties list.
 	 * 
 	 * @return Same instance
@@ -264,7 +264,7 @@ public class BasicBrowserConfiguration implements BrowserConfiguration, ChainedP
 	
 	/**
 	 * Loads properties from resource 
-	 * {@link ChainedPropertiesSource#DEFAULT_PROPERTIES_RESOURCE_NAME} 
+	 * {@link BasicBrowserConfiguration#DEFAULT_PROPERTIES_RESOURCE_NAME} 
 	 * and adds them before specific key in actual properties list.
 	 * 
 	 * @param beforeKey
@@ -277,7 +277,7 @@ public class BasicBrowserConfiguration implements BrowserConfiguration, ChainedP
 	
 	/**
 	 * Loads properties from resource 
-	 * {@link ChainedPropertiesSource#DEFAULT_PROPERTIES_RESOURCE_NAME} 
+	 * {@link BasicBrowserConfiguration#DEFAULT_PROPERTIES_RESOURCE_NAME} 
 	 * and adds them after specific key in actual properties list.
 	 * 
 	 * @param afterKey
@@ -321,7 +321,7 @@ public class BasicBrowserConfiguration implements BrowserConfiguration, ChainedP
 	
 	/**
 	 * Loads properties from resource 
-	 * {@link ChainedPropertiesSource#DEFAULT_PROPERTIES_RESOURCE_NAME} 
+	 * {@link BasicBrowserConfiguration#DEFAULT_PROPERTIES_RESOURCE_NAME} 
 	 * and pushes them at the start of actual properties list.
 	 * 
 	 * @return Same instance
