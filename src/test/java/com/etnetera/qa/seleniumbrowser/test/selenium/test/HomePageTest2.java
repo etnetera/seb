@@ -26,6 +26,7 @@ public class HomePageTest2 {
 		browser.goTo(HomePage.class);
 		Assert.assertTrue("Title is valid", browser.getDriver().getTitle().contains(browser.getData("custom", Properties.class).getProperty("title")));
 		browser.report(browser.getProperty("report.onHomepage", "On homepage 2"));
+		Assert.assertEquals("UTF-8 string is loaded fine", "Žluťoučký kůň", browser.getProperty("unicode.test"));
 	}
 
 	@After

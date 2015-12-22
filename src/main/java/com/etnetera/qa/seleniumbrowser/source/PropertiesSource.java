@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 import com.etnetera.qa.seleniumbrowser.browser.BrowserException;
@@ -13,6 +14,8 @@ import com.etnetera.qa.seleniumbrowser.browser.BrowserException;
  * from resource, path, file or {@link Properties} directly.
  */
 public interface PropertiesSource extends PropertySource {
+	
+	public static final String ENCODING = "UTF-8";
 	
 	public static Properties loadProperties(Object source) {
 		if (source instanceof Properties) {
@@ -36,7 +39,7 @@ public interface PropertiesSource extends PropertySource {
 			throw new BrowserException("Properties file is not readable " + file);
 		Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream(file));
+			properties.load(new InputStreamReader(new FileInputStream(file), ENCODING));
 		} catch (IOException e) {
 			throw new BrowserException("Error while reading properties file " + file);
 		}
@@ -49,7 +52,7 @@ public interface PropertiesSource extends PropertySource {
 			throw new BrowserException("Properties resource does not exists " + resourceName);
 		Properties properties = new Properties();
 		try {
-			properties.load(is);
+			properties.load(new InputStreamReader(is, ENCODING));
 		} catch (IOException e) {
 			throw new BrowserException("Error while reading properties resource " + resourceName);
 		}
