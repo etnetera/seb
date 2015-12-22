@@ -4,7 +4,7 @@
 
 	<groupId>com.etnetera.qa</groupId>
 	<artifactId>seleniumbrowser</artifactId>
-	<version>0.3.3</version>
+	<version>0.3.4</version>
 	<packaging>jar</packaging>
 
 	<name>SeleniumBrowser</name>

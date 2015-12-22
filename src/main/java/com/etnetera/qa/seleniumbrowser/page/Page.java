@@ -101,7 +101,7 @@ abstract public class Page implements BrowserContext {
 
 	final public Page init() {
 		if (waitPageBeforeInitTimeout != null)
-			waiting(waitPageBeforeInitTimeout);
+			waiting(waitPageBeforeInitTimeout).sleep();
 		try {
 			triggerEvent(constructEvent(BeforePageInitEvent.class).with(this));
 			beforeInit();
