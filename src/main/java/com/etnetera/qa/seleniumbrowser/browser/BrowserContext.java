@@ -1,26 +1,30 @@
 package com.etnetera.qa.seleniumbrowser.browser;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.internal.WrapsDriver;
+import org.openqa.selenium.support.pagefactory.ElementLocator;
 import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Sleeper;
 
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
+import com.etnetera.qa.seleniumbrowser.element.BrowserElement;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.logic.Logic;
-import com.etnetera.qa.seleniumbrowser.module.Module;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.source.DataSource;
 import com.etnetera.qa.seleniumbrowser.source.PropertySource;
 
-public interface BrowserContext extends SearchContext, PropertySource, DataSource {
+public interface BrowserContext extends SearchContext, PropertySource, DataSource, WrapsDriver {
 
 	/**
 	 * Returns parent {@link BrowserContext} instance.
@@ -90,6 +94,11 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 */
 	public default <T> T getDriver(Class<T> driver) {
 		return getBrowser().getDriver(driver);
+	}
+	
+	@Override
+	public default WebDriver getWrappedDriver() {
+		return getDriver();
 	}
 	
 	/**
@@ -374,16 +383,16 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 		return getBrowser().constructPage(page);
 	}
 	
-	public default <T extends Module> T initModule(T module) {
-		return getBrowser().initModule(module);
+	public default <T extends BrowserElement> T initBrowserElement(T element) {
+		return getBrowser().initBrowserElement(element);
 	}
 	
-	public default <T extends Module> T initModule(Class<T> module, WebElement element) {
-		return getBrowser().initModule(module, this, element);
+	public default <T extends BrowserElement> T initBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
+		return getBrowser().initBrowserElement(element, this, webElement, optional);
 	}
 	
-	public default <T extends Module> T constructModule(Class<T> module, WebElement element) {
-		return getBrowser().constructModule(module, this, element);
+	public default <T extends BrowserElement> T constructBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
+		return getBrowser().constructBrowserElement(element, this, webElement, optional);
 	}
 	
 	public default <T extends Logic> T initLogic(T logic) {
@@ -400,6 +409,10 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	
 	public default void initElements() {
 		getBrowser().initElements(this);
+	}
+	
+	public default void checkIfPresent(WebElement element) throws NoSuchElementException {
+		getBrowser().checkIfPresent(element);
 	}
 	
 	public default boolean isPresent(WebElement element) {
@@ -438,52 +451,78 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 		return getBrowser().getUtils();
 	}
 
+	@Override
 	public default Map<String, Object> getDataHolder() {
 		return getBrowser().getDataHolder();
 	}
 
+	@Override
 	public default String getProperty(String key) {
 		return getBrowser().getProperty(key);
 	}
+	
+	public default List<BrowserElement> find(By by) {
+		return getBrowser().find(this, by, BrowserElement.class);
+	}
+	
+	public default List<BrowserElement> find(BrowserContext context, By by) {
+		return getBrowser().find(context, by, BrowserElement.class);
+	}
+	
+	public default <T extends BrowserElement> List<T> find(By by, Class<T> elementCls) {
+		return getBrowser().find(this, by, elementCls);
+	}
+	
+	public default <T extends BrowserElement> List<T> find(BrowserContext context, By by, Class<T> elementCls) {
+		return getBrowser().find(context, by, elementCls);
+	}
 
-	public default <T extends WebElement> T findElement(By by, Class<T> elementCls) {
-		return getBrowser().findElement(this, by, elementCls, false);
+	public default BrowserElement findOne(By by) {
+		return getBrowser().findOne(this, by, BrowserElement.class, false);
+	}
+
+	public default BrowserElement findOne(BrowserContext context, By by) {
+		return getBrowser().findOne(context, by, BrowserElement.class, false);
 	}
 	
-	public default WebElement findElement(SearchContext context, By by) {
-		return getBrowser().findElement(context, by, WebElement.class, false);
+	public default <T extends BrowserElement> T findOne(By by, Class<T> elementCls) {
+		return getBrowser().findOne(this, by, elementCls, false);
 	}
 	
-	public default <T extends WebElement> T findElement(SearchContext context, By by, Class<T> elementCls) {
-		return getBrowser().findElement(context, by, elementCls, false);
+	public default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls) {
+		return getBrowser().findOne(context, by, elementCls, false);
 	}
 	
-	public default <T extends WebElement> T findElement(SearchContext context, By by, Class<T> elementCls, boolean optional) {
-		return getBrowser().findElement(context, by, elementCls, optional);
+	public default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls, boolean optional) {
+		return getBrowser().findOne(context, by, elementCls, optional);
 	}
 	
-	public default <T extends WebElement> List<T> findElements(By by, Class<T> elementCls) {
-		return getBrowser().findElements(this, by, elementCls);
+	public default BrowserElement findOneOptional(By by) {
+		return getBrowser().findOne(this, by, BrowserElement.class, true);
 	}
 	
-	public default <T extends WebElement> List<T> findElements(SearchContext context, By by, Class<T> elementCls) {
-		return getBrowser().findElements(context, by, elementCls);
+	public default BrowserElement findOneOptional(BrowserContext context, By by) {
+		return getBrowser().findOne(context, by, BrowserElement.class, true);
 	}
 	
-	public default WebElement findOptionalElement(By by) {
-		return getBrowser().findElement(this, by, WebElement.class, true);
+	public default <T extends BrowserElement> T findOneOptional(By by, Class<T> elementCls) {
+		return getBrowser().findOne(this, by, elementCls, true);
 	}
 	
-	public default <T extends WebElement> T findOptionalElement(By by, Class<T> elementCls) {
-		return getBrowser().findElement(this, by, elementCls, true);
+	public default <T extends BrowserElement> T findOneOptional(BrowserContext context, By by, Class<T> elementCls) {
+		return getBrowser().findOne(context, by, elementCls, true);
 	}
 	
-	public default WebElement findOptionalElement(SearchContext context, By by) {
-		return getBrowser().findElement(context, by, WebElement.class, true);
+	public default ElementLocator createElementLocator(Field field) {
+		return getBrowser().createElementLocator(this, field);
 	}
 	
-	public default <T extends WebElement> T findOptionalElement(SearchContext context, By by, Class<T> elementCls) {
-		return getBrowser().findElement(context, by, elementCls, true);
+	public default ElementLocator createElementLocator(By by) {
+		return getBrowser().createElementLocator(this, by);
+	}
+	
+	public default ElementLocator createElementLocator(By by, boolean lookupCached) {
+		return getBrowser().createElementLocator(this, by, lookupCached);
 	}
 	
 }

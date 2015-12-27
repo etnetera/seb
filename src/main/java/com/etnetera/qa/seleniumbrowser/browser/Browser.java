@@ -3,6 +3,7 @@ package com.etnetera.qa.seleniumbrowser.browser;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
@@ -22,15 +24,18 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
-import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
+import org.openqa.selenium.support.pagefactory.AbstractAnnotations;
+import org.openqa.selenium.support.pagefactory.DefaultElementLocator;
+import org.openqa.selenium.support.pagefactory.ElementLocator;
 
 import com.etnetera.qa.seleniumbrowser.configuration.BasicBrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfigurationConstructException;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
-import com.etnetera.qa.seleniumbrowser.element.ElementFieldDecorator;
-import com.etnetera.qa.seleniumbrowser.element.ElementLoader;
-import com.etnetera.qa.seleniumbrowser.element.MissingElement;
+import com.etnetera.qa.seleniumbrowser.element.BrowserElement;
+import com.etnetera.qa.seleniumbrowser.element.BrowserFieldDecorator;
+import com.etnetera.qa.seleniumbrowser.element.BrowserElementConstructException;
+import com.etnetera.qa.seleniumbrowser.element.BrowserElementLoader;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
 import com.etnetera.qa.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
@@ -41,8 +46,6 @@ import com.etnetera.qa.seleniumbrowser.listener.EventConstructException;
 import com.etnetera.qa.seleniumbrowser.listener.EventFiringBrowserBridgeListener;
 import com.etnetera.qa.seleniumbrowser.logic.Logic;
 import com.etnetera.qa.seleniumbrowser.logic.LogicConstructException;
-import com.etnetera.qa.seleniumbrowser.module.Module;
-import com.etnetera.qa.seleniumbrowser.module.ModuleConstructException;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.page.PageConstructException;
 import com.etnetera.qa.seleniumbrowser.source.DataSource;
@@ -92,7 +95,7 @@ public class Browser implements BrowserContext {
 	
 	protected BrowserUtils utils = new BrowserUtils();
 	
-	protected ElementLoader elementLoader = new ElementLoader(this);
+	protected BrowserElementLoader elementLoader = new BrowserElementLoader();
 	
 	protected JavascriptLibrary javascriptLibrary = new JavascriptLibrary();
 	
@@ -339,12 +342,34 @@ public class Browser implements BrowserContext {
 		return utils;
 	}
 
-	public ElementLoader getElementLoader() {
+	public BrowserElementLoader getElementLoader() {
 		return elementLoader;
 	}
 
 	public JavascriptLibrary getJavascriptLibrary() {
 		return javascriptLibrary;
+	}
+	
+	public ElementLocator createElementLocator(SearchContext searchContext, Field field) {
+		return new DefaultElementLocator(searchContext, field);
+	}
+	
+	public ElementLocator createElementLocator(SearchContext searchContext, By by) {
+		return createElementLocator(searchContext, by, false);
+	}
+	
+	public ElementLocator createElementLocator(SearchContext searchContext, By by, boolean lookupCached) {
+		return new DefaultElementLocator(searchContext, new AbstractAnnotations() {
+			@Override
+			public boolean isLookupCached() {
+				return lookupCached;
+			}
+			
+			@Override
+			public By buildBy() {
+				return by;
+			}
+		});
 	}
 
 	/**
@@ -558,22 +583,22 @@ public class Browser implements BrowserContext {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Module> T initModule(T module) {
-		return (T) module.init();
+	public <T extends BrowserElement> T initBrowserElement(T element) {
+		return (T) element.init();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends Module> T initModule(Class<T> module, BrowserContext context, WebElement element) {
-		return (T) constructModule(module, context, element).init();
+	public <T extends BrowserElement> T initBrowserElement(Class<T> element, BrowserContext context, WebElement webElement, boolean optional) {
+		return (T) constructBrowserElement(element, context, webElement, optional).init();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends Module> T constructModule(Class<T> module, BrowserContext context, WebElement element) {
+	public <T extends BrowserElement> T constructBrowserElement(Class<T> element, BrowserContext context, WebElement webElement, boolean optional) {
 		try {
-			Constructor<T> ctor = module.getConstructor();
-			return (T) ctor.newInstance().with(context, element);
+			Constructor<T> ctor = element.getConstructor();
+			return (T) ctor.newInstance().with(context, webElement, optional);
 		} catch (Exception e) {
-			throw new ModuleConstructException("Unable to construct module " + module.getName(), e);
+			throw new BrowserElementConstructException("Unable to construct module " + element.getName(), e);
 		}
 	}
 	
@@ -600,20 +625,32 @@ public class Browser implements BrowserContext {
 	
 	public void initElements(BrowserContext context) {
 		PageFactory.initElements(
-				new ElementFieldDecorator(new DefaultElementLocatorFactory(context), context),
+				new BrowserFieldDecorator(context),
 				context);
 	}
 	
 	@Override
+	public void checkIfPresent(WebElement element) throws NoSuchElementException {
+		if (element == null)
+			throw new NoSuchElementException("Element is null");
+		element.isDisplayed();
+	}
+	
+	@Override
 	public boolean isPresent(WebElement element) {
-		return !isNotPresent(element);
+		try {
+			checkIfPresent(element);
+			return true;
+		} catch (NoSuchElementException e) {
+			return false;
+		}
 	}
 	
 	@Override
 	public boolean isNotPresent(WebElement element) {
-		return element == null || element instanceof MissingElement || (element instanceof Module && ((Module) element).isNotPresent());
+		return !isPresent(element);
 	}
-
+	
 	@Override
 	public List<WebElement> findElements(By by) {
 		return driver.findElements(by);
@@ -625,13 +662,13 @@ public class Browser implements BrowserContext {
 	}
 	
 	@Override
-	public <T extends WebElement> T findElement(SearchContext context, By by, Class<T> elementCls, boolean optional) {
-		return elementLoader.findElement(context, by, elementCls, optional);
+	public <T extends BrowserElement> List<T> find(BrowserContext context, By by, Class<T> elementCls) {
+		return elementLoader.find(context, by, elementCls);
 	}
 	
 	@Override
-	public <T extends WebElement> List<T> findElements(SearchContext context, By by, Class<T> elementCls) {
-		return elementLoader.findElements(context, by, elementCls);
+	public <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls, boolean optional) {
+		return elementLoader.findOne(context, by, elementCls, optional);
 	}
 
 	@Override

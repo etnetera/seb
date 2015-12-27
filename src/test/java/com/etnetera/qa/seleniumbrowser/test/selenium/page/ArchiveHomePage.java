@@ -3,6 +3,7 @@ package com.etnetera.qa.seleniumbrowser.test.selenium.page;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.FindBy;
 
+import com.etnetera.qa.seleniumbrowser.element.BrowserElement;
 import com.etnetera.qa.seleniumbrowser.module.Module;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.page.PageConfig;
@@ -11,18 +12,18 @@ import com.etnetera.qa.seleniumbrowser.page.PageConfig;
 public class ArchiveHomePage extends Page {
 
 	@FindBy(id = "vyhledavani")
-	protected Module searchEl;
+	protected BrowserElement searchEl;
 	
-	protected Module searchInput;
+	protected BrowserElement searchInput;
 
-	public Module getSearchInput() {
+	public BrowserElement getSearchInput() {
 		return searchInput;
 	}
 
 	@Override
 	protected void setup() {
 		super.setup();
-		searchInput = searchEl.findElement(By.cssSelector("input[name=queryORWords]"), Module.class);
+		searchInput = searchEl.findOne(By.cssSelector("input[name=queryORWords2]"), Module.class);
 	}
 	
 }

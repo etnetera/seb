@@ -10,7 +10,7 @@ import org.openqa.selenium.support.PageFactory;
 
 /**
  * Identifies element which is not required to be present when using {@link PageFactory}. 
- * If they are not present {@link MissingElement} is instantiated instead 
+ * If they are not present {@link BrowserElement} is instantiated instead 
  * of {@link NoSuchElementException} being thrown.
  */
 @Retention(RetentionPolicy.RUNTIME)
