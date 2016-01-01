@@ -11,6 +11,7 @@ import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.internal.WrapsDriver;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.pagefactory.ElementLocator;
 import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Sleeper;
@@ -19,11 +20,17 @@ import com.etnetera.qa.seleniumbrowser.configuration.BrowserConfiguration;
 import com.etnetera.qa.seleniumbrowser.context.VerificationException;
 import com.etnetera.qa.seleniumbrowser.element.BrowserElement;
 import com.etnetera.qa.seleniumbrowser.event.BrowserEvent;
+import com.etnetera.qa.seleniumbrowser.event.impl.OnReportEvent;
 import com.etnetera.qa.seleniumbrowser.logic.Logic;
 import com.etnetera.qa.seleniumbrowser.page.Page;
 import com.etnetera.qa.seleniumbrowser.source.DataSource;
 import com.etnetera.qa.seleniumbrowser.source.PropertySource;
 
+/**
+ * This is common interface for objects holding {@link Browser}
+ * and adds {@link Browser} specific methods directly in scope of
+ * {@link Page}, {@link BrowserElement} and {@link Logic}.
+ */
 public interface BrowserContext extends SearchContext, PropertySource, DataSource, WrapsDriver {
 
 	/**
@@ -94,11 +101,6 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 */
 	public default <T> T getDriver(Class<T> driver) {
 		return getBrowser().getDriver(driver);
-	}
-	
-	@Override
-	public default WebDriver getWrappedDriver() {
-		return getDriver();
 	}
 	
 	/**
@@ -383,82 +385,191 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 		return getBrowser().constructPage(page);
 	}
 	
+	/**
+	 * Initialize already constructed element.
+	 * 
+	 * @param element The element instance to initialize
+	 * @return The same element instance
+	 */
 	public default <T extends BrowserElement> T initBrowserElement(T element) {
 		return getBrowser().initBrowserElement(element);
 	}
 	
+	/**
+	 * Initialize element defined by class.
+	 * It injects this instance as context into element.
+	 * 
+	 * @param element The element class to initialize
+	 * @param webElement The web element to wrap
+	 * @param optional Is element optional
+	 * @return The element instance.
+	 */
 	public default <T extends BrowserElement> T initBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
 		return getBrowser().initBrowserElement(element, this, webElement, optional);
 	}
 	
+	/**
+	 * Construct element defined by class.
+	 * It injects this instance as context into element.
+	 * 
+	 * @param element The element class to construct
+	 * @param webElement The web element to wrap
+	 * @param optional Is element optional
+	 * @return The element instance.
+	 */
 	public default <T extends BrowserElement> T constructBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
 		return getBrowser().constructBrowserElement(element, this, webElement, optional);
 	}
 	
+	/**
+	 * Initialize logic defined by class.
+	 * 
+	 * @param logic The logic instance to initialize
+	 * @return The same logic instance
+	 */
 	public default <T extends Logic> T initLogic(T logic) {
 		return getBrowser().initLogic(logic);
 	}
 	
+	/**
+	 * Initialize logic defined by class.
+	 * 
+	 * @param logic The logic class to initialize
+	 * @return The logic instance
+	 */
 	public default <T extends Logic> T initLogic(Class<T> logic) {
 		return getBrowser().initLogic(logic, this);
 	}
 	
+	/**
+	 * Construct logic defined by class.
+	 * 
+	 * @param logic The logic class to construct
+	 * @return The logic instance
+	 */
 	public default <T extends Logic> T constructLogic(Class<T> logic) {
 		return getBrowser().constructLogic(logic, this);
 	}
 	
+	/**
+	 * Initialize elements annotated with {@link FindBy}
+	 * and similar annotations.
+	 */
 	public default void initElements() {
 		getBrowser().initElements(this);
 	}
 	
+	/**
+	 * Checks if element exists on actual page. 
+	 * If is present it does nothing. Otherwise throws
+	 * {@link NoSuchElementException}.
+	 * 
+	 * @param element The element to test
+	 * @throws NoSuchElementException if element is not present
+	 */
 	public default void checkIfPresent(WebElement element) throws NoSuchElementException {
 		getBrowser().checkIfPresent(element);
 	}
 	
+	/**
+	 * Returns true if element exists on actual page.
+	 * It is opposite to {@link BrowserContext#isNotPresent(WebElement)}.
+	 * 
+	 * @param element The element to test
+	 * @return <code>true</code> if element is present
+	 */
 	public default boolean isPresent(WebElement element) {
 		return getBrowser().isPresent(element);
 	}
 	
+	/**
+	 * Returns true if element does not exists on actual page.
+	 * It is opposite to {@link BrowserContext#isPresent(WebElement)}. 
+	 * 
+	 * @param element The element to test
+	 * @return <code>true</code> if element is not present
+	 */
 	public default boolean isNotPresent(WebElement element) {
 		return getBrowser().isNotPresent(element);
 	}
 	
+	/**
+	 * Triggers {@link OnReportEvent} with given label.
+	 * 
+	 * @param label The report label
+	 */
 	public default void report(String label) {
 		getBrowser().report(this, label);
 	}
 	
-	public default <T extends BrowserEvent> T constructEvent(Class<T> eventCls) {
-		return getBrowser().constructEvent(eventCls, this);
-	}
-	
+	/**
+	 * Triggers {@link BrowserEvent}.
+	 * 
+	 * @param event The triggered event
+	 */
 	public default void triggerEvent(BrowserEvent event) {
 		getBrowser().triggerEvent(event);
 	}
 	
+	/**
+	 * Construct event defined by class.
+	 * 
+	 * @param eventCls The event class to construct
+	 * @return The event instance
+	 */
+	public default <T extends BrowserEvent> T constructEvent(Class<T> eventCls) {
+		return getBrowser().constructEvent(eventCls, this);
+	}
+	
+	/**
+	 * Saves string into named file with extension.
+	 * It uses {@link Browser#getFilePath(String, String)).
+	 * If {@link Browser#isReported()) is <code>false</code>
+	 * no file is saved.
+	 * 
+	 * @param content The string content to save.
+	 * @param name The file name without extension.
+	 * @param extension The file extension.
+	 */
 	public default void saveFile(String content, String name, String extension) {
 		getBrowser().saveFile(content, name, extension);
 	}
 	
+	/**
+	 * Saves bytes into named file with extension.
+	 * It uses {@link Browser#getFilePath(String, String)).
+	 * If {@link Browser#isReported()) is <code>false</code>
+	 * no file is saved.
+	 * 
+	 * @param bytes The bytes to save.
+	 * @param name The file name without extension.
+	 * @param extension The file extension.
+	 */
 	public default void saveFile(byte[] bytes, String name, String extension) {
 		getBrowser().saveFile(bytes, name, extension);
 	}
 	
+	/**
+	 * Saves file into named file with extension.
+	 * It uses {@link Browser#getFilePath(String, String)).
+	 * If {@link Browser#isReported()) is <code>false</code>
+	 * no file is saved.
+	 * 
+	 * @param file The file to save.
+	 * @param name The file name without extension.
+	 * @param extension The file extension.
+	 */
 	public default void saveFile(File file, String name, String extension) {
 		getBrowser().saveFile(file, name, extension);
 	}
 	
+	/**
+	 * Returns browser utilities instance.
+	 * 
+	 * @return The browser utilities.
+	 */
 	public default BrowserUtils getUtils() {
 		return getBrowser().getUtils();
-	}
-
-	@Override
-	public default Map<String, Object> getDataHolder() {
-		return getBrowser().getDataHolder();
-	}
-
-	@Override
-	public default String getProperty(String key) {
-		return getBrowser().getProperty(key);
 	}
 	
 	public default List<BrowserElement> find(By by) {
@@ -523,6 +634,21 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	
 	public default ElementLocator createElementLocator(By by, boolean lookupCached) {
 		return getBrowser().createElementLocator(this, by, lookupCached);
+	}
+	
+	@Override
+	public default WebDriver getWrappedDriver() {
+		return getDriver();
+	}
+	
+	@Override
+	public default Map<String, Object> getDataHolder() {
+		return getBrowser().getDataHolder();
+	}
+
+	@Override
+	public default String getProperty(String key) {
+		return getBrowser().getProperty(key);
 	}
 	
 }

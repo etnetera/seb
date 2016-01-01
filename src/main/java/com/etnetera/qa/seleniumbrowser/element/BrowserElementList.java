@@ -7,6 +7,9 @@ import org.openqa.selenium.WebElement;
 
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 
+/**
+ * List which holds elements loaded using {@link BrowserElementLoader}.
+ */
 public class BrowserElementList extends AbstractList<BrowserElement> {
 
 	protected BrowserContext context;

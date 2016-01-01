@@ -6,6 +6,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Common helper methods.
+ */
 public class BrowserUtils {
 
 	public String join(String delimiter, Object... values) {

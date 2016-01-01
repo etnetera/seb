@@ -9,13 +9,14 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindAll;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.FieldDecorator;
 
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 
 /**
- * Decorator used with PageFactory which allows to inject MissingWebElement when
- * OptionalWebElement is not found.
+ * {@link PageFactory} decorator which uses {@link BrowserElementLoader}
+ * for list loading. 
  */
 public class BrowserFieldDecorator implements FieldDecorator {
 

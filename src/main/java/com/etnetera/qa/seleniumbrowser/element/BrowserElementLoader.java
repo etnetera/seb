@@ -15,6 +15,11 @@ import org.openqa.selenium.support.pagefactory.internal.LocatingElementListHandl
 
 import com.etnetera.qa.seleniumbrowser.browser.BrowserContext;
 
+/**
+ * {@link BrowserContext} element loader. It wraps {@link WebElement}
+ * into {@link BrowserElement} and allows set optional elements, which
+ * are not needed to be present immediately.
+ */
 public class BrowserElementLoader {
 
 	public <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls, boolean optional) {

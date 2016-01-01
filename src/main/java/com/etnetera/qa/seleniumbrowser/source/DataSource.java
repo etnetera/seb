@@ -7,6 +7,11 @@ import java.util.Map;
  */
 public interface DataSource {
 	
+	/**
+	 * Returns map which holds data.
+	 * 
+	 * @return The data holder map
+	 */
 	public Map<String, Object> getDataHolder();
 	
 	/**
