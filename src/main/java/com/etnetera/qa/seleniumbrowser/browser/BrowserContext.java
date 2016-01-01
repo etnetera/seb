@@ -523,8 +523,8 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	
 	/**
 	 * Saves string into named file with extension.
-	 * It uses {@link Browser#getFilePath(String, String)).
-	 * If {@link Browser#isReported()) is <code>false</code>
+	 * It uses {@link Browser#getFilePath(String, String)}.
+	 * If {@link Browser#isReported()} is <code>false</code>
 	 * no file is saved.
 	 * 
 	 * @param content The string content to save.
@@ -537,8 +537,8 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	
 	/**
 	 * Saves bytes into named file with extension.
-	 * It uses {@link Browser#getFilePath(String, String)).
-	 * If {@link Browser#isReported()) is <code>false</code>
+	 * It uses {@link Browser#getFilePath(String, String)}.
+	 * If {@link Browser#isReported()} is <code>false</code>
 	 * no file is saved.
 	 * 
 	 * @param bytes The bytes to save.
@@ -551,8 +551,8 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	
 	/**
 	 * Saves file into named file with extension.
-	 * It uses {@link Browser#getFilePath(String, String)).
-	 * If {@link Browser#isReported()) is <code>false</code>
+	 * It uses {@link Browser#getFilePath(String, String)}.
+	 * If {@link Browser#isReported()} is <code>false</code>
 	 * no file is saved.
 	 * 
 	 * @param file The file to save.
