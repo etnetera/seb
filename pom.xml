@@ -2,13 +2,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.etnetera.qa</groupId>
+	<groupId>cz.etnetera</groupId>
 	<artifactId>seleniumbrowser</artifactId>
-	<version>0.3.6</version>
+	<version>0.3.7</version>
 	<packaging>jar</packaging>
 
 	<name>SeleniumBrowser</name>
-	<description>Helper classes for working with Selenium WebDriver tests using more object approach, using browser context which wraps driver, pages, modules and logics.</description>
+	<description>Helper classes for working with Selenium WebDriver tests using more object approach, using browser context which wraps driver, custom elements, pages, modules and logics.</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
