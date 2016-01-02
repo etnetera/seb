@@ -23,7 +23,8 @@ import com.etnetera.qa.seleniumbrowser.browser.BrowserException;
 /**
  * Wraps {@link WebElement} and holds {@link BrowserContext}
  * with {@link WebDriver}. Allows to check if element is present
- * or not and can be optional.
+ * or not and can be optional. Subclasses can override {@link BrowserElement#initPresent()}
+ * method to add some specific behavior.
  */
 public class BrowserElement implements BrowserContext, WebElement, WrapsElement, WrapsDriver {
 	

@@ -572,66 +572,212 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 		return getBrowser().getUtils();
 	}
 	
+	/**
+	 * Find all elements within the current context using the given mechanism.
+	 * 
+	 * @param by The locating mechanism to use
+	 * @return A list of all {@link BrowserElement}s, or an empty list if nothing matches
+	 */
 	public default List<BrowserElement> find(By by) {
 		return getBrowser().find(this, by, BrowserElement.class);
 	}
 	
+	/**
+	 * Find all elements within the given context using the given mechanism.
+	 * 
+	 * @param context The browser context to search in
+	 * @param by The locating mechanism to use
+	 * @return A list of all {@link BrowserElement}s, or an empty list if nothing matches
+	 */
 	public default List<BrowserElement> find(BrowserContext context, By by) {
 		return getBrowser().find(context, by, BrowserElement.class);
 	}
 	
+	/**
+	 * Find all elements within the current context using the given mechanism
+	 * as instances of the given {@link BrowserElement} or its subclass. 
+	 * 
+	 * @param by The locating mechanism to use
+	 * @param elementCls The element class
+	 * @return A list of all {@link BrowserElement}s as instances of the given 
+	 * {@link BrowserElement} or its subclass, or an empty list if nothing matches
+	 */
 	public default <T extends BrowserElement> List<T> find(By by, Class<T> elementCls) {
 		return getBrowser().find(this, by, elementCls);
 	}
 	
+	/**
+	 * Find all elements within the given context using the given mechanism
+	 * as instances of the given {@link BrowserElement} or its subclass. 
+	 * 
+	 * @param context The browser context to search in
+	 * @param by The locating mechanism to use
+	 * @param elementCls The element class
+	 * @return A list of all {@link BrowserElement}s as instances of the given 
+	 * {@link BrowserElement} or its subclass, or an empty list if nothing matches
+	 */
 	public default <T extends BrowserElement> List<T> find(BrowserContext context, By by, Class<T> elementCls) {
 		return getBrowser().find(context, by, elementCls);
 	}
 
+	/**
+	 * Find the first element within the current context using the given mechanism.
+	 * 
+	 * @param by The locating mechanism
+	 * @return The first matching element on the current context
+	 * @throws NoSuchElementException If no matching elements are found
+	 */
 	public default BrowserElement findOne(By by) {
 		return getBrowser().findOne(this, by, BrowserElement.class, false);
 	}
 
+	/**
+	 * Find the first element within the given context using the given mechanism.
+	 * 
+	 * @param context The browser context to search in
+	 * @param by The locating mechanism
+	 * @return The first matching element on the given context
+	 * @throws NoSuchElementException If no matching elements are found
+	 */
 	public default BrowserElement findOne(BrowserContext context, By by) {
 		return getBrowser().findOne(context, by, BrowserElement.class, false);
 	}
 	
+	/**
+	 * Find the first element within the current context using the given mechanism
+	 * as instance of the given {@link BrowserElement} or its subclass.
+	 * 
+	 * @param by The locating mechanism
+	 * @param elementCls The element class
+	 * @return The first matching element on the current context as instance of the given 
+	 * {@link BrowserElement} or its subclass
+	 * @throws NoSuchElementException If no matching elements are found
+	 */
 	public default <T extends BrowserElement> T findOne(By by, Class<T> elementCls) {
 		return getBrowser().findOne(this, by, elementCls, false);
 	}
 	
+	/**
+	 * Find the first element within the given context using the given mechanism
+	 * as instance of the given {@link BrowserElement} or its subclass.
+	 * 
+	 * @param context The browser context to search in
+	 * @param by The locating mechanism
+	 * @param elementCls The element class
+	 * @return The first matching element on the given context as instance of the given 
+	 * {@link BrowserElement} or its subclass
+	 * @throws NoSuchElementException If no matching elements are found
+	 */
 	public default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls) {
 		return getBrowser().findOne(context, by, elementCls, false);
 	}
 	
+	/**
+	 * Find the first element within the given context using the given mechanism
+	 * as instance of the given {@link BrowserElement} or its subclass.
+	 * If optional is <code>true</code> and no matching elements are found <code>null</code>
+	 * is returned instead of throwing {@link NoSuchElementException}.
+	 * 
+	 * @param context The browser context to search in
+	 * @param by The locating mechanism
+	 * @param elementCls The element class
+	 * @param optional <code>true</code> for returning <code>null</code> instead of throwing 
+	 * {@link NoSuchElementException} if no matching elements are found
+	 * @return The first matching element on the given context as instance of the given 
+	 * {@link BrowserElement} or its subclass
+	 * @throws NoSuchElementException If no matching elements are found and optional is <code>false</code>
+	 */
 	public default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls, boolean optional) {
 		return getBrowser().findOne(context, by, elementCls, optional);
 	}
 	
+	/**
+	 * Find the first element within the current context using the given mechanism.
+	 * If no matching elements are found <code>null</code> is returned.
+	 * 
+	 * @param by The locating mechanism
+	 * @return The first matching element on the current context or null 
+	 * if no matching elements are found
+	 */
 	public default BrowserElement findOneOptional(By by) {
 		return getBrowser().findOne(this, by, BrowserElement.class, true);
 	}
 	
+	/**
+	 * Find the first element within the given context using the given mechanism.
+	 * If no matching elements are found <code>null</code> is returned.
+	 * 
+	 * @param context The browser context to search in
+	 * @param by The locating mechanism
+	 * @return The first matching element on the current context or null 
+	 * if no matching elements are found
+	 */
 	public default BrowserElement findOneOptional(BrowserContext context, By by) {
 		return getBrowser().findOne(context, by, BrowserElement.class, true);
 	}
 	
+	/**
+	 * Find the first element within the current context using the given mechanism
+	 * as instance of the given {@link BrowserElement} or its subclass.
+	 * If no matching elements are found <code>null</code> is returned.
+	 * 
+	 * @param by The locating mechanism
+	 * @param elementCls The element class
+	 * @return The first matching element on the current context or null 
+	 * if no matching elements are found
+	 */
 	public default <T extends BrowserElement> T findOneOptional(By by, Class<T> elementCls) {
 		return getBrowser().findOne(this, by, elementCls, true);
 	}
 	
+	/**
+	 * Find the first element within the given context using the given mechanism
+	 * as instance of the given {@link BrowserElement} or its subclass.
+	 * If no matching elements are found <code>null</code> is returned.
+	 * 
+	 * @param context The browser context to search in
+	 * @param by The locating mechanism
+	 * @param elementCls The element class
+	 * @return The first matching element on the current context or null 
+	 * if no matching elements are found
+	 */
 	public default <T extends BrowserElement> T findOneOptional(BrowserContext context, By by, Class<T> elementCls) {
 		return getBrowser().findOne(context, by, elementCls, true);
 	}
 	
+	/**
+	 * Creates {@link ElementLocator} used to locate element.
+	 * It uses {@link FindBy} and similar annotations assigned
+	 * to the given field to create {@link By} locating mechanism.
+	 * 
+	 * @param field The field used as locator source
+	 * @return The element locator
+	 */
 	public default ElementLocator createElementLocator(Field field) {
 		return getBrowser().createElementLocator(this, field);
 	}
 	
+	/**
+	 * Creates {@link ElementLocator} used to locate element.
+	 * It uses the given {@link By} locating mechanism.
+	 * 
+	 * @param by The locating mechanism
+	 * @return The element locator
+	 */
 	public default ElementLocator createElementLocator(By by) {
 		return getBrowser().createElementLocator(this, by);
 	}
 	
+	/**
+	 * Creates {@link ElementLocator} used to locate element.
+	 * It uses the given {@link By} locating mechanism.
+	 * Set lookupCached to <code>true</code> return  element 
+	 * from cache on further calls.
+	 * 
+	 * @param by The locating mechanism
+	 * @param lookupCached if lookup is cached
+	 * @return The element locator
+	 */
 	public default ElementLocator createElementLocator(By by, boolean lookupCached) {
 		return getBrowser().createElementLocator(this, by, lookupCached);
 	}
