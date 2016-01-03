@@ -37,7 +37,7 @@ public class ArchiveHomePage extends Page {
 	@Override
 	protected void setup() {
 		super.setup();
-		searchInput = searchEl.findOne(By.cssSelector("input[name=queryORWords2]"), Module.class);
+		searchInput = searchEl.findOne(By.cssSelector("input[name=queryORWords]"), Module.class);
 	}
 	
 }
