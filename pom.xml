@@ -4,11 +4,24 @@
 
 	<groupId>cz.etnetera</groupId>
 	<artifactId>seleniumbrowser</artifactId>
-	<version>0.3.7</version>
+	<version>0.3.8</version>
 	<packaging>jar</packaging>
 
 	<name>SeleniumBrowser</name>
-	<description>Helper classes for working with Selenium WebDriver tests using more object approach, using browser context which wraps driver, custom elements, pages, modules and logics.</description>
+	<description>Java library for working with Selenium WebDriver using more object approach, with browser context which wraps driver, custom elements, pages, modules and logics.</description>
+	<url>https://github.com/etnetera/SeleniumBrowser</url>
+	<inceptionYear>2016</inceptionYear>
+	<organization>
+		<name>Etnetera a.s.</name>
+		<url>http://www.etnetera.cz/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
