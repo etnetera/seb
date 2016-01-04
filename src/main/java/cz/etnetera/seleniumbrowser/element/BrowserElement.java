@@ -27,6 +27,8 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.internal.Coordinates;
+import org.openqa.selenium.internal.Locatable;
 import org.openqa.selenium.internal.WrapsDriver;
 import org.openqa.selenium.internal.WrapsElement;
 
@@ -40,7 +42,7 @@ import cz.etnetera.seleniumbrowser.browser.BrowserException;
  * or not and can be optional. Subclasses can override {@link BrowserElement#initPresent()}
  * method to add some specific behavior.
  */
-public class BrowserElement implements BrowserContext, WebElement, WrapsElement, WrapsDriver {
+public class BrowserElement implements BrowserContext, WebElement, WrapsElement, WrapsDriver, Locatable {
 	
 	protected BrowserContext context;
 	
@@ -74,9 +76,9 @@ public class BrowserElement implements BrowserContext, WebElement, WrapsElement,
 		return context;
 	}
 
-	public BrowserElement init() {
+	final public BrowserElement init() {
 		try {
-			checkIfPresent();
+			checkIfPresent(webElement);
 			present = true;
 		} catch (NoSuchElementException e) {
 			if (!optional)
@@ -191,6 +193,13 @@ public class BrowserElement implements BrowserContext, WebElement, WrapsElement,
 	@Override
 	public WebElement getWrappedElement() {
 		return getWebElement();
+	}
+	
+	@Override
+	public Coordinates getCoordinates() {
+		// Not checked cast of element, but we knows that every element
+		// is created using with locatable interface.
+		return ((Locatable) getWebElement()).getCoordinates();
 	}
 	
 	@Override
