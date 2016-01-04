@@ -24,8 +24,9 @@
 	</licenses>
 	
 	<scm>
-		<connection>scm:git:git://github.com/etnetera/SeleniumBrowser.git</connection>
-		<developerConnection>scm:git:git://github.com/etnetera/SeleniumBrowser.git</developerConnection>
+		<url>https://github.com/etnetera/SeleniumBrowser</url>
+		<connection>scm:git:git@github.com:etnetera/SeleniumBrowser.git</connection>
+		<developerConnection>scm:git:git@github.com:etnetera/SeleniumBrowser.git</developerConnection>
 	</scm>
 
 	<properties>
