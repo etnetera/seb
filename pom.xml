@@ -4,7 +4,7 @@
 
 	<groupId>cz.etnetera</groupId>
 	<artifactId>seleniumbrowser</artifactId>
-	<version>0.3.11</version>
+	<version>0.3.11-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>SeleniumBrowser</name>
@@ -22,6 +22,11 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	
+	<scm>
+		<connection>scm:git:git://github.com/etnetera/SeleniumBrowser.git</connection>
+		<developerConnection>scm:git:git://github.com/etnetera/SeleniumBrowser.git</developerConnection>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,14 +37,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>artifactory.etn</id>
-			<name>artifactory.etn-releases</name>
-			<url>http://artifactory.etn/etn-qa</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 		<snapshotRepository>
-			<id>artifactory.etn</id>
-			<name>artifactory.etn-snapshots</name>
-			<url>http://artifactory.etn/etn-qa</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
