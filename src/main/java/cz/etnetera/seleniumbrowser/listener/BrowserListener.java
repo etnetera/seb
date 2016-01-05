@@ -47,6 +47,7 @@ import cz.etnetera.seleniumbrowser.event.impl.BeforeNavigateToEvent;
 import cz.etnetera.seleniumbrowser.event.impl.BeforePageInitEvent;
 import cz.etnetera.seleniumbrowser.event.impl.BeforeScriptEvent;
 import cz.etnetera.seleniumbrowser.event.impl.OnExceptionEvent;
+import cz.etnetera.seleniumbrowser.event.impl.OnFileSaveEvent;
 import cz.etnetera.seleniumbrowser.event.impl.OnModuleInitExceptionEvent;
 import cz.etnetera.seleniumbrowser.event.impl.OnPageInitExceptionEvent;
 import cz.etnetera.seleniumbrowser.event.impl.OnReportEvent;
@@ -131,6 +132,14 @@ public class BrowserListener {
 	 * @param event
 	 */
 	public void onReport(OnReportEvent event) {}
+	
+	/**
+	 * Called on {@link BrowserContext#saveFile(File, String, String)}
+	 * and similar methods.
+	 *
+	 * @param event
+	 */
+	public void onFileSave(OnFileSaveEvent event) {}
 	
 	/**
 	 * Called before {@link BrowserConfiguration#getDriver(org.openqa.selenium.remote.DesiredCapabilities)}.

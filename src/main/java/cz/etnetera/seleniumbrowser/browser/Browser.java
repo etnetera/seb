@@ -56,6 +56,7 @@ import cz.etnetera.seleniumbrowser.event.BrowserEvent;
 import cz.etnetera.seleniumbrowser.event.impl.AfterBrowserQuitEvent;
 import cz.etnetera.seleniumbrowser.event.impl.BeforeBrowserQuitEvent;
 import cz.etnetera.seleniumbrowser.event.impl.BeforeDriverConstructEvent;
+import cz.etnetera.seleniumbrowser.event.impl.OnFileSaveEvent;
 import cz.etnetera.seleniumbrowser.event.impl.OnReportEvent;
 import cz.etnetera.seleniumbrowser.listener.BrowserListener;
 import cz.etnetera.seleniumbrowser.listener.EventConstructException;
@@ -212,6 +213,16 @@ public class Browser implements BrowserContext {
 		drv.register(new EventFiringBrowserBridgeListener(this));
 		return drv;
 	}
+	
+	/**
+	 * Adds listener. It is automatically initiated.
+	 * 
+	 * @param listener The added listener
+	 */
+	public void addListener(BrowserListener listener) {
+		listener.init(this);
+		listeners.add(listener);
+	}
 
 	/**
 	 * Browser label which is mainly used for reporting.
@@ -345,6 +356,17 @@ public class Browser implements BrowserContext {
 	 */
 	public void setReported(boolean reported) {
 		this.reported = reported;
+	}
+
+	/**
+	 * Returns reporting directory, which is used as root
+	 * directory for files stored using {@link BrowserContext#saveFile(File, String, String)}
+	 * and similar methods.
+	 * 
+	 * @return The reporting directory
+	 */
+	public File getReportDir() {
+		return reportDir;
 	}
 
 	/**
@@ -717,7 +739,8 @@ public class Browser implements BrowserContext {
 		if (!reported)
 			return;
 		try {
-			Files.write(getUniqueFilePath(name, extension), bytes);
+			Path path = Files.write(getUniqueFilePath(name, extension), bytes);
+			triggerEvent(constructEvent(OnFileSaveEvent.class, this).with(path.toFile()));
 		} catch (IOException e) {
 			throw new BrowserException("Unable to save file " + name, e);
 		}
@@ -728,7 +751,8 @@ public class Browser implements BrowserContext {
 		if (!reported)
 			return;
 		try {
-			Files.copy(file.toPath(), getUniqueFilePath(name, extension));
+			Path path = Files.copy(file.toPath(), getUniqueFilePath(name, extension));
+			triggerEvent(constructEvent(OnFileSaveEvent.class, this).with(path.toFile()));
 		} catch (IOException e) {
 			throw new BrowserException("Unable to save file " + name, e);
 		}
