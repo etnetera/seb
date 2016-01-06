@@ -34,28 +34,28 @@ public interface BrowserConfiguration {
 	/**
 	 * It is called after putting it into browser.
 	 */
-	public void init();
+	void init();
 	
 	/**
 	 * Base URL for pages.
 	 * 
 	 * @return The base URL
 	 */
-	public String getBaseUrl();
+	String getBaseUrl();
 	
 	/**
 	 * Base URL regex for pages.
 	 * 
 	 * @return The base URL regex
 	 */
-	public String getBaseUrlRegex();
+	String getBaseUrlRegex();
 	
 	/**
 	 * Is URL on pages verified?
 	 * 
 	 * @return Verification status
 	 */
-	public boolean isUrlVerification();
+	boolean isUrlVerification();
 	
 	/**
 	 * Returns {@link WebDriver} instance.
@@ -63,48 +63,48 @@ public interface BrowserConfiguration {
 	 * @param caps The non null desired capabilities.
 	 * @return The driver
 	 */
-	public WebDriver getDriver(DesiredCapabilities caps);
+	WebDriver getDriver(DesiredCapabilities caps);
 	
 	/**
 	 * Returns optional {@link DesiredCapabilities}.
 	 * 
 	 * @return The desired capabilities.
 	 */
-	public DesiredCapabilities getCapabilities();
+	DesiredCapabilities getCapabilities();
 	
 	/**
 	 * Returns wait timeout.
 	 * 
 	 * @return The wait timeout.
 	 */
-	public double getWaitTimeout();
+	double getWaitTimeout();
 	
 	/**
 	 * Returns wait retry interval.
 	 * 
 	 * @return The wait retry interval.
 	 */
-	public double getWaitRetryInterval();
+	double getWaitRetryInterval();
 	
 	/**
 	 * Is storing files using browser enabled?
 	 * 
 	 * @return Reporting status.
 	 */
-	public boolean isReported();
+	boolean isReported();
 	
 	/**
 	 * Returns directory for storing browser files.
 	 * 
 	 * @return The report directory.
 	 */
-	public File getReportDir();
+	File getReportDir();
 	
 	/**
 	 * Returns list of browser event listeners.
 	 * 
 	 * @return The browser event listeners.
 	 */
-	public List<BrowserListener> getListeners();
+	List<BrowserListener> getListeners();
 	
 }

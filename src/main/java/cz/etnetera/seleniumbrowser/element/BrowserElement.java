@@ -250,5 +250,15 @@ public class BrowserElement implements BrowserContext, WebElement, WrapsElement,
     	String classAttr = getAttribute("class");
     	return Stream.of((classAttr == null ? "" : classAttr).trim().split("\\s+")).distinct().sorted().collect(Collectors.toList());
     }
+	
+	/**
+     * Returns true if at least one of the context elements matches the tag.
+     * 
+     * @param tag The tag to match
+     * @return true if at least one of the context elements matches the tag
+     */
+    public boolean is(String tag) {
+    	return getWebElement().getTagName().equalsIgnoreCase(tag);
+    }
 
 }

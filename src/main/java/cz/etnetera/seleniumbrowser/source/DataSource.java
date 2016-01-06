@@ -26,7 +26,7 @@ public interface DataSource {
 	 * 
 	 * @return The data holder map
 	 */
-	public Map<String, Object> getDataHolder();
+	Map<String, Object> getDataHolder();
 	
 	/**
 	 * Returns data casted to given type.
@@ -35,7 +35,7 @@ public interface DataSource {
 	 * @return The data or null if key is not present.
 	 */
 	@SuppressWarnings("unchecked")
-	public default <T extends Object> T getData(String key, Class<T> cls) {
+	default <T extends Object> T getData(String key, Class<T> cls) {
 		return (T) getDataHolder().get(key);
 	}
 	
@@ -46,7 +46,7 @@ public interface DataSource {
 	 *            The data key
 	 * @return The associated data or null if key was not present.
 	 */
-	public default Object removeData(String key) {
+	default Object removeData(String key) {
 		return getDataHolder().remove(key);
 	}
 	
@@ -58,7 +58,7 @@ public interface DataSource {
 	 *            The data
 	 * @return Same instance
 	 */
-	public default DataSource addData(String key, Object data) {
+	default DataSource addData(String key, Object data) {
 		getDataHolder().put(key, data);
 		return this;
 	}

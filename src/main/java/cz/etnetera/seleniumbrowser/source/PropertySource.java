@@ -31,7 +31,7 @@ public interface PropertySource {
 	 * @param key The property key.
 	 * @return The property value or null.
 	 */
-	public String getProperty(String key);
+	String getProperty(String key);
 	
 	/**
 	 * Returns property as {@link String}.
@@ -41,7 +41,7 @@ public interface PropertySource {
 	 * @param def The default value to return.
 	 * @return The property value or default value.
 	 */
-	public default String getProperty(String key, String def) {
+	default String getProperty(String key, String def) {
 		String value = getProperty(key);
 		return value == null ? def : value;
 	}
@@ -53,7 +53,7 @@ public interface PropertySource {
 	 * @param cls The type for returned value.
 	 * @return The property value or null.
 	 */
-	public default <T extends Object> T getProperty(String key, Class<T> cls) {
+	default <T extends Object> T getProperty(String key, Class<T> cls) {
 		return getProperty(key, cls, null);
 	}
 	
@@ -66,7 +66,7 @@ public interface PropertySource {
 	 * @param def The default value to return.
 	 * @return The property value or default value.
 	 */
-	public default <T extends Object> T getProperty(String key, Class<T> cls, T def) {
+	default <T extends Object> T getProperty(String key, Class<T> cls, T def) {
 		try {
 			T value = castString(getProperty(key), cls);
 			return value == null ? def : value;
@@ -76,7 +76,7 @@ public interface PropertySource {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public default <T extends Object> T castString(String value, Class<T> defCls) {
+	default <T extends Object> T castString(String value, Class<T> defCls) {
 		if (value == null) return null;
 		if (String.class.isAssignableFrom(defCls)) {
 			return (T) value;

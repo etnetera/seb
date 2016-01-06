@@ -27,24 +27,24 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface PageConfig {
 
-	public String[] uri() default {};
+	String[] uri() default {};
 	
-	public String[] uriRegex() default {};
+	String[] uriRegex() default {};
 	
-	public String[] baseUrl() default {};
+	String[] baseUrl() default {};
 	
-	public String[] baseUrlRegex() default {};
+	String[] baseUrlRegex() default {};
 	
-	public String[] url() default {};
+	String[] url() default {};
 	
-	public String[] urlRegex() default {};
+	String[] urlRegex() default {};
 	
-	public boolean[] urlVerification() default {};
+	boolean[] urlVerification() default {};
 	
-	public double[] waitTimeout() default {};
+	double[] waitTimeout() default {};
 	
-	public double[] waitRetryInterval() default {};
+	double[] waitRetryInterval() default {};
 	
-	public double[] waitBeforePageInitTimeout() default {};
+	double[] waitBeforePageInitTimeout() default {};
 	
 }

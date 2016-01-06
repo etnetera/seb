@@ -52,7 +52,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The parent browser context.
 	 */
-	public BrowserContext getContext();
+	BrowserContext getContext();
 	
 	/**
 	 * Returns parent {@link BrowserContext} instance casted to specific type.
@@ -60,7 +60,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The parent browser context.
 	 */
 	@SuppressWarnings("unchecked")
-	public default <T> T getContext(Class<T> context) {
+	default <T> T getContext(Class<T> context) {
 		return (T) getContext();
 	}
 	
@@ -69,7 +69,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The browser
 	 */
-	public Browser getBrowser();
+	Browser getBrowser();
 	
 	/**
 	 * Returns {@link Browser} instance casted to specific type.
@@ -77,7 +77,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The browser
 	 */
 	@SuppressWarnings("unchecked")
-	public default <T> T getBrowser(Class<T> browser) {
+	default <T> T getBrowser(Class<T> browser) {
 		return (T) getBrowser();
 	}
 	
@@ -86,7 +86,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The browser configuration
 	 */
-	public default BrowserConfiguration getConfiguration() {
+	default BrowserConfiguration getConfiguration() {
 		return getBrowser().getConfiguration();
 	}
 	
@@ -95,7 +95,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The browser configuration
 	 */
-	public default <T> T getConfiguration(Class<T> configuration) {
+	default <T> T getConfiguration(Class<T> configuration) {
 		return getBrowser().getConfiguration(configuration);
 	}
 	
@@ -104,7 +104,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The driver
 	 */
-	public default WebDriver getDriver() {
+	default WebDriver getDriver() {
 		return getBrowser().getDriver();
 	}
 	
@@ -113,7 +113,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The driver
 	 */
-	public default <T> T getDriver(Class<T> driver) {
+	default <T> T getDriver(Class<T> driver) {
 		return getBrowser().getDriver(driver);
 	}
 	
@@ -123,7 +123,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The actual page or null
 	 */
-	public default Page getPage() {
+	default Page getPage() {
 		return getBrowser().getPage();
 	}
 	
@@ -135,7 +135,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param page The class to cast the page to
 	 * @return The actual page or null
 	 */
-	public default <T> T getPage(Class<T> page) {
+	default <T> T getPage(Class<T> page) {
 		return getBrowser().getPage(page);
 	}
 
@@ -144,7 +144,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @param page The page to set
 	 */
-	public default void setPage(Page page) {
+	default void setPage(Page page) {
 		getBrowser().setPage(page);
 	}
 	
@@ -153,7 +153,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @param url The URL to go to
 	 */
-	public default void goToUrl(String url) {
+	default void goToUrl(String url) {
 		getBrowser().goToUrl(url);
 	}
 	
@@ -162,7 +162,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The default wait timeout.
 	 */
-	public default double getWaitTimeout() {
+	default double getWaitTimeout() {
 		return getBrowser().getWaitTimeout();
 	}
 	
@@ -171,7 +171,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The default wait retry interval.
 	 */
-	public default double getWaitRetryInterval() {
+	default double getWaitRetryInterval() {
 		return getBrowser().getWaitRetryInterval();
 	}
 	
@@ -188,7 +188,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param retryInterval The retry interval for delays between condition check.
 	 * @return The wait instance
 	 */
-	public default BrowserContextWait waiting(Clock clock, Sleeper sleeper, double timeout, double retryInterval) {
+	default BrowserContextWait waiting(Clock clock, Sleeper sleeper, double timeout, double retryInterval) {
 		return new BrowserContextWait(this, clock, sleeper, timeout, retryInterval);
 	}
 
@@ -199,7 +199,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The wait instance
 	 */
-	public default BrowserContextWait waiting(double timeout, double retryInterval) {
+	default BrowserContextWait waiting(double timeout, double retryInterval) {
 		return new BrowserContextWait(this, timeout, retryInterval);
 	}
 
@@ -209,7 +209,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The wait instance
 	 */
-	public default BrowserContextWait waiting(double timeout) {
+	default BrowserContextWait waiting(double timeout) {
 		return new BrowserContextWait(this, timeout);
 	}
 
@@ -219,7 +219,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The wait instance
 	 */
-	public default BrowserContextWait waiting() {
+	default BrowserContextWait waiting() {
 		return new BrowserContextWait(this);
 	}
 
@@ -230,7 +230,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param page The class to check the page against
 	 * @return true if actual page is instance of given class
 	 */
-	public default boolean isAt(Class<?> page) {
+	default boolean isAt(Class<?> page) {
 		return getBrowser().isAt(page);
 	}
 	
@@ -242,7 +242,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @param page The class to check the page against
 	 */
-	public default void assertAt(Class<?> page) {
+	default void assertAt(Class<?> page) {
 		getBrowser().assertAt(page);
 	}
 	
@@ -255,7 +255,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param page The page class to go to
 	 * @return The page instance or null if page is not verified
 	 */
-	public default <T extends Page> T goToSafely(Class<T> page) {
+	default <T extends Page> T goToSafely(Class<T> page) {
 		return getBrowser().goToSafely(page);
 	}
 	
@@ -268,7 +268,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param page The page instance to go to
 	 * @return The same page instance or null if page is not verified
 	 */
-	public default <T extends Page> T goToSafely(T page) {
+	default <T extends Page> T goToSafely(T page) {
 		return getBrowser().goToSafely(page);
 	}
 	
@@ -282,7 +282,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param page The page class to initialize
 	 * @return The page instance or null if page is not verified
 	 */
-	public default <T extends Page> T initPageSafely(Class<T> page) {
+	default <T extends Page> T initPageSafely(Class<T> page) {
 		return getBrowser().initPageSafely(page);
 	}
 	
@@ -296,7 +296,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param page The page instance to initialize
 	 * @return The same page instance or null if page is not verified
 	 */
-	public default <T extends Page> T initPageSafely(T page) {
+	default <T extends Page> T initPageSafely(T page) {
 		return getBrowser().initPageSafely(page);
 	}
 	
@@ -310,7 +310,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param pages The page classes or pages to initialize
 	 * @return The same page instance or null if none of pages is verified
 	 */
-	public default Page initOnePageSafely(Object ... pages) {
+	default Page initOnePageSafely(Object ... pages) {
 		return getBrowser().initOnePageSafely(pages);
 	}
 	
@@ -324,7 +324,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @throws VerificationException if page verification did not pass 
 	 * after initialization
 	 */
-	public default <T extends Page> T goTo(Class<T> page) {
+	default <T extends Page> T goTo(Class<T> page) {
 		return getBrowser().goTo(page);
 	}
 	
@@ -338,7 +338,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @throws VerificationException if page verification did not pass 
 	 * after initialization
 	 */
-	public default <T extends Page> T goTo(T page) {
+	default <T extends Page> T goTo(T page) {
 		return getBrowser().goTo(page);
 	}
 	
@@ -353,7 +353,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @throws VerificationException if page verification did not pass 
 	 * after initialization
 	 */
-	public default <T extends Page> T initPage(Class<T> page) {
+	default <T extends Page> T initPage(Class<T> page) {
 		return getBrowser().initPage(page);
 	}
 	
@@ -368,7 +368,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @throws VerificationException if page verification did not pass 
 	 * after initialization
 	 */
-	public default <T extends Page> T initPage(T page) {
+	default <T extends Page> T initPage(T page) {
 		return getBrowser().initPage(page);
 	}
 	
@@ -385,7 +385,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @throws VerificationException if none of pages did not pass 
 	 * verification after initialization
 	 */
-	public default Page initOnePage(Object ... pages) {
+	default Page initOnePage(Object ... pages) {
 		return getBrowser().initOnePage(pages);
 	}
 	
@@ -395,7 +395,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param page The page class to construct
 	 * @return The page instance
 	 */
-	public default <T extends Page> T constructPage(Class<T> page) {
+	default <T extends Page> T constructPage(Class<T> page) {
 		return getBrowser().constructPage(page);
 	}
 	
@@ -405,7 +405,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param element The element instance to initialize
 	 * @return The same element instance
 	 */
-	public default <T extends BrowserElement> T initBrowserElement(T element) {
+	default <T extends BrowserElement> T initBrowserElement(T element) {
 		return getBrowser().initBrowserElement(element);
 	}
 	
@@ -418,7 +418,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param optional Is element optional
 	 * @return The element instance.
 	 */
-	public default <T extends BrowserElement> T initBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
+	default <T extends BrowserElement> T initBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
 		return getBrowser().initBrowserElement(element, this, webElement, optional);
 	}
 	
@@ -431,7 +431,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param optional Is element optional
 	 * @return The element instance.
 	 */
-	public default <T extends BrowserElement> T constructBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
+	default <T extends BrowserElement> T constructBrowserElement(Class<T> element, WebElement webElement, boolean optional) {
 		return getBrowser().constructBrowserElement(element, this, webElement, optional);
 	}
 	
@@ -441,7 +441,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param logic The logic instance to initialize
 	 * @return The same logic instance
 	 */
-	public default <T extends Logic> T initLogic(T logic) {
+	default <T extends Logic> T initLogic(T logic) {
 		return getBrowser().initLogic(logic);
 	}
 	
@@ -451,7 +451,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param logic The logic class to initialize
 	 * @return The logic instance
 	 */
-	public default <T extends Logic> T initLogic(Class<T> logic) {
+	default <T extends Logic> T initLogic(Class<T> logic) {
 		return getBrowser().initLogic(logic, this);
 	}
 	
@@ -461,7 +461,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param logic The logic class to construct
 	 * @return The logic instance
 	 */
-	public default <T extends Logic> T constructLogic(Class<T> logic) {
+	default <T extends Logic> T constructLogic(Class<T> logic) {
 		return getBrowser().constructLogic(logic, this);
 	}
 	
@@ -469,7 +469,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * Initialize elements annotated with {@link FindBy}
 	 * and similar annotations.
 	 */
-	public default void initElements() {
+	default void initElements() {
 		getBrowser().initElements(this);
 	}
 	
@@ -481,7 +481,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param element The element to test
 	 * @throws NoSuchElementException if element is not present
 	 */
-	public default void checkIfPresent(WebElement element) throws NoSuchElementException {
+	default void checkIfPresent(WebElement element) throws NoSuchElementException {
 		getBrowser().checkIfPresent(element);
 	}
 	
@@ -492,7 +492,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param element The element to test
 	 * @return <code>true</code> if element is present
 	 */
-	public default boolean isPresent(WebElement element) {
+	default boolean isPresent(WebElement element) {
 		return getBrowser().isPresent(element);
 	}
 	
@@ -503,7 +503,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param element The element to test
 	 * @return <code>true</code> if element is not present
 	 */
-	public default boolean isNotPresent(WebElement element) {
+	default boolean isNotPresent(WebElement element) {
 		return getBrowser().isNotPresent(element);
 	}
 	
@@ -512,7 +512,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @param label The report label
 	 */
-	public default void report(String label) {
+	default void report(String label) {
 		getBrowser().report(this, label);
 	}
 	
@@ -521,7 +521,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @param event The triggered event
 	 */
-	public default void triggerEvent(BrowserEvent event) {
+	default void triggerEvent(BrowserEvent event) {
 		getBrowser().triggerEvent(event);
 	}
 	
@@ -531,7 +531,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param eventCls The event class to construct
 	 * @return The event instance
 	 */
-	public default <T extends BrowserEvent> T constructEvent(Class<T> eventCls) {
+	default <T extends BrowserEvent> T constructEvent(Class<T> eventCls) {
 		return getBrowser().constructEvent(eventCls, this);
 	}
 	
@@ -545,7 +545,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param name The file name without extension.
 	 * @param extension The file extension.
 	 */
-	public default void saveFile(String content, String name, String extension) {
+	default void saveFile(String content, String name, String extension) {
 		getBrowser().saveFile(content, name, extension);
 	}
 	
@@ -559,7 +559,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param name The file name without extension.
 	 * @param extension The file extension.
 	 */
-	public default void saveFile(byte[] bytes, String name, String extension) {
+	default void saveFile(byte[] bytes, String name, String extension) {
 		getBrowser().saveFile(bytes, name, extension);
 	}
 	
@@ -573,7 +573,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param name The file name without extension.
 	 * @param extension The file extension.
 	 */
-	public default void saveFile(File file, String name, String extension) {
+	default void saveFile(File file, String name, String extension) {
 		getBrowser().saveFile(file, name, extension);
 	}
 	
@@ -582,7 +582,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * 
 	 * @return The browser utilities.
 	 */
-	public default BrowserUtils getUtils() {
+	default BrowserUtils getUtils() {
 		return getBrowser().getUtils();
 	}
 	
@@ -592,7 +592,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param by The locating mechanism to use
 	 * @return A list of all {@link BrowserElement}s, or an empty list if nothing matches
 	 */
-	public default List<BrowserElement> find(By by) {
+	default List<BrowserElement> find(By by) {
 		return getBrowser().find(this, by, BrowserElement.class);
 	}
 	
@@ -603,7 +603,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param by The locating mechanism to use
 	 * @return A list of all {@link BrowserElement}s, or an empty list if nothing matches
 	 */
-	public default List<BrowserElement> find(BrowserContext context, By by) {
+	default List<BrowserElement> find(BrowserContext context, By by) {
 		return getBrowser().find(context, by, BrowserElement.class);
 	}
 	
@@ -616,7 +616,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return A list of all {@link BrowserElement}s as instances of the given 
 	 * {@link BrowserElement} or its subclass, or an empty list if nothing matches
 	 */
-	public default <T extends BrowserElement> List<T> find(By by, Class<T> elementCls) {
+	default <T extends BrowserElement> List<T> find(By by, Class<T> elementCls) {
 		return getBrowser().find(this, by, elementCls);
 	}
 	
@@ -630,7 +630,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return A list of all {@link BrowserElement}s as instances of the given 
 	 * {@link BrowserElement} or its subclass, or an empty list if nothing matches
 	 */
-	public default <T extends BrowserElement> List<T> find(BrowserContext context, By by, Class<T> elementCls) {
+	default <T extends BrowserElement> List<T> find(BrowserContext context, By by, Class<T> elementCls) {
 		return getBrowser().find(context, by, elementCls);
 	}
 
@@ -641,7 +641,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The first matching element on the current context
 	 * @throws NoSuchElementException If no matching elements are found
 	 */
-	public default BrowserElement findOne(By by) {
+	default BrowserElement findOne(By by) {
 		return getBrowser().findOne(this, by, BrowserElement.class, false);
 	}
 
@@ -653,7 +653,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The first matching element on the given context
 	 * @throws NoSuchElementException If no matching elements are found
 	 */
-	public default BrowserElement findOne(BrowserContext context, By by) {
+	default BrowserElement findOne(BrowserContext context, By by) {
 		return getBrowser().findOne(context, by, BrowserElement.class, false);
 	}
 	
@@ -667,7 +667,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * {@link BrowserElement} or its subclass
 	 * @throws NoSuchElementException If no matching elements are found
 	 */
-	public default <T extends BrowserElement> T findOne(By by, Class<T> elementCls) {
+	default <T extends BrowserElement> T findOne(By by, Class<T> elementCls) {
 		return getBrowser().findOne(this, by, elementCls, false);
 	}
 	
@@ -682,7 +682,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * {@link BrowserElement} or its subclass
 	 * @throws NoSuchElementException If no matching elements are found
 	 */
-	public default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls) {
+	default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls) {
 		return getBrowser().findOne(context, by, elementCls, false);
 	}
 	
@@ -701,7 +701,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * {@link BrowserElement} or its subclass
 	 * @throws NoSuchElementException If no matching elements are found and optional is <code>false</code>
 	 */
-	public default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls, boolean optional) {
+	default <T extends BrowserElement> T findOne(BrowserContext context, By by, Class<T> elementCls, boolean optional) {
 		return getBrowser().findOne(context, by, elementCls, optional);
 	}
 	
@@ -713,7 +713,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The first matching element on the current context or null 
 	 * if no matching elements are found
 	 */
-	public default BrowserElement findOneOptional(By by) {
+	default BrowserElement findOneOptional(By by) {
 		return getBrowser().findOne(this, by, BrowserElement.class, true);
 	}
 	
@@ -726,7 +726,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The first matching element on the current context or null 
 	 * if no matching elements are found
 	 */
-	public default BrowserElement findOneOptional(BrowserContext context, By by) {
+	default BrowserElement findOneOptional(BrowserContext context, By by) {
 		return getBrowser().findOne(context, by, BrowserElement.class, true);
 	}
 	
@@ -740,7 +740,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The first matching element on the current context or null 
 	 * if no matching elements are found
 	 */
-	public default <T extends BrowserElement> T findOneOptional(By by, Class<T> elementCls) {
+	default <T extends BrowserElement> T findOneOptional(By by, Class<T> elementCls) {
 		return getBrowser().findOne(this, by, elementCls, true);
 	}
 	
@@ -755,7 +755,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @return The first matching element on the current context or null 
 	 * if no matching elements are found
 	 */
-	public default <T extends BrowserElement> T findOneOptional(BrowserContext context, By by, Class<T> elementCls) {
+	default <T extends BrowserElement> T findOneOptional(BrowserContext context, By by, Class<T> elementCls) {
 		return getBrowser().findOne(context, by, elementCls, true);
 	}
 	
@@ -767,7 +767,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param field The field used as locator source
 	 * @return The element locator
 	 */
-	public default ElementLocator createElementLocator(Field field) {
+	default ElementLocator createElementLocator(Field field) {
 		return getBrowser().createElementLocator(this, field);
 	}
 	
@@ -778,7 +778,7 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param by The locating mechanism
 	 * @return The element locator
 	 */
-	public default ElementLocator createElementLocator(By by) {
+	default ElementLocator createElementLocator(By by) {
 		return getBrowser().createElementLocator(this, by);
 	}
 	
@@ -792,22 +792,22 @@ public interface BrowserContext extends SearchContext, PropertySource, DataSourc
 	 * @param lookupCached if lookup is cached
 	 * @return The element locator
 	 */
-	public default ElementLocator createElementLocator(By by, boolean lookupCached) {
+	default ElementLocator createElementLocator(By by, boolean lookupCached) {
 		return getBrowser().createElementLocator(this, by, lookupCached);
 	}
 	
 	@Override
-	public default WebDriver getWrappedDriver() {
+	default WebDriver getWrappedDriver() {
 		return getDriver();
 	}
 	
 	@Override
-	public default Map<String, Object> getDataHolder() {
+	default Map<String, Object> getDataHolder() {
 		return getBrowser().getDataHolder();
 	}
 
 	@Override
-	public default String getProperty(String key) {
+	default String getProperty(String key) {
 		return getBrowser().getProperty(key);
 	}
 	

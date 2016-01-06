@@ -29,9 +29,9 @@ import cz.etnetera.seleniumbrowser.browser.BrowserException;
  */
 public interface PropertiesSource extends PropertySource {
 	
-	public static final String ENCODING = "UTF-8";
+	static final String ENCODING = "UTF-8";
 	
-	public static Properties loadProperties(Object source) {
+	static Properties loadProperties(Object source) {
 		if (source instanceof Properties) {
 			return loadProperties((Properties) source);
 		}
@@ -44,11 +44,11 @@ public interface PropertiesSource extends PropertySource {
 		throw new BrowserException("Unsupported properties source type " + source.getClass());
 	}
 
-	public static Properties loadProperties(Properties properties) {
+	static Properties loadProperties(Properties properties) {
 		return properties;
 	}
 
-	public static Properties loadProperties(File file) {
+	static Properties loadProperties(File file) {
 		if (!file.canRead())
 			throw new BrowserException("Properties file is not readable " + file);
 		Properties properties = new Properties();
@@ -60,7 +60,7 @@ public interface PropertiesSource extends PropertySource {
 		return properties;
 	}
 
-	public static Properties loadProperties(String resourceName) {
+	static Properties loadProperties(String resourceName) {
 		InputStream is = PropertiesSource.class.getClassLoader().getResourceAsStream(resourceName);
 		if (is == null)
 			throw new BrowserException("Properties resource does not exists " + resourceName);
@@ -73,10 +73,10 @@ public interface PropertiesSource extends PropertySource {
 		return properties;
 	}
 	
-	public Properties getProperties();
+	Properties getProperties();
 	
 	@Override
-	public default String getProperty(String key) {
+	default String getProperty(String key) {
 		return getProperties().getProperty(key);
 	}
 

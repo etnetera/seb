@@ -32,18 +32,18 @@ import cz.etnetera.seleniumbrowser.browser.BrowserException;
  */
 public interface ChainedPropertiesSource extends PropertySource {
 	
-	public List<PropertiesValue> getPropertiesHolder();
+	List<PropertiesValue> getPropertiesHolder();
 
-	public default List<Properties> getProperties() {
+	default List<Properties> getProperties() {
 		return getPropertiesHolder().stream().map(v -> v.getProperties()).collect(Collectors.toList());
 	}
 	
-	public default Map<String, Properties> getPropertiesWithKeys() {
+	default Map<String, Properties> getPropertiesWithKeys() {
 		return getPropertiesHolder().stream()
 				.collect(Collectors.toMap(PropertiesValue::getKey, PropertiesValue::getProperties));
 	}
 
-	public default Properties getMergedProperties() {
+	default Properties getMergedProperties() {
 		Properties props = new Properties();
 		getPropertiesHolder().stream().sorted(Collections.reverseOrder()).forEach(v -> props.putAll(v.getProperties()));
 		return props;
@@ -56,7 +56,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties key
 	 * @return The properties or null
 	 */
-	public default Properties getProperties(String key) {
+	default Properties getProperties(String key) {
 		return getPropertiesHolder().stream().filter(v -> v.equals(key)).map(v -> v.getProperties()).findFirst().orElse(null);
 	}
 
@@ -67,7 +67,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties key
 	 * @return true if properties was present
 	 */
-	public default boolean removeProperties(String key) {
+	default boolean removeProperties(String key) {
 		return getPropertiesHolder().remove(new PropertiesValue(key, null));
 	}
 	
@@ -79,7 +79,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addProperties(String key, Properties properties) {
+	default ChainedPropertiesSource addProperties(String key, Properties properties) {
 		if (properties != null) {
 			removeProperties(key);
 			getPropertiesHolder().add(new PropertiesValue(key, PropertiesSource.loadProperties(properties)));
@@ -97,7 +97,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addPropertiesBefore(String beforeKey, String key, Properties properties) {
+	default ChainedPropertiesSource addPropertiesBefore(String beforeKey, String key, Properties properties) {
 		if (properties != null) {
 			int i = getPropertiesHolder().indexOf(new PropertiesValue(beforeKey, null));
 			if (i < 0)
@@ -118,7 +118,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addPropertiesAfter(String afterKey, String key, Properties properties) {
+	default ChainedPropertiesSource addPropertiesAfter(String afterKey, String key, Properties properties) {
 		if (properties != null) {
 			int i = getPropertiesHolder().indexOf(new PropertiesValue(afterKey, null));
 			if (i < 0)
@@ -137,7 +137,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties file
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addFileProperties(String key, File file) {
+	default ChainedPropertiesSource addFileProperties(String key, File file) {
 		return addProperties(key, PropertiesSource.loadProperties(file));
 	}
 	
@@ -151,7 +151,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties file
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addFilePropertiesBefore(String beforeKey, String key, File file) {
+	default ChainedPropertiesSource addFilePropertiesBefore(String beforeKey, String key, File file) {
 		return addPropertiesBefore(beforeKey, key, PropertiesSource.loadProperties(file));
 	}
 	
@@ -165,7 +165,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties file
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addFilePropertiesAfter(String afterKey, String key, File file) {
+	default ChainedPropertiesSource addFilePropertiesAfter(String afterKey, String key, File file) {
 		return addPropertiesAfter(afterKey, key, PropertiesSource.loadProperties(file));
 	}
 	
@@ -178,7 +178,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties resource
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addResourceProperties(String key, String resourceName) {
+	default ChainedPropertiesSource addResourceProperties(String key, String resourceName) {
 		return addProperties(key, PropertiesSource.loadProperties(resourceName));
 	}
 	
@@ -193,7 +193,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties resource
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addResourcePropertiesBefore(String beforeKey, String key, String resourceName) {
+	default ChainedPropertiesSource addResourcePropertiesBefore(String beforeKey, String key, String resourceName) {
 		return addPropertiesBefore(beforeKey, key, PropertiesSource.loadProperties(resourceName));
 	}
 	
@@ -208,7 +208,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties resource
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource addResourcePropertiesAfter(String afterKey, String key, String resourceName) {
+	default ChainedPropertiesSource addResourcePropertiesAfter(String afterKey, String key, String resourceName) {
 		return addPropertiesAfter(afterKey, key, PropertiesSource.loadProperties(resourceName));
 	}
 	
@@ -221,7 +221,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource pushProperties(String key, Properties properties) {
+	default ChainedPropertiesSource pushProperties(String key, Properties properties) {
 		if (properties != null) {
 			this.getPropertiesHolder().add(0, new PropertiesValue(key, PropertiesSource.loadProperties(properties)));
 		}
@@ -237,7 +237,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties file
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource pushFileProperties(String key, File file) {
+	default ChainedPropertiesSource pushFileProperties(String key, File file) {
 		return pushProperties(key, PropertiesSource.loadProperties(file));
 	}
 	
@@ -250,12 +250,12 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 *            The properties resource
 	 * @return Same instance
 	 */
-	public default ChainedPropertiesSource pushResourceProperties(String key, String resourceName) {
+	default ChainedPropertiesSource pushResourceProperties(String key, String resourceName) {
 		return pushProperties(key, PropertiesSource.loadProperties(resourceName));
 	}
 	
 	@Override
-	public default String getProperty(String key) {
+	default String getProperty(String key) {
 		if (getPropertiesHolder() != null) {
 			for (PropertiesValue v : getPropertiesHolder()) {
 				String value = v.getProperties().getProperty(key);
@@ -266,7 +266,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 		return null;
 	}
 	
-	public static class PropertiesValue {
+	static class PropertiesValue {
 		
 		protected String key;
 		
