@@ -2,13 +2,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>cz.etnetera</groupId>
-	<artifactId>seleniumbrowser</artifactId>
-	<version>0.3.12</version>
+	<artifactId>seb</artifactId>
+	<version>0.3.13</version>
 	<packaging>jar</packaging>
 
-	<name>SeleniumBrowser</name>
-	<description>Java library for working with Selenium WebDriver using more object approach, with browser context which wraps driver, custom elements, pages, modules and logics.</description>
-	<url>https://github.com/etnetera/SeleniumBrowser</url>
+	<name>Seb</name>
+	<description>Seb (Selenium Browser) is Java library for working with Selenium WebDriver using more object approach, with context which wraps driver, custom elements, pages, modules and logics.</description>
+	<url>https://github.com/etnetera/seb</url>
 	<inceptionYear>2016</inceptionYear>
 	<organization>
 		<name>Etnetera a.s.</name>
@@ -34,9 +34,9 @@
 	</licenses>
 	
 	<scm>
-		<url>https://github.com/etnetera/SeleniumBrowser</url>
-		<connection>scm:git:git@github.com:etnetera/SeleniumBrowser.git</connection>
-		<developerConnection>scm:git:git@github.com:etnetera/SeleniumBrowser.git</developerConnection>
+		<url>https://github.com/etnetera/seb</url>
+		<connection>scm:git:git@github.com:etnetera/seb.git</connection>
+		<developerConnection>scm:git:git@github.com:etnetera/seb.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 

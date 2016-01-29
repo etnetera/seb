@@ -61,6 +61,6 @@ target
 .settings/
 classes/
 
-# Selenium browser directories #
+# Seb directories #
 ################################
-selenium-browser-report/*
+seb-report/*
