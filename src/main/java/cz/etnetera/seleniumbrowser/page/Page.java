@@ -22,7 +22,7 @@ import org.openqa.selenium.WebElement;
 
 import cz.etnetera.seleniumbrowser.browser.Browser;
 import cz.etnetera.seleniumbrowser.browser.BrowserContext;
-import cz.etnetera.seleniumbrowser.context.VerificationException;
+import cz.etnetera.seleniumbrowser.browser.VerificationException;
 import cz.etnetera.seleniumbrowser.event.impl.AfterPageInitEvent;
 import cz.etnetera.seleniumbrowser.event.impl.BeforePageInitEvent;
 import cz.etnetera.seleniumbrowser.event.impl.OnPageInitExceptionEvent;

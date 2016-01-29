@@ -31,7 +31,6 @@ import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Sleeper;
 
 import cz.etnetera.seleniumbrowser.configuration.BrowserConfiguration;
-import cz.etnetera.seleniumbrowser.context.VerificationException;
 import cz.etnetera.seleniumbrowser.element.BrowserElement;
 import cz.etnetera.seleniumbrowser.event.BrowserEvent;
 import cz.etnetera.seleniumbrowser.event.impl.OnReportEvent;

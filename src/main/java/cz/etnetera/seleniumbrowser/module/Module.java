@@ -15,7 +15,7 @@
 package cz.etnetera.seleniumbrowser.module;
 
 
-import cz.etnetera.seleniumbrowser.context.VerificationException;
+import cz.etnetera.seleniumbrowser.browser.VerificationException;
 import cz.etnetera.seleniumbrowser.element.BrowserElement;
 import cz.etnetera.seleniumbrowser.event.impl.AfterModuleInitEvent;
 import cz.etnetera.seleniumbrowser.event.impl.BeforeModuleInitEvent;

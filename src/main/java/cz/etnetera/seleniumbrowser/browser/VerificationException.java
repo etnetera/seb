@@ -12,16 +12,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cz.etnetera.seleniumbrowser.listener;
+package cz.etnetera.seleniumbrowser.browser;
 
-import cz.etnetera.seleniumbrowser.browser.BrowserException;
+import cz.etnetera.seleniumbrowser.module.Module;
+import cz.etnetera.seleniumbrowser.page.Page;
 
-public class EventConstructException extends BrowserException {
+/**
+ * Exception thrown from {@link Page} or {@link Module} 
+ * on failed verification.
+ */
+public class VerificationException extends BrowserException {
 
-	private static final long serialVersionUID = 8482963353364145739L;
+	private static final long serialVersionUID = 911749792790433730L;
 
-	public EventConstructException(String message, Throwable cause) {
+	public VerificationException() {
+		super();
+	}
+
+	public VerificationException(String message, Throwable cause) {
 		super(message, cause);
+	}
+
+	public VerificationException(String message) {
+		super(message);
+	}
+
+	public VerificationException(Throwable cause) {
+		super(cause);
 	}
 
 }

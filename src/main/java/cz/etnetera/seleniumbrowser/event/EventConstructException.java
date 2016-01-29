@@ -12,28 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cz.etnetera.seleniumbrowser.context;
+package cz.etnetera.seleniumbrowser.event;
 
 import cz.etnetera.seleniumbrowser.browser.BrowserException;
 
-public class VerificationException extends BrowserException {
+public class EventConstructException extends BrowserException {
 
-	private static final long serialVersionUID = 911749792790433730L;
+	private static final long serialVersionUID = 8482963353364145739L;
 
-	public VerificationException() {
-		super();
-	}
-
-	public VerificationException(String message, Throwable cause) {
+	public EventConstructException(String message, Throwable cause) {
 		super(message, cause);
-	}
-
-	public VerificationException(String message) {
-		super(message);
-	}
-
-	public VerificationException(Throwable cause) {
-		super(cause);
 	}
 
 }
