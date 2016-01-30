@@ -17,6 +17,7 @@ package cz.etnetera.seb.test.selenium.page;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.FindBy;
 
+import cz.etnetera.seb.element.RequiredElement;
 import cz.etnetera.seb.element.SebElement;
 import cz.etnetera.seb.module.Module;
 import cz.etnetera.seb.page.Page;
@@ -25,6 +26,7 @@ import cz.etnetera.seb.page.PageConfig;
 @PageConfig(url = "http://www.etnetera.cz/archiv")
 public class ArchiveHomePage extends Page {
 
+	@RequiredElement
 	@FindBy(id = "vyhledavani")
 	protected SebElement searchEl;
 	

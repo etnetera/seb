@@ -67,7 +67,7 @@ public class SebFieldDecorator implements FieldDecorator {
 			elementCls = SebElement.class;
 
 		if (!isList) {
-			return context.getSeb().getElementLoader().findOne(context, loader, field, (Class<? extends SebElement>) elementCls, field.isAnnotationPresent(OptionalElement.class));
+			return context.getSeb().getElementLoader().findOne(context, loader, field, (Class<? extends SebElement>) elementCls, !field.isAnnotationPresent(RequiredElement.class));
 		} else {
 			return context.getSeb().getElementLoader().find(context, loader, field, (Class<? extends SebElement>) elementCls);
 		}

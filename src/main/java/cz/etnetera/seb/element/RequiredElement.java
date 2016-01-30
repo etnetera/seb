@@ -23,12 +23,11 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.PageFactory;
 
 /**
- * Identifies element which is not required to be present when using {@link PageFactory}. 
- * If they are not present {@link SebElement} is instantiated instead 
- * of {@link NoSuchElementException} being thrown.
+ * Identifies element which required to be present when using {@link PageFactory}. 
+ * If not present {@link NoSuchElementException} is being thrown.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface OptionalElement {
+public @interface RequiredElement {
 
 }
