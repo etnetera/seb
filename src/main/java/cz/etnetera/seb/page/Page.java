@@ -113,7 +113,7 @@ abstract public class Page implements SebContext {
 		return init();
 	}
 
-	final public Page init() {
+	public Page init() {
 		if (waitPageBeforeInitTimeout != null)
 			waiting(waitPageBeforeInitTimeout).sleep();
 		try {

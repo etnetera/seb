@@ -34,6 +34,8 @@ import cz.etnetera.seb.SebContext;
  */
 public class SebFieldDecorator implements FieldDecorator {
 
+	protected static final String TYPE_NAME_PREFIX = "class ";
+	
 	protected SebContext context;
 
 	public SebFieldDecorator(SebContext context) {
@@ -54,10 +56,10 @@ public class SebFieldDecorator implements FieldDecorator {
 				return null;
 			}
 			Type listType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-			if (!WebElement.class.isAssignableFrom(listType.getClass())) {
+			elementCls = getClassFromType(listType);
+			if (!WebElement.class.isAssignableFrom(elementCls)) {
 				return null;
 			}
-			elementCls = listType.getClass();
 			isList = true;
 		} else {
 			return null;
@@ -76,6 +78,19 @@ public class SebFieldDecorator implements FieldDecorator {
 	protected boolean isSupported(Field field) {
 		return field.isAnnotationPresent(FindByDefault.class) || field.isAnnotationPresent(FindBy.class)
 				|| field.isAnnotationPresent(FindBys.class) || field.isAnnotationPresent(FindAll.class);
+	}
+	
+	protected Class<?> getClassFromType(Type type) {
+		if (type == null)
+			return null;
+		String className = type.getTypeName();
+		if (className.startsWith(TYPE_NAME_PREFIX))
+			className = className.substring(TYPE_NAME_PREFIX.length());
+		try {
+			return Class.forName(className);
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
 	}
 
 }

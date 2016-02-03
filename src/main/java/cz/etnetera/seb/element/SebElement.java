@@ -76,7 +76,7 @@ public class SebElement implements SebContext, WebElement, WrapsElement, WrapsDr
 		return context;
 	}
 
-	final public SebElement init() {
+	public SebElement init() {
 		try {
 			checkIfPresent(webElement);
 			present = true;
