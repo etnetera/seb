@@ -256,6 +256,11 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	}
 
 	@Override
+	public boolean isAlertSupported(WebDriver driver) {
+		return true;
+	}
+
+	@Override
 	public List<PropertiesValue> getPropertiesHolder() {
 		return propertiesHolder;
 	}

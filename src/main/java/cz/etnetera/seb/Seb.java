@@ -106,6 +106,8 @@ public class Seb implements SebContext {
 
 	protected List<SebListener> listeners;
 	
+	protected boolean alertSupported;
+	
 	protected Map<String, Object> dataHolder = new HashMap<String, Object>();
 	
 	protected SebUtils utils = new SebUtils();
@@ -158,6 +160,7 @@ public class Seb implements SebContext {
 		applyConfiguration(configuration);
 		initListeners();
 		driver = createDriver();
+		alertSupported = configuration.isAlertSupported(driver);
 	}
 	
 	protected void applyConfiguration(SebConfiguration configuration) {
@@ -366,6 +369,15 @@ public class Seb implements SebContext {
 	 */
 	public File getReportDir() {
 		return reportDir;
+	}
+
+	/**
+	 * Is switching to alerts supported.
+	 *  
+	 * @return Support alert status
+	 */
+	public boolean isAlertSupported() {
+		return alertSupported;
 	}
 
 	/**
@@ -663,6 +675,10 @@ public class Seb implements SebContext {
 		PageFactory.initElements(
 				new SebFieldDecorator(context),
 				context);
+	}
+	
+	public SebAlert getAlert(SebContext context) {
+		return new SebAlert(context);
 	}
 	
 	@Override

@@ -795,6 +795,17 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 		return getSeb().createElementLocator(this, by, lookupCached);
 	}
 	
+	/**
+	 * Returns object instance with set of methods which
+	 * support both browser with native dialogs and headless
+	 * browsers without this capability.
+	 * 
+	 * @return The alert instance
+	 */
+	default SebAlert getAlert()  {
+		return getSeb().getAlert(this);
+	}
+	
 	@Override
 	default WebDriver getWrappedDriver() {
 		return getDriver();

@@ -107,4 +107,13 @@ public interface SebConfiguration {
 	 */
 	List<SebListener> getListeners();
 	
+	/**
+	 * Is switching to alerts supported.
+	 * If you are using PhantomJS driver, modify this check.
+	 * 
+	 * @param driver The driver
+	 * @return Support alert status
+	 */
+	boolean isAlertSupported(WebDriver driver);
+	
 }
