@@ -261,6 +261,11 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	}
 
 	@Override
+	public boolean isLazyDriver() {
+		return true;
+	}
+
+	@Override
 	public List<PropertiesValue> getPropertiesHolder() {
 		return propertiesHolder;
 	}

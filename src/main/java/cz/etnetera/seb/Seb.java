@@ -108,6 +108,8 @@ public class Seb implements SebContext {
 	
 	protected boolean alertSupported;
 	
+	protected boolean lazyDriver;
+	
 	protected Map<String, Object> dataHolder = new HashMap<String, Object>();
 	
 	protected SebUtils utils = new SebUtils();
@@ -159,8 +161,8 @@ public class Seb implements SebContext {
 	protected void init(SebConfiguration configuration) {
 		applyConfiguration(configuration);
 		initListeners();
-		driver = createDriver();
-		alertSupported = configuration.isAlertSupported(driver);
+		if (!lazyDriver)
+			driver = createDriver();
 	}
 	
 	protected void applyConfiguration(SebConfiguration configuration) {
@@ -196,6 +198,7 @@ public class Seb implements SebContext {
 		if (listeners == null) {
 			listeners = new ArrayList<>();
 		}
+		lazyDriver = configuration.isLazyDriver();
 	}
 	
 	protected void initListeners() {
@@ -213,6 +216,9 @@ public class Seb implements SebContext {
 		EventFiringWebDriver drv = new EventFiringWebDriver(
 				configuration.getDriver(befDriverConstEvent.getCapabilities()));
 		drv.register(new EventFiringSebBridgeListener(this));
+		
+		// set driver specific configurations
+		alertSupported = configuration.isAlertSupported(drv);
 		return drv;
 	}
 	
@@ -425,7 +431,7 @@ public class Seb implements SebContext {
 	 */
 	public void quit() {
 		triggerEvent(constructEvent(BeforeSebQuitEvent.class));
-		driver.quit();
+		if (driver != null) driver.quit();
 		triggerEvent(constructEvent(AfterSebQuitEvent.class));
 	}
 
@@ -492,13 +498,16 @@ public class Seb implements SebContext {
 
 	@Override
 	public WebDriver getDriver() {
+		if (lazyDriver && driver == null) {
+			driver = createDriver();
+		}
 		return driver;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getDriver(Class<T> driver) {
-		return (T) this.driver;
+		return (T) getDriver();
 	}
 
 	@Override
@@ -705,12 +714,12 @@ public class Seb implements SebContext {
 	
 	@Override
 	public List<WebElement> findElements(By by) {
-		return driver.findElements(by);
+		return getDriver().findElements(by);
 	}
 
 	@Override
 	public WebElement findElement(By by) {
-		return driver.findElement(by);
+		return getDriver().findElement(by);
 	}
 	
 	@Override
@@ -725,7 +734,7 @@ public class Seb implements SebContext {
 
 	@Override
 	public void goToUrl(String url) {
-		driver.get(url);
+		getDriver().get(url);
 	}
 
 	@Override

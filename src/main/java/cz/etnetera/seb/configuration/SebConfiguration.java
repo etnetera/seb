@@ -20,6 +20,7 @@ import java.util.List;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import cz.etnetera.seb.Seb;
 import cz.etnetera.seb.SebContext;
 import cz.etnetera.seb.listener.SebListener;
 
@@ -115,5 +116,14 @@ public interface SebConfiguration {
 	 * @return Support alert status
 	 */
 	boolean isAlertSupported(WebDriver driver);
+	
+	/**
+	 * Is driver created on first need.
+	 * Return true if driver will be created before first need
+	 * false for creating it immediately after {@link Seb} is constructed.   
+	 * 
+	 * @return Is driver created on first need
+	 */
+	boolean isLazyDriver();
 	
 }
