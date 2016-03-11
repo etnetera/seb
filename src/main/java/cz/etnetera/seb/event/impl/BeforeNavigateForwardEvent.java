@@ -20,7 +20,7 @@ import cz.etnetera.seb.listener.SebListener;
 public class BeforeNavigateForwardEvent extends SebEvent {
 
 	@Override
-	public void notify(SebListener listener) {
+	protected void notifySpecific(SebListener listener) {
 		listener.beforeNavigateForward(this);
 	}
 	

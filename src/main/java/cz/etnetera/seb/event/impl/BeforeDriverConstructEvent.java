@@ -36,7 +36,7 @@ public class BeforeDriverConstructEvent extends SebEvent {
 	}
 
 	@Override
-	public void notify(SebListener listener) {
+	protected void notifySpecific(SebListener listener) {
 		listener.beforeDriverConstruct(this);
 	}
 	

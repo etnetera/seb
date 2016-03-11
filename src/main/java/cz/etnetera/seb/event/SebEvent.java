@@ -40,8 +40,28 @@ abstract public class SebEvent {
 		this.time = time;
 		return this;
 	}
+	
+	/**
+	 * Common notify implementation.
+	 * 
+	 * @param listener
+	 */
+	public void notify(SebListener listener) {
+		listener.handle(this);
+		notifySpecific(listener);
+	}
 
-	abstract public void notify(SebListener listener);
+	/**
+	 * Specific notify implementation.
+	 * Feel free to override this method
+	 * and call specific methods on custom 
+	 * listeners if neede.
+	 * 
+	 * @param listener
+	 */
+	protected void notifySpecific(SebListener listener) {
+		// do something else
+	}
 	
 	public void notifyEnabled(SebListener listener) {
 		if (listener.isEnabled(this)) {

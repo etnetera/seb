@@ -33,7 +33,9 @@ import org.openqa.selenium.support.ui.Sleeper;
 import cz.etnetera.seb.configuration.SebConfiguration;
 import cz.etnetera.seb.element.SebElement;
 import cz.etnetera.seb.event.SebEvent;
+import cz.etnetera.seb.event.impl.LogEvent;
 import cz.etnetera.seb.event.impl.OnReportEvent;
+import cz.etnetera.seb.event.impl.LogEvent.Level;
 import cz.etnetera.seb.logic.Logic;
 import cz.etnetera.seb.page.Page;
 import cz.etnetera.seb.source.DataSource;
@@ -513,6 +515,37 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 	 */
 	default void report(String label) {
 		getSeb().report(this, label);
+	}
+	
+	/**
+	 * Triggers {@link LogEvent} with given level and message.
+	 * 
+	 * @param level The log level
+	 * @param message The log message
+	 */
+	default void log(Level level, String message) {
+		getSeb().log(this, level, message);
+	}
+	
+	/**
+	 * Triggers {@link LogEvent} with given level and throwable.
+	 * 
+	 * @param level The log level
+	 * @param throwable The log throwable
+	 */
+	default void log(Level level, Throwable throwable) {
+		getSeb().log(this, level, throwable);
+	}
+	
+	/**
+	 * Triggers {@link LogEvent} with given level, message and throwable.
+	 * 
+	 * @param level The log level
+	 * @param message The log message
+	 * @param throwable The log throwable
+	 */
+	default void log(Level level, String message, Throwable throwable) {
+		getSeb().log(this, level, message, throwable);
 	}
 	
 	/**

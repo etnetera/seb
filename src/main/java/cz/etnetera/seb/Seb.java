@@ -55,9 +55,11 @@ import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.event.EventConstructException;
 import cz.etnetera.seb.event.impl.AfterSebQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
+import cz.etnetera.seb.event.impl.LogEvent;
 import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
 import cz.etnetera.seb.event.impl.OnFileSaveEvent;
 import cz.etnetera.seb.event.impl.OnReportEvent;
+import cz.etnetera.seb.event.impl.LogEvent.Level;
 import cz.etnetera.seb.listener.SebListener;
 import cz.etnetera.seb.listener.EventFiringSebBridgeListener;
 import cz.etnetera.seb.logic.Logic;
@@ -447,13 +449,45 @@ public class Seb implements SebContext {
 	/**
 	 * Triggers {@link OnReportEvent} with given context and label.
 	 * 
-	 * @param context
-	 *            The report context
-	 * @param label
-	 *            The report label
+	 * @param context The report context
+	 * @param label The report label
 	 */
 	public void report(SebContext context, String label) {
 		triggerEvent(constructEvent(OnReportEvent.class, context).with(label));
+	}
+	
+	/**
+	 * Triggers {@link LogEvent} with given context, level and message.
+	 * 
+	 * @param context The log context
+	 * @param level The log level
+	 * @param message The log message
+	 */
+	public void log(SebContext context, Level level, String message) {
+		triggerEvent(constructEvent(LogEvent.class, context).with(level, message));
+	}
+	
+	/**
+	 * Triggers {@link LogEvent} with given context, level and throwable.
+	 * 
+	 * @param context The log context
+	 * @param level The log level
+	 * @param throwable The log throwable
+	 */
+	public void log(SebContext context, Level level, Throwable throwable) {
+		triggerEvent(constructEvent(LogEvent.class, context).with(level, throwable));
+	}
+	
+	/**
+	 * Triggers {@link LogEvent} with given context, level, message and throwable.
+	 * 
+	 * @param context The log context
+	 * @param level The log level
+	 * @param message The log message
+	 * @param throwable The log throwable
+	 */
+	public void log(SebContext context, Level level, String message, Throwable throwable) {
+		triggerEvent(constructEvent(LogEvent.class, context).with(level, message, throwable));
 	}
 
 	/**

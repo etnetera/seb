@@ -36,6 +36,7 @@ import cz.etnetera.seb.event.impl.AfterNavigateToEvent;
 import cz.etnetera.seb.event.impl.AfterPageInitEvent;
 import cz.etnetera.seb.event.impl.AfterScriptEvent;
 import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
+import cz.etnetera.seb.event.impl.LogEvent;
 import cz.etnetera.seb.event.impl.BeforeChangeValueOfEvent;
 import cz.etnetera.seb.event.impl.BeforeClickOnEvent;
 import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
@@ -125,6 +126,17 @@ public class SebListener {
 		}
 		return this;
 	}
+	
+	/**
+	 * Called on {@link SebContext#triggerEvent(SebEvent)}.
+	 * This is basic handler implementation which
+	 * is called for every triggered event.
+	 * Some events can have its own handling method
+	 * like {@link SebListener#onReport(OnReportEvent)}. 
+	 *
+	 * @param event
+	 */
+	public void handle(SebEvent event) {}
 	
 	/**
 	 * Called on {@link SebContext#report(String label)}.
@@ -336,6 +348,13 @@ public class SebListener {
 	 * @param event
 	 */
 	public void onException(OnExceptionEvent event) {}
+	
+	/**
+	 * Called whenever a log event is triggered.
+	 *
+	 * @param event
+	 */
+	public void log(LogEvent event) {}
 	
 	/**
 	 * Save string content into output file with given name and extension.
