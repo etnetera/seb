@@ -28,7 +28,7 @@ public class OnReportEvent extends SebEvent {
 	}
 	
 	@Override
-	public void notify(SebListener listener) {
+	protected void notifySpecific(SebListener listener) {
 		listener.onReport(this);
 	}
 	

@@ -19,7 +19,7 @@ import cz.etnetera.seb.listener.SebListener;
 public class BeforeScriptEvent extends ScriptEvent {
 	
 	@Override
-	public void notify(SebListener listener) {
+	protected void notifySpecific(SebListener listener) {
 		listener.beforeScript(this);
 	}
 	

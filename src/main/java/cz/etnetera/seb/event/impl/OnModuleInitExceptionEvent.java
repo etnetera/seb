@@ -28,7 +28,7 @@ public class OnModuleInitExceptionEvent extends OnExceptionEvent {
 	}
 	
 	@Override
-	public void notify(SebListener listener) {
+	protected void notifySpecific(SebListener listener) {
 		listener.onException(this);
 	}
 	

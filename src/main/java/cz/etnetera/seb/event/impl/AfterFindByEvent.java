@@ -19,7 +19,7 @@ import cz.etnetera.seb.listener.SebListener;
 public class AfterFindByEvent extends FindByEvent {
 	
 	@Override
-	public void notify(SebListener listener) {
+	protected void notifySpecific(SebListener listener) {
 		listener.afterFindBy(this);
 	}
 	

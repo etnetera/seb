@@ -27,7 +27,7 @@ public class OnExceptionEvent extends SebEvent {
 	}
 	
 	@Override
-	public void notify(SebListener listener) {
+	protected void notifySpecific(SebListener listener) {
 		listener.onException(this);
 	}
 	

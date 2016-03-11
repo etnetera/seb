@@ -14,27 +14,57 @@
  */
 package cz.etnetera.seb.event.impl;
 
-import java.io.File;
-
 import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.listener.SebListener;
 
-public class OnFileSaveEvent extends SebEvent {
+public class LogEvent extends SebEvent {
+	
+	protected Level level; 
+	
+	protected String message;
+	
+	protected Throwable throwable;
 
-	protected File file;
-
-	public OnFileSaveEvent with(File file) {
-		this.file = file;
+	public LogEvent with(Level level, String message) {
+		return with(level, message, null);
+	}
+	
+	public LogEvent with(Level level, Throwable throwable) {
+		return with(level, null, throwable);
+	}
+	
+	public LogEvent with(Level level, String message, Throwable throwable) {
+		this.level = level;
+		this.message = message;
+		this.throwable = throwable;
 		return this;
 	}
 	
 	@Override
 	protected void notifySpecific(SebListener listener) {
-		listener.onFileSave(this);
+		listener.log(this);
+	}
+	
+	public String getName() {
+		return context.getClass().getName();
 	}
 
-	public File getFile() {
-		return file;
+	public Level getLevel() {
+		return level;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public Throwable getThrowable() {
+		return throwable;
+	}
+
+	public static enum Level {
+		
+		TRACE, DEBUG, INFO, WARN, ERROR
+		
 	}
 	
 }
