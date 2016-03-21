@@ -841,7 +841,12 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 	
 	@Override
 	default WebDriver getWrappedDriver() {
-		return getDriver();
+		WebDriver driver = getDriver();
+		if (driver instanceof WrapsDriver) {
+			return ((WrapsDriver) driver).getWrappedDriver();
+	    } else {
+	    	return driver;
+	    }
 	}
 	
 	@Override
