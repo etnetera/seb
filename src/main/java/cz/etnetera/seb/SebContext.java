@@ -16,6 +16,7 @@ package cz.etnetera.seb;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -34,8 +35,8 @@ import cz.etnetera.seb.configuration.SebConfiguration;
 import cz.etnetera.seb.element.SebElement;
 import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.event.impl.LogEvent;
-import cz.etnetera.seb.event.impl.OnReportEvent;
 import cz.etnetera.seb.event.impl.LogEvent.Level;
+import cz.etnetera.seb.event.impl.OnReportEvent;
 import cz.etnetera.seb.logic.Logic;
 import cz.etnetera.seb.page.Page;
 import cz.etnetera.seb.source.DataSource;
@@ -576,9 +577,10 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 	 * @param content The string content to save.
 	 * @param name The file name without extension.
 	 * @param extension The file extension.
+	 * @return The saved file path.
 	 */
-	default void saveFile(String content, String name, String extension) {
-		getSeb().saveFile(content, name, extension);
+	default Path saveFile(String content, String name, String extension) {
+		return getSeb().saveFile(content, name, extension);
 	}
 	
 	/**
@@ -591,8 +593,8 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 	 * @param name The file name without extension.
 	 * @param extension The file extension.
 	 */
-	default void saveFile(byte[] bytes, String name, String extension) {
-		getSeb().saveFile(bytes, name, extension);
+	default Path saveFile(byte[] bytes, String name, String extension) {
+		return getSeb().saveFile(bytes, name, extension);
 	}
 	
 	/**
@@ -605,8 +607,8 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 	 * @param name The file name without extension.
 	 * @param extension The file extension.
 	 */
-	default void saveFile(File file, String name, String extension) {
-		getSeb().saveFile(file, name, extension);
+	default Path saveFile(File file, String name, String extension) {
+		return getSeb().saveFile(file, name, extension);
 	}
 	
 	/**

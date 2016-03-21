@@ -788,29 +788,31 @@ public class Seb implements SebContext {
 	}
 
 	@Override
-	public void saveFile(String content, String name, String extension) {
-		saveFile(content.getBytes(), name, extension);
+	public Path saveFile(String content, String name, String extension) {
+		return saveFile(content.getBytes(), name, extension);
 	}
 
 	@Override
-	public void saveFile(byte[] bytes, String name, String extension) {
+	public Path saveFile(byte[] bytes, String name, String extension) {
 		if (!reported)
-			return;
+			return null;
 		try {
 			Path path = Files.write(getUniqueFilePath(name, extension), bytes);
 			triggerEvent(constructEvent(OnFileSaveEvent.class, this).with(path.toFile()));
+			return path;
 		} catch (IOException e) {
 			throw new SebException("Unable to save file " + name, e);
 		}
 	}
 
 	@Override
-	public void saveFile(File file, String name, String extension) {
+	public Path saveFile(File file, String name, String extension) {
 		if (!reported)
-			return;
+			return null;
 		try {
 			Path path = Files.copy(file.toPath(), getUniqueFilePath(name, extension));
 			triggerEvent(constructEvent(OnFileSaveEvent.class, this).with(path.toFile()));
+			return path;
 		} catch (IOException e) {
 			throw new SebException("Unable to save file " + name, e);
 		}
