@@ -18,26 +18,27 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import cz.etnetera.seb.SebException;
 
 /**
- * {@link Properties} list based source. It allows to load properties
- * from resource, path, file or {@link Properties} directly
- * and chain them into one. {@link Properties} can be added
- * at the front or end of already added properties or
- * can be added before/after properties with given key.
+ * {@link Properties} list based source. It allows to load properties from
+ * resource, path, file or {@link Properties} directly and chain them into one.
+ * {@link Properties} can be added at the front or end of already added
+ * properties or can be added before/after properties with given key.
  */
 public interface ChainedPropertiesSource extends PropertySource {
-	
+
 	List<PropertiesValue> getPropertiesHolder();
 
 	default List<Properties> getProperties() {
 		return getPropertiesHolder().stream().map(v -> v.getProperties()).collect(Collectors.toList());
 	}
-	
+
 	default Map<String, Properties> getPropertiesWithKeys() {
 		return getPropertiesHolder().stream()
 				.collect(Collectors.toMap(PropertiesValue::getKey, PropertiesValue::getProperties));
@@ -48,7 +49,14 @@ public interface ChainedPropertiesSource extends PropertySource {
 		getPropertiesHolder().stream().sorted(Collections.reverseOrder()).forEach(v -> props.putAll(v.getProperties()));
 		return props;
 	}
-	
+
+	default Properties getMergedProperties(Predicate<Entry<Object, Object>> filter) {
+		Properties filteredProps = new Properties();
+		getMergedProperties().entrySet().stream().filter(filter)
+				.forEach(entry -> filteredProps.put(entry.getKey(), entry.getValue()));
+		return filteredProps;
+	}
+
 	/**
 	 * Returns properties with given key.
 	 * 
@@ -57,7 +65,8 @@ public interface ChainedPropertiesSource extends PropertySource {
 	 * @return The properties or null
 	 */
 	default Properties getProperties(String key) {
-		return getPropertiesHolder().stream().filter(v -> v.equals(key)).map(v -> v.getProperties()).findFirst().orElse(null);
+		return getPropertiesHolder().stream().filter(v -> v.equals(key)).map(v -> v.getProperties()).findFirst()
+				.orElse(null);
 	}
 
 	/**
@@ -70,11 +79,12 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default boolean removeProperties(String key) {
 		return getPropertiesHolder().remove(new PropertiesValue(key, null));
 	}
-	
+
 	/**
 	 * Adds properties at the end of actual properties list.
 	 * 
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param properties
 	 *            The properties
 	 * @return Same instance
@@ -86,13 +96,14 @@ public interface ChainedPropertiesSource extends PropertySource {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * Adds properties before specific key in actual properties list.
 	 * 
 	 * @param beforeKey
 	 *            The before properties key
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param properties
 	 *            The properties
 	 * @return Same instance
@@ -107,13 +118,14 @@ public interface ChainedPropertiesSource extends PropertySource {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * Adds properties after specific key in actual properties list.
 	 * 
 	 * @param afterKey
 	 *            The after properties key
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param properties
 	 *            The properties
 	 * @return Same instance
@@ -128,11 +140,13 @@ public interface ChainedPropertiesSource extends PropertySource {
 		}
 		return this;
 	}
-	
+
 	/**
-	 * Loads properties from file and adds them at the end of actual properties list.
+	 * Loads properties from file and adds them at the end of actual properties
+	 * list.
 	 * 
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param file
 	 *            The properties file
 	 * @return Same instance
@@ -140,13 +154,15 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource addFileProperties(String key, File file) {
 		return addProperties(key, PropertiesSource.loadProperties(file));
 	}
-	
+
 	/**
-	 * Loads properties from file and adds them before specific key in actual properties list.
+	 * Loads properties from file and adds them before specific key in actual
+	 * properties list.
 	 * 
 	 * @param beforeKey
 	 *            The before properties key
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param file
 	 *            The properties file
 	 * @return Same instance
@@ -154,13 +170,15 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource addFilePropertiesBefore(String beforeKey, String key, File file) {
 		return addPropertiesBefore(beforeKey, key, PropertiesSource.loadProperties(file));
 	}
-	
+
 	/**
-	 * Loads properties from file and adds them after specific key in actual properties list.
+	 * Loads properties from file and adds them after specific key in actual
+	 * properties list.
 	 * 
 	 * @param afterKey
 	 *            The after properties key
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param file
 	 *            The properties file
 	 * @return Same instance
@@ -168,12 +186,13 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource addFilePropertiesAfter(String afterKey, String key, File file) {
 		return addPropertiesAfter(afterKey, key, PropertiesSource.loadProperties(file));
 	}
-	
+
 	/**
-	 * Loads properties from resource by its name and adds them at the end of actual
-	 * properties list with specific key.
+	 * Loads properties from resource by its name and adds them at the end of
+	 * actual properties list with specific key.
 	 * 
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param resourceName
 	 *            The properties resource
 	 * @return Same instance
@@ -181,14 +200,15 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource addResourceProperties(String key, String resourceName) {
 		return addProperties(key, PropertiesSource.loadProperties(resourceName));
 	}
-	
+
 	/**
-	 * Loads properties from resource by its name and adds them before specific key in actual
-	 * properties list with specific key.
+	 * Loads properties from resource by its name and adds them before specific
+	 * key in actual properties list with specific key.
 	 * 
 	 * @param beforeKey
 	 *            The before properties key
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param resourceName
 	 *            The properties resource
 	 * @return Same instance
@@ -196,14 +216,15 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource addResourcePropertiesBefore(String beforeKey, String key, String resourceName) {
 		return addPropertiesBefore(beforeKey, key, PropertiesSource.loadProperties(resourceName));
 	}
-	
+
 	/**
-	 * Loads properties from resource by its name and adds them after specific key in actual
-	 * properties list with specific key.
+	 * Loads properties from resource by its name and adds them after specific
+	 * key in actual properties list with specific key.
 	 * 
 	 * @param afterKey
 	 *            The after properties key
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param resourceName
 	 *            The properties resource
 	 * @return Same instance
@@ -211,12 +232,13 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource addResourcePropertiesAfter(String afterKey, String key, String resourceName) {
 		return addPropertiesAfter(afterKey, key, PropertiesSource.loadProperties(resourceName));
 	}
-	
+
 	/**
-	 * Pushes properties at the start of actual properties list
-	 * with specific key.
+	 * Pushes properties at the start of actual properties list with specific
+	 * key.
 	 * 
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param properties
 	 *            The properties
 	 * @return Same instance
@@ -227,12 +249,13 @@ public interface ChainedPropertiesSource extends PropertySource {
 		}
 		return this;
 	}
-	
+
 	/**
-	 * Loads properties from file and pushes them at the start of actual properties list
-	 * with specific key.
+	 * Loads properties from file and pushes them at the start of actual
+	 * properties list with specific key.
 	 * 
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param file
 	 *            The properties file
 	 * @return Same instance
@@ -240,12 +263,13 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource pushFileProperties(String key, File file) {
 		return pushProperties(key, PropertiesSource.loadProperties(file));
 	}
-	
+
 	/**
-	 * Loads properties from resource by its name and pushes them at the start of actual
-	 * properties list with specific key.
+	 * Loads properties from resource by its name and pushes them at the start
+	 * of actual properties list with specific key.
 	 * 
-	 * @param key The properties key
+	 * @param key
+	 *            The properties key
 	 * @param resourceName
 	 *            The properties resource
 	 * @return Same instance
@@ -253,7 +277,7 @@ public interface ChainedPropertiesSource extends PropertySource {
 	default ChainedPropertiesSource pushResourceProperties(String key, String resourceName) {
 		return pushProperties(key, PropertiesSource.loadProperties(resourceName));
 	}
-	
+
 	@Override
 	default String getProperty(String key) {
 		if (getPropertiesHolder() != null) {
@@ -265,18 +289,18 @@ public interface ChainedPropertiesSource extends PropertySource {
 		}
 		return null;
 	}
-	
-	static class PropertiesValue {
-		
+
+	static class PropertiesValue implements Comparable<PropertiesValue> {
+
 		protected String key;
-		
+
 		protected Properties properties;
-		
+
 		public PropertiesValue(String key, Properties properties) {
 			this.key = key;
 			this.properties = properties;
 		}
-		
+
 		public String getKey() {
 			return key;
 		}
@@ -296,7 +320,12 @@ public interface ChainedPropertiesSource extends PropertySource {
 				return key.equals(((PropertiesValue) obj).getKey());
 			return false;
 		}
-		
+
+		@Override
+		public int compareTo(PropertiesValue o) {
+			return key.compareTo(o.getKey());
+		}
+
 	}
 
 }
