@@ -15,6 +15,11 @@
 package cz.etnetera.seb.configuration;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,8 +31,12 @@ import java.util.regex.Pattern;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
+import cz.etnetera.seb.Seb;
 import cz.etnetera.seb.SebContext;
+import cz.etnetera.seb.SebException;
+import cz.etnetera.seb.SebUtils;
 import cz.etnetera.seb.listener.SebListener;
 import cz.etnetera.seb.listener.impl.PageSourceListener;
 import cz.etnetera.seb.listener.impl.ScreenshotListener;
@@ -84,7 +93,12 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	public static final String WAIT_RETRY_INTERVAL = PREFIX + "waitRetryInterval";
 	
 	public static final String REPORTED = PREFIX + "reported";
+	public static final String REPORTS_ROOT_DIR = PREFIX + "reportsRootDir";
 	public static final String REPORT_DIR = PREFIX + "reportDir";
+	
+	public static final String HUB_URL = PREFIX + "hubUrl";
+	
+	public static final String CAPABILITIES_PREFIX = PREFIX + "caps.";
 	
 	protected List<PropertiesValue> propertiesHolder = new ArrayList<>();
 	
@@ -129,6 +143,16 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	}
 	
 	/**
+	 * Default hub URL for RemoteWebDriver.
+	 * Override this for different value.
+	 * 
+	 * @return The hub URL
+	 */
+	protected String getDefaultHubUrl() {
+		return null;
+	}
+	
+	/**
 	 * Returns default {@link WebDriver} instance.
 	 * Override this for different value.
 	 * 
@@ -136,17 +160,31 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	 * @return The driver
 	 */
 	protected WebDriver getDefaultDriver(DesiredCapabilities caps) {
-		return new FirefoxDriver(caps);
+		String hubUrl = getHubUrl();
+		if (hubUrl == null) {
+			return new FirefoxDriver(caps);
+		}
+		try {
+			return new RemoteWebDriver(new URL(hubUrl), caps);
+		} catch (MalformedURLException e) {
+			throw new SebException("Unable to construct remote webdriver.", e);
+		}
 	}
 	
 	/**
 	 * Returns optional default {@link DesiredCapabilities}.
+	 * They are constructed from system properties starting
+	 * with {@link BasicSebConfiguration#CAPABILITIES_PREFIX}.
 	 * Override this for different value.
 	 * 
 	 * @return The desired capabilities.
 	 */
 	protected DesiredCapabilities getDefaultCapabilities() {
-		return null;
+		DesiredCapabilities caps = new DesiredCapabilities();
+		getMergedProperties(entry -> entry.getKey() != null && entry.getKey().toString().startsWith(CAPABILITIES_PREFIX)).forEach((key, value) -> {
+			caps.setCapability(key.toString().substring(CAPABILITIES_PREFIX.length()), value);
+		});
+		return caps;
 	}
 	
 	/**
@@ -180,13 +218,45 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	}
 	
 	/**
-	 * Returns default directory for storing Seb files.
+	 * Returns directory for storing Seb report directories.
+	 * 
+	 * @return The reports root directory.
+	 */
+	protected File getDefaultReportsRootDir() {
+		return new File("seb-reports");
+	}
+	
+	/**
+	 * Returns directory for storing Seb report files.
+	 * As default, unique directory is created inside
+	 * reports root directory.
 	 * Override this for different value.
 	 * 
 	 * @return The report directory.
 	 */
 	protected File getDefaultReportDir() {
-		return new File("seb-report");
+		File reportsRootDir = getReportsRootDir();
+		if (reportsRootDir == null) {
+			throw new SebException("Reports root directory is null");
+		}
+		if (!reportsRootDir.exists()) {
+			try {
+				Files.createDirectories(reportsRootDir.toPath());
+			} catch (IOException e) {
+				throw new SebException("Reports root directory does not exists and can not be created " + reportsRootDir);
+			}
+		} else if (!reportsRootDir.isDirectory()) {
+			throw new SebException("Reports root directory is not directory " + reportsRootDir);
+		} else if (!reportsRootDir.canWrite()) {
+			throw new SebException("Reports root directory is not writable " + reportsRootDir);
+		}
+		File reportDir = new SebUtils().getUniqueFilePath(reportsRootDir, LocalDateTime.now().format(Seb.FILE_DATE_FORMATTER), null).toFile();
+		try {
+			Files.createDirectories(reportDir.toPath());
+		} catch (IOException e) {
+			throw new SebException("Report directory can not be created " + reportDir);
+		}
+		return reportDir;
 	}
 	
 	/**
@@ -220,6 +290,11 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	}
 	
 	@Override
+	public String getHubUrl() {
+		return getProperty(HUB_URL, getDefaultHubUrl());
+	}
+	
+	@Override
 	public WebDriver getDriver(DesiredCapabilities caps) {
 		return getDefaultDriver(caps);
 	}
@@ -245,9 +320,15 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	}
 	
 	@Override
+	public File getReportsRootDir() {
+		String dir = getProperty(REPORTS_ROOT_DIR);
+		return dir == null ? getDefaultReportsRootDir() : new File(dir);
+	}
+	
+	@Override
 	public File getReportDir() {
-		String reportDir = getProperty(REPORT_DIR);
-		return reportDir == null ? getDefaultReportDir() : new File(reportDir);
+		String dir = getProperty(REPORT_DIR);
+		return dir == null ? getDefaultReportDir() : new File(dir);
 	}
 	
 	@Override

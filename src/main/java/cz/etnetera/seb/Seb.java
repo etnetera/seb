@@ -51,17 +51,17 @@ import cz.etnetera.seb.element.SebElement;
 import cz.etnetera.seb.element.SebElementConstructException;
 import cz.etnetera.seb.element.SebElementLoader;
 import cz.etnetera.seb.element.SebFieldDecorator;
-import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.event.EventConstructException;
+import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.event.impl.AfterSebQuitEvent;
+import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
 import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
 import cz.etnetera.seb.event.impl.LogEvent;
-import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
+import cz.etnetera.seb.event.impl.LogEvent.Level;
 import cz.etnetera.seb.event.impl.OnFileSaveEvent;
 import cz.etnetera.seb.event.impl.OnReportEvent;
-import cz.etnetera.seb.event.impl.LogEvent.Level;
-import cz.etnetera.seb.listener.SebListener;
 import cz.etnetera.seb.listener.EventFiringSebBridgeListener;
+import cz.etnetera.seb.listener.SebListener;
 import cz.etnetera.seb.logic.Logic;
 import cz.etnetera.seb.logic.LogicConstructException;
 import cz.etnetera.seb.page.Page;
@@ -103,7 +103,7 @@ public class Seb implements SebContext {
 	protected String label;
 
 	protected boolean reported;
-
+	
 	protected File reportDir;
 
 	protected List<SebListener> listeners;
@@ -178,9 +178,6 @@ public class Seb implements SebContext {
 		reported = configuration.isReported();
 		reportDir = configuration.getReportDir();
 		if (reported) {
-			if (reportDir == null) {
-				throw new SebException("Report directory is null");
-			}
 			if (!reportDir.exists()) {
 				try {
 					Files.createDirectories(reportDir.toPath());
@@ -369,11 +366,11 @@ public class Seb implements SebContext {
 	}
 
 	/**
-	 * Returns reporting directory, which is used as root
-	 * directory for files stored using {@link SebContext#saveFile(File, String, String)}
+	 * Returns directory for storing report files using 
+	 * {@link SebContext#saveFile(File, String, String)}
 	 * and similar methods.
 	 * 
-	 * @return The reporting directory
+	 * @return The report directory.
 	 */
 	public File getReportDir() {
 		return reportDir;
@@ -819,21 +816,11 @@ public class Seb implements SebContext {
 	}
 
 	protected Path getFilePath(String name, String extension) {
-		return reportDir.toPath().resolve(utils.join(".", name, extension));
+		return utils.getFilePath(reportDir, name, extension);
 	}
 
 	protected Path getUniqueFilePath(String name, String extension) {
-		name = escapeFileName(name);
-		Path path = getFilePath(name, extension);
-		int suffix = 0;
-		while (path.toFile().exists()) {
-			path = getFilePath(utils.join(LABEL_DELIMITER, name, ++suffix), extension);
-		}
-		return path;
-	}
-
-	protected String escapeFileName(String name) {
-		return name.replaceAll("[^a-zA-Z0-9_\\-\\.]", "_");
+		return utils.getUniqueFilePath(reportDir, name, extension);
 	}
 
 }

@@ -14,6 +14,8 @@
  */
 package cz.etnetera.seb;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +38,24 @@ public class SebUtils {
 	public String join(String delimiter, Stream<Object> values) {
 		String joined = values.filter(Objects::nonNull).map(v -> String.valueOf(v)).collect(Collectors.joining(delimiter));
 		return joined.length() > 0 ? joined : null;
+	}
+	
+	public Path getFilePath(File root, String name, String extension) {
+		return root.toPath().resolve(join(".", name, extension));
+	}
+
+	public Path getUniqueFilePath(File root, String name, String extension) {
+		name = escapeFileName(name);
+		Path path = getFilePath(root, name, extension);
+		int suffix = 0;
+		while (path.toFile().exists()) {
+			path = getFilePath(root, join(Seb.LABEL_DELIMITER, name, ++suffix), extension);
+		}
+		return path;
+	}
+
+	public String escapeFileName(String name) {
+		return name.replaceAll("[^a-zA-Z0-9_\\-\\." + File.separator + "]", "_");
 	}
 	
 }

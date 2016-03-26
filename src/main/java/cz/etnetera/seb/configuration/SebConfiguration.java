@@ -59,6 +59,13 @@ public interface SebConfiguration {
 	boolean isUrlVerification();
 	
 	/**
+	 * Hub URL for RemoteWebDriver.
+	 * 
+	 * @return The hub URL
+	 */
+	String getHubUrl();
+	
+	/**
 	 * Returns {@link WebDriver} instance.
 	 * 
 	 * @param caps The non null desired capabilities.
@@ -95,7 +102,16 @@ public interface SebConfiguration {
 	boolean isReported();
 	
 	/**
-	 * Returns directory for storing Seb files.
+	 * Returns directory for storing Seb report directories.
+	 * 
+	 * @return The reports root directory.
+	 */
+	File getReportsRootDir();
+	
+	/**
+	 * Returns directory for storing Seb report files.
+	 * If null, unique directory is created inside
+	 * reports root directory.
 	 * 
 	 * @return The report directory.
 	 */
