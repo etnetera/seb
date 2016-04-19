@@ -16,6 +16,8 @@ package cz.etnetera.seb.configuration;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -23,6 +25,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import cz.etnetera.seb.Seb;
 import cz.etnetera.seb.SebContext;
 import cz.etnetera.seb.listener.SebListener;
+import cz.etnetera.seb.listener.impl.ConfigListener;
 
 /**
  * Interface for Seb configuration.
@@ -141,5 +144,21 @@ public interface SebConfiguration {
 	 * @return Is driver created on first need
 	 */
 	boolean isLazyDriver();
+	
+	/**
+	 * Basic log level.
+	 * 
+	 * @return The log level
+	 */
+	Level getLogLevel();
+	
+	/**
+	 * Is used for logging through {@link ConfigListener}.
+	 * It should represent configuration keys and values as they
+	 * will be printed into properties file.
+	 * 
+	 * @return Map with configuration values
+	 */
+	Map<Object, Object> asMap();
 	
 }

@@ -14,6 +14,8 @@
  */
 package cz.etnetera.seb.listener;
 
+import java.util.logging.Level;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -26,6 +28,7 @@ import cz.etnetera.seb.event.impl.AfterClickOnEvent;
 import cz.etnetera.seb.event.impl.AfterFindByEvent;
 import cz.etnetera.seb.event.impl.AfterNavigateBackEvent;
 import cz.etnetera.seb.event.impl.AfterNavigateForwardEvent;
+import cz.etnetera.seb.event.impl.AfterNavigateRefreshEvent;
 import cz.etnetera.seb.event.impl.AfterNavigateToEvent;
 import cz.etnetera.seb.event.impl.AfterScriptEvent;
 import cz.etnetera.seb.event.impl.BeforeChangeValueOfEvent;
@@ -33,9 +36,10 @@ import cz.etnetera.seb.event.impl.BeforeClickOnEvent;
 import cz.etnetera.seb.event.impl.BeforeFindByEvent;
 import cz.etnetera.seb.event.impl.BeforeNavigateBackEvent;
 import cz.etnetera.seb.event.impl.BeforeNavigateForwardEvent;
+import cz.etnetera.seb.event.impl.BeforeNavigateRefreshEvent;
 import cz.etnetera.seb.event.impl.BeforeNavigateToEvent;
 import cz.etnetera.seb.event.impl.BeforeScriptEvent;
-import cz.etnetera.seb.event.impl.OnExceptionEvent;
+import cz.etnetera.seb.event.impl.LogEvent;
 
 public class EventFiringSebBridgeListener implements WebDriverEventListener {
 
@@ -73,6 +77,16 @@ public class EventFiringSebBridgeListener implements WebDriverEventListener {
 	@Override
 	public void afterNavigateForward(WebDriver driver) {
 		triggerEvent(constructEvent(AfterNavigateForwardEvent.class));
+	}
+	
+	@Override
+	public void beforeNavigateRefresh(WebDriver driver) {
+		triggerEvent(constructEvent(BeforeNavigateRefreshEvent.class));
+	}
+	
+	@Override
+	public void afterNavigateRefresh(WebDriver driver) {
+		triggerEvent(constructEvent(AfterNavigateRefreshEvent.class));
 	}
 
 	@Override
@@ -117,7 +131,7 @@ public class EventFiringSebBridgeListener implements WebDriverEventListener {
 
 	@Override
 	public void onException(Throwable throwable, WebDriver driver) {
-		triggerEvent(constructEvent(OnExceptionEvent.class).with(throwable));
+		triggerEvent(constructEvent(LogEvent.class).with(Level.INFO, "Webdriver exception", throwable));
 	}
 	
 	protected <T extends SebEvent> T constructEvent(Class<T> eventCls) {

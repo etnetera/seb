@@ -19,7 +19,6 @@ import cz.etnetera.seb.VerificationException;
 import cz.etnetera.seb.element.SebElement;
 import cz.etnetera.seb.event.impl.AfterModuleInitEvent;
 import cz.etnetera.seb.event.impl.BeforeModuleInitEvent;
-import cz.etnetera.seb.event.impl.OnModuleInitExceptionEvent;
 import cz.etnetera.seb.page.Page;
 
 /**
@@ -44,7 +43,6 @@ public class Module extends SebElement {
 			afterVerify();
 			afterInit();
 		} catch (Exception e) {
-			triggerEvent(constructEvent(OnModuleInitExceptionEvent.class).with(this, e));
 			throw e;
 		}
 		triggerEvent(constructEvent(AfterModuleInitEvent.class).with(this));

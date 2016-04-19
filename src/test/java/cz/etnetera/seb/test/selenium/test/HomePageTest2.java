@@ -16,37 +16,21 @@ package cz.etnetera.seb.test.selenium.test;
 
 import java.util.Properties;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import cz.etnetera.seb.Seb;
-import cz.etnetera.seb.test.selenium.configuration.SebConfig;
 import cz.etnetera.seb.test.selenium.page.HomePage;
 
 public class HomePageTest2 {
 
-	protected Seb seb;
-
-	@Before
-	public void before() {
-		seb = new Seb(SebConfig.class);
-	}
-
 	@Test
 	public void valid() {
-		seb.useEnclosingMethodLabel();
+		Seb seb = new Seb().useEnclosingMethodLabel().start();
 		seb.goTo(HomePage.class);
 		Assert.assertTrue("Title is valid", seb.getDriver().getTitle().contains(seb.getData("custom", Properties.class).getProperty("title")));
 		seb.report(seb.getProperty("report.onHomepage", "On homepage 2"));
 		Assert.assertEquals("UTF-8 string is loaded fine", "Žluťoučký kůň", seb.getProperty("unicode.test"));
-	}
-
-	@After
-	public void after() {
-		if (seb != null)
-			seb.quit();
 	}
 
 }

@@ -14,26 +14,14 @@
  */
 package cz.etnetera.seb.event.impl;
 
+import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.listener.SebListener;
-import cz.etnetera.seb.page.Page;
 
-public class OnPageInitExceptionEvent extends OnExceptionEvent {
-	
-	protected Page page;
-
-	public OnPageInitExceptionEvent with(Page page, Throwable throwable) {
-		this.page = page;
-		super.with(throwable);
-		return this;
-	}
+public class OnSebStartEvent extends SebEvent {
 	
 	@Override
 	protected void notifySpecific(SebListener listener) {
-		listener.onException(this);
-	}
-	
-	public Page getPage() {
-		return page;
+		listener.onSebStart(this);
 	}
 	
 }

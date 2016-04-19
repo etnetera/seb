@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
@@ -53,13 +54,14 @@ import cz.etnetera.seb.element.SebElementLoader;
 import cz.etnetera.seb.element.SebFieldDecorator;
 import cz.etnetera.seb.event.EventConstructException;
 import cz.etnetera.seb.event.SebEvent;
+import cz.etnetera.seb.event.impl.AfterDriverConstructEvent;
 import cz.etnetera.seb.event.impl.AfterSebQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
 import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
 import cz.etnetera.seb.event.impl.LogEvent;
-import cz.etnetera.seb.event.impl.LogEvent.Level;
 import cz.etnetera.seb.event.impl.OnFileSaveEvent;
 import cz.etnetera.seb.event.impl.OnReportEvent;
+import cz.etnetera.seb.event.impl.OnSebStartEvent;
 import cz.etnetera.seb.listener.EventFiringSebBridgeListener;
 import cz.etnetera.seb.listener.SebListener;
 import cz.etnetera.seb.logic.Logic;
@@ -112,6 +114,10 @@ public class Seb implements SebContext {
 	
 	protected boolean lazyDriver;
 	
+	protected Level logLevel;
+	
+	protected boolean started;
+	
 	protected Map<String, Object> dataHolder = new HashMap<String, Object>();
 	
 	protected SebUtils utils = new SebUtils();
@@ -126,7 +132,6 @@ public class Seb implements SebContext {
 	 * and properties from resource named seb.properties.
 	 */
 	public Seb() {
-		initDefault();
 	}
 	
 	/**
@@ -135,7 +140,7 @@ public class Seb implements SebContext {
 	 * constructor with no parameters.
 	 */
 	public <T extends SebConfiguration> Seb(Class<T> configCls) {
-		init(configCls);
+		withConfiguration(configCls);
 	}
 
 	/**
@@ -145,39 +150,65 @@ public class Seb implements SebContext {
 	 *            The configuration
 	 */
 	public Seb(SebConfiguration configuration) {
-		init(configuration);
+		withConfiguration(configuration);
 	}
 	
-	protected void initDefault() {
-		init(BasicSebConfiguration.class);
+	public Seb withDefaultConfiguration() {
+		return withConfiguration(BasicSebConfiguration.class);
 	}
 	
-	protected <T extends SebConfiguration> void init(Class<T> configCls) {
+	public <T extends SebConfiguration> Seb withConfiguration(Class<T> configCls) {
 		try {
-			init(configCls.getConstructor().newInstance());
+			return withConfiguration(configCls.getConstructor().newInstance());
 		} catch (Exception e) {
 			throw new SebConfigurationConstructException("Unable to construct Seb configuration " + configCls.getName(), e);
 		}
 	}
 	
-	protected void init(SebConfiguration configuration) {
-		applyConfiguration(configuration);
-		initListeners();
-		if (!lazyDriver)
-			driver = createDriver();
+	public Seb withConfiguration(SebConfiguration configuration) {
+		this.configuration = configuration;
+		return this;
 	}
 	
-	protected void applyConfiguration(SebConfiguration configuration) {
+	/**
+	 * Modify Seb label. Pass more labels
+	 * to join them using {@link Seb#LABEL_DELIMITER}.
+	 * 
+	 * @param label Seb label
+	 * @param moreLabels More labels joined to first label
+	 * @return Seb instance
+	 */
+	public Seb withLabel(String label, String... moreLabels) {
+		this.label = utils.join(LABEL_DELIMITER, label, utils.join(LABEL_DELIMITER, (Object[]) moreLabels));
+		return this;
+	}
+	
+	public Seb start() {
+		init();
+		return this;
+	}
+	
+	protected void init() {
+		if (configuration == null)
+			withDefaultConfiguration();
+		applyConfiguration();
+		initListeners();
+		triggerEvent(constructEvent(OnSebStartEvent.class));
+		started = true;
+		if (!lazyDriver)
+			initDriver();
+	}
+	
+	protected void applyConfiguration() {
 		configuration.init();
-		this.configuration = configuration;
 		baseUrl = configuration.getBaseUrl();
 		baseUrlRegex = configuration.getBaseUrlRegex();
 		urlVerification = configuration.isUrlVerification();
 		waitTimeout = configuration.getWaitTimeout();
 		waitRetryInterval = configuration.getWaitRetryInterval();
 		reported = configuration.isReported();
-		reportDir = configuration.getReportDir();
 		if (reported) {
+			reportDir = configuration.getReportDir();
 			if (!reportDir.exists()) {
 				try {
 					Files.createDirectories(reportDir.toPath());
@@ -198,6 +229,7 @@ public class Seb implements SebContext {
 			listeners = new ArrayList<>();
 		}
 		lazyDriver = configuration.isLazyDriver();
+		logLevel = configuration.getLogLevel();
 	}
 	
 	protected void initListeners() {
@@ -205,20 +237,19 @@ public class Seb implements SebContext {
 			listeners.forEach(l -> l.init(this));
 	}
 	
-	protected WebDriver createDriver() {
+	protected void initDriver() {
 		// collect capabilities
 		DesiredCapabilities caps = configuration.getCapabilities();
 		// notify listeners to allow its change
 		BeforeDriverConstructEvent befDriverConstEvent = constructEvent(BeforeDriverConstructEvent.class).with(caps);
 		triggerEvent(befDriverConstEvent);
-
-		EventFiringWebDriver drv = new EventFiringWebDriver(
-				configuration.getDriver(befDriverConstEvent.getCapabilities()));
-		drv.register(new EventFiringSebBridgeListener(this));
+		WebDriver drv = configuration.getDriver(befDriverConstEvent.getCapabilities());
+		
+		driver = new EventFiringWebDriver(drv).register(new EventFiringSebBridgeListener(this));
+		triggerEvent(constructEvent(AfterDriverConstructEvent.class));
 		
 		// set driver specific configurations
 		alertSupported = configuration.isAlertSupported(drv);
-		return drv;
 	}
 	
 	/**
@@ -241,23 +272,14 @@ public class Seb implements SebContext {
 	}
 
 	/**
-	 * Modify Seb label
+	 * Modify Seb label. Pass more labels
+	 * to join them using {@link Seb#LABEL_DELIMITER}.
 	 * 
-	 * @param label
-	 *            Seb label
+	 * @param label Seb label
+	 * @param moreLabels More labels joined to first label
 	 */
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	/**
-	 * Modify Seb label joining given labels.
-	 * 
-	 * @param labels
-	 *            Seb labels
-	 */
-	public void setLabel(String... labels) {
-		this.label = utils.join(LABEL_DELIMITER, (Object[]) labels);
+	public void setLabel(String label, String... moreLabels) {
+		this.label = utils.join(LABEL_DELIMITER, label, utils.join(LABEL_DELIMITER, (Object[]) moreLabels));
 	}
 
 	/**
@@ -386,6 +408,15 @@ public class Seb implements SebContext {
 	}
 
 	/**
+	 * Basic log level.
+	 * 
+	 * @return The log level
+	 */
+	public Level getLogLevel() {
+		return logLevel;
+	}
+
+	/**
 	 * Returns utils instance.
 	 * 
 	 * @return The utils instance
@@ -437,10 +468,11 @@ public class Seb implements SebContext {
 	/**
 	 * Sets label using enclosing method class name and method name.
 	 */
-	public void useEnclosingMethodLabel() {
+	public Seb useEnclosingMethodLabel() {
 		final StackTraceElement e = Thread.currentThread().getStackTrace()[2];
 		final String s = e.getClassName();
 		setLabel(s.substring(s.lastIndexOf('.') + 1, s.length()), e.getMethodName());
+		return this;
 	}
 
 	/**
@@ -529,8 +561,9 @@ public class Seb implements SebContext {
 
 	@Override
 	public WebDriver getDriver() {
+		if (!started) start();
 		if (lazyDriver && driver == null) {
-			driver = createDriver();
+			initDriver();
 		}
 		return driver;
 	}
@@ -574,6 +607,7 @@ public class Seb implements SebContext {
 		try {
 			return goTo(page);
 		} catch (WebDriverException e) {
+			log(Level.INFO, "Unable to SAFELY go to page " + page, e);
 			return null;
 		}
 	}
@@ -583,6 +617,7 @@ public class Seb implements SebContext {
 		try {
 			return goTo(page);
 		} catch (WebDriverException e) {
+			log(Level.INFO, "Unable to SAFELY go to page " + page, e);
 			return null;
 		}
 	}
@@ -592,6 +627,7 @@ public class Seb implements SebContext {
 		try {
 			return initPage(page);
 		} catch (WebDriverException e) {
+			log(Level.INFO, "Unable to SAFELY init page " + page, e);
 			return null;
 		}
 	}
@@ -601,6 +637,7 @@ public class Seb implements SebContext {
 		try {
 			return initPage(page);
 		} catch (WebDriverException e) {
+			log(Level.INFO, "Unable to SAFELY init page " + page, e);
 			return null;
 		}
 	}
@@ -610,6 +647,7 @@ public class Seb implements SebContext {
 		try {
 			return initOnePage(pages);
 		} catch (WebDriverException e) {
+			log(Level.INFO, "Unable to SAFELY init any of given pages " + String.join(", ", Arrays.asList(pages).stream().map(p -> p.toString()).collect(Collectors.toList())), e);
 			return null;
 		}
 	}
@@ -652,10 +690,7 @@ public class Seb implements SebContext {
 				return verifiedPage;
 		}
 		throw new VerificationException(
-				"Unable to init any of given pages " + String.join(", ", Arrays.asList(pages).stream().map(p -> {
-					return (String) ((p instanceof Page) ? ((Page) p).getClass().getName()
-							: ((Class<? extends Page>) p).getName());
-				}).collect(Collectors.toList())));
+				"Unable to init any of given pages " + String.join(", ", Arrays.asList(pages).stream().map(p -> p.toString()).collect(Collectors.toList())));
 	}
 	
 	@Override
@@ -794,7 +829,9 @@ public class Seb implements SebContext {
 		if (!reported)
 			return null;
 		try {
-			Path path = Files.write(getUniqueFilePath(name, extension), bytes);
+			Path uniquePath = getUniqueFilePath(name, extension);
+			Files.createDirectories(uniquePath.getParent());
+			Path path = Files.write(uniquePath, bytes);
 			triggerEvent(constructEvent(OnFileSaveEvent.class, this).with(path.toFile()));
 			return path;
 		} catch (IOException e) {
@@ -807,7 +844,9 @@ public class Seb implements SebContext {
 		if (!reported)
 			return null;
 		try {
-			Path path = Files.copy(file.toPath(), getUniqueFilePath(name, extension));
+			Path uniquePath = getUniqueFilePath(name, extension);
+			Files.createDirectories(uniquePath.getParent());
+			Path path = Files.copy(file.toPath(), uniquePath);
 			triggerEvent(constructEvent(OnFileSaveEvent.class, this).with(path.toFile()));
 			return path;
 		} catch (IOException e) {

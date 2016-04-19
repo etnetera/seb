@@ -14,26 +14,14 @@
  */
 package cz.etnetera.seb.event.impl;
 
+import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.listener.SebListener;
-import cz.etnetera.seb.module.Module;
 
-public class OnModuleInitExceptionEvent extends OnExceptionEvent {
-	
-	protected Module module;
-
-	public OnModuleInitExceptionEvent with(Module module, Throwable throwable) {
-		this.module = module;
-		super.with(throwable);
-		return this;
-	}
+public class AfterNavigateRefreshEvent extends SebEvent {
 	
 	@Override
 	protected void notifySpecific(SebListener listener) {
-		listener.onException(this);
-	}
-	
-	public Module getModule() {
-		return module;
+		listener.afterNavigateRefresh(this);
 	}
 	
 }

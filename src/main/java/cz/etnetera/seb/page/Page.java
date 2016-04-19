@@ -25,7 +25,6 @@ import cz.etnetera.seb.SebContext;
 import cz.etnetera.seb.VerificationException;
 import cz.etnetera.seb.event.impl.AfterPageInitEvent;
 import cz.etnetera.seb.event.impl.BeforePageInitEvent;
-import cz.etnetera.seb.event.impl.OnPageInitExceptionEvent;
 
 /**
  * Basic page which supports elements and modules auto loading 
@@ -108,7 +107,7 @@ abstract public class Page implements SebContext {
 	public Page goTo() {
 		String url = getUrl();
 		if (url == null)
-			throw new PageException("It is not possible to go to page without url " + this.getClass().getName());
+			throw new PageException("It is not possible to go to page without url " + this);
 		goToUrl(url);
 		return init();
 	}
@@ -131,7 +130,6 @@ abstract public class Page implements SebContext {
 			setPage(this);
 			afterInit();
 		} catch (Exception e) {
-			triggerEvent(constructEvent(OnPageInitExceptionEvent.class).with(this, e));
 			throw e;
 		}
 		triggerEvent(constructEvent(AfterPageInitEvent.class).with(this));

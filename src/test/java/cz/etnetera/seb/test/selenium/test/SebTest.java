@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import cz.etnetera.seb.Seb;
+import cz.etnetera.seb.test.selenium.configuration.SebConfig;
 
 abstract public class SebTest {
 
@@ -29,8 +30,7 @@ abstract public class SebTest {
 	
 	@Before
 	public void before() {
-		seb = new Seb();
-		seb.setLabel(getClass().getSimpleName(), name.getMethodName());
+		seb = new Seb(SebConfig.class).withLabel(getClass().getSimpleName(), name.getMethodName()).start();
 	}
 	
 	@After

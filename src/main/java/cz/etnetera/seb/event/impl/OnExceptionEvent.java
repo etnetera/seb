@@ -19,9 +19,12 @@ import cz.etnetera.seb.listener.SebListener;
 
 public class OnExceptionEvent extends SebEvent {
 
+	protected String message;
+	
 	protected Throwable throwable;
 
-	public OnExceptionEvent with(Throwable throwable) {
+	public OnExceptionEvent with(String message, Throwable throwable) {
+		this.message = message;
 		this.throwable = throwable;
 		return this;
 	}
@@ -31,6 +34,10 @@ public class OnExceptionEvent extends SebEvent {
 		listener.onException(this);
 	}
 	
+	public String getMessage() {
+		return message;
+	}
+
 	public Throwable getThrowable() {
 		return throwable;
 	}

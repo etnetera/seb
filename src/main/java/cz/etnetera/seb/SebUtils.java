@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,7 +56,7 @@ public class SebUtils {
 	}
 
 	public String escapeFileName(String name) {
-		return name.replaceAll("[^a-zA-Z0-9_\\-\\." + File.separator + "]", "_");
+		return name.replaceAll("[^a-zA-Z0-9_\\-\\." + Pattern.quote(File.separator) + "]", "_");
 	}
 	
 }
