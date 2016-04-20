@@ -17,7 +17,7 @@ package cz.etnetera.seb.listener.impl;
 import cz.etnetera.seb.Seb;
 import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.event.impl.AfterPageInitEvent;
-import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
+import cz.etnetera.seb.event.impl.BeforeDriverQuitEvent;
 import cz.etnetera.seb.event.impl.BeforePageInitEvent;
 import cz.etnetera.seb.event.impl.OnReportEvent;
 import cz.etnetera.seb.listener.SebListener;
@@ -28,8 +28,8 @@ public class PageSourceListener extends SebListener {
 	@Override
 	public void init(Seb seb) {
 		super.init(seb);
-		// enable this listener on report and before Seb quit as default
-		enable(OnReportEvent.class, BeforeSebQuitEvent.class);
+		// enable this listener on report and before driver quit as default
+		enable(OnReportEvent.class, BeforeDriverQuitEvent.class);
 	}
 	
 	@Override
@@ -43,7 +43,7 @@ public class PageSourceListener extends SebListener {
 	}
 
 	@Override
-	public void beforeSebQuit(BeforeSebQuitEvent event) {
+	public void beforeDriverQuit(BeforeDriverQuitEvent event) {
 		savePageSource(event);
 	}
 	

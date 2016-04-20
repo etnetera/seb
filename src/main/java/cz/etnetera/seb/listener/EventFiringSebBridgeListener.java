@@ -131,7 +131,9 @@ public class EventFiringSebBridgeListener implements WebDriverEventListener {
 
 	@Override
 	public void onException(Throwable throwable, WebDriver driver) {
-		triggerEvent(constructEvent(LogEvent.class).with(Level.INFO, "Webdriver exception", throwable));
+		// Log this event in finer level because real exception will be printed somewhere above.
+		// Otherwise there are all NoSuchElementException errors from SebElement.isPresent() calls.
+		triggerEvent(constructEvent(LogEvent.class).with(Level.FINER, "Webdriver exception", throwable));
 	}
 	
 	protected <T extends SebEvent> T constructEvent(Class<T> eventCls) {

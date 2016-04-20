@@ -26,7 +26,7 @@ public class HomePageTest2 {
 
 	@Test
 	public void valid() {
-		Seb seb = new Seb().useEnclosingMethodLabel().start();
+		Seb seb = new Seb();
 		seb.goTo(HomePage.class);
 		Assert.assertTrue("Title is valid", seb.getDriver().getTitle().contains(seb.getData("custom", Properties.class).getProperty("title")));
 		seb.report(seb.getProperty("report.onHomepage", "On homepage 2"));

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import cz.etnetera.seb.Seb;
-import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
+import cz.etnetera.seb.event.impl.AfterSebQuitEvent;
 import cz.etnetera.seb.event.impl.LogEvent;
 import cz.etnetera.seb.listener.SebListener;
 
@@ -25,7 +25,7 @@ public class SebLogListener extends SebListener {
 	@Override
 	public void init(Seb seb) {
 		super.init(seb);
-		enable(LogEvent.class, BeforeSebQuitEvent.class);
+		enable(LogEvent.class, AfterSebQuitEvent.class);
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class SebLogListener extends SebListener {
 	}
 	
 	@Override
-	public void beforeSebQuit(BeforeSebQuitEvent event) {
+	public void afterSebQuit(AfterSebQuitEvent event) {
 		storeLogs();
 	}
 	

@@ -15,12 +15,10 @@ import org.openqa.selenium.remote.CapabilityType;
 
 import cz.etnetera.seb.Seb;
 import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
-import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
+import cz.etnetera.seb.event.impl.BeforeDriverQuitEvent;
 import cz.etnetera.seb.listener.SebListener;
 
 public class WebDriverLogListener extends SebListener {
-	
-	protected static final String PATTERN = "%d %-5p [%t] %c{1} - %m%n";
 	
 	protected static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
 	
@@ -28,7 +26,7 @@ public class WebDriverLogListener extends SebListener {
 	@Override
 	public void init(Seb seb) {
 		super.init(seb);
-		enable(BeforeDriverConstructEvent.class, BeforeSebQuitEvent.class);
+		enable(BeforeDriverConstructEvent.class, BeforeDriverQuitEvent.class);
 	}
 
 	@Override
@@ -37,7 +35,7 @@ public class WebDriverLogListener extends SebListener {
 	}
 
 	@Override
-	public void beforeSebQuit(BeforeSebQuitEvent event) {
+	public void beforeDriverQuit(BeforeDriverQuitEvent event) {
 		Logs logs = seb.getDriver().manage().logs();
 		logs.getAvailableLogTypes().forEach(type -> storeLogs(logs, type));
 	}

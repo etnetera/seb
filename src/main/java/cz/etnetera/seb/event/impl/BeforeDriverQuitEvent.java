@@ -12,33 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cz.etnetera.seb.test.selenium.test;
+package cz.etnetera.seb.event.impl;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import cz.etnetera.seb.event.SebEvent;
+import cz.etnetera.seb.listener.SebListener;
 
-import cz.etnetera.seb.Seb;
-import cz.etnetera.seb.test.selenium.configuration.SebConfig;
-
-abstract public class SebTest {
-
-	@Rule
-	public TestName name = new TestName();
-
-	protected Seb seb;
-
-	@Before
-	public void before() {
-		seb = new Seb(true).withConfiguration(SebConfig.class)
-				.withLabel(getClass().getSimpleName(), name.getMethodName()).start();
+public class BeforeDriverQuitEvent extends SebEvent {
+	
+	@Override
+	protected void notifySpecific(SebListener listener) {
+		listener.beforeDriverQuit(this);
 	}
-
-	@After
-	public void after() {
-		if (seb != null)
-			seb.quit();
-	}
-
+	
 }

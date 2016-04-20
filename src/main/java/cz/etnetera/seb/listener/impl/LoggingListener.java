@@ -6,10 +6,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import cz.etnetera.seb.event.impl.AfterDriverConstructEvent;
+import cz.etnetera.seb.event.impl.AfterDriverQuitEvent;
 import cz.etnetera.seb.event.impl.AfterSebQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeChangeValueOfEvent;
 import cz.etnetera.seb.event.impl.BeforeClickOnEvent;
 import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
+import cz.etnetera.seb.event.impl.BeforeDriverQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeFindByEvent;
 import cz.etnetera.seb.event.impl.BeforeModuleInitEvent;
 import cz.etnetera.seb.event.impl.BeforeNavigateBackEvent;
@@ -26,7 +28,7 @@ public class LoggingListener extends SebListener {
 	
 	@Override
 	public void onSebStart(OnSebStartEvent event) {
-		seb.log(Level.INFO, "Seb initiated " + event.getSeb().getLabel());
+		seb.log(Level.INFO, "Seb started " + event.getSeb().getLabel());
 	}
 
 	@Override
@@ -90,6 +92,16 @@ public class LoggingListener extends SebListener {
 	@Override
 	public void afterSebQuit(AfterSebQuitEvent event) {
 		seb.log(Level.INFO, "Seb quit");
+	}
+	
+	@Override
+	public void beforeDriverQuit(BeforeDriverQuitEvent event) {
+		seb.log(Level.INFO, "Quiting driver");
+	}
+
+	@Override
+	public void afterDriverQuit(AfterDriverQuitEvent event) {
+		seb.log(Level.INFO, "Driver quit");
 	}
 
 	@Override

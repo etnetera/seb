@@ -55,8 +55,10 @@ import cz.etnetera.seb.element.SebFieldDecorator;
 import cz.etnetera.seb.event.EventConstructException;
 import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.event.impl.AfterDriverConstructEvent;
+import cz.etnetera.seb.event.impl.AfterDriverQuitEvent;
 import cz.etnetera.seb.event.impl.AfterSebQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
+import cz.etnetera.seb.event.impl.BeforeDriverQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
 import cz.etnetera.seb.event.impl.LogEvent;
 import cz.etnetera.seb.event.impl.OnFileSaveEvent;
@@ -132,15 +134,37 @@ public class Seb implements SebContext {
 	 * and properties from resource named seb.properties.
 	 */
 	public Seb() {
+		this(false);
+	}
+	
+	/**
+	 * Set customStart to true to construct only and calling additional methods
+	 * before manually calling {@link Seb#start()}.
+	 * 
+	 * Set customStart to <code>false</code> to construct a new instance with default configuration. It constructs
+	 * {@link SebConfiguration} with system properties using {@link System#getProperties()}
+	 * and properties from resource named seb.properties.
+	 */
+	public Seb(boolean customStart) {
+		if (!customStart) {
+			start();
+		}
 	}
 	
 	/**
 	 * Constructs a new instance with configuration constructed
 	 * from given class. Configuration class needs to have
 	 * constructor with no parameters.
+	 * 
+	 * @param configCls
+	 * 			  The configuration class
+	 * @deprecated As of Seb version 0.3.22,
+	 * replaced by <code>new Seb(true).withConfiguration(configCls).start()</code>.
 	 */
+	@Deprecated
 	public <T extends SebConfiguration> Seb(Class<T> configCls) {
 		withConfiguration(configCls);
+		start();
 	}
 
 	/**
@@ -148,15 +172,32 @@ public class Seb implements SebContext {
 	 * 
 	 * @param configuration
 	 *            The configuration
+	 * @deprecated As of Seb version 0.3.22,
+	 * replaced by <code>new Seb(true).withConfiguration(configuration).start()</code>.
 	 */
+	@Deprecated
 	public Seb(SebConfiguration configuration) {
 		withConfiguration(configuration);
+		start();
 	}
 	
+	/**
+	 * Set configuration to default one. It is {@link BasicSebConfiguration}.
+	 * 
+	 * @return Seb instance
+	 */
 	public Seb withDefaultConfiguration() {
 		return withConfiguration(BasicSebConfiguration.class);
 	}
 	
+	/**
+	 * Set configuration to configuration constructed from given class. 
+	 * Configuration class needs to have constructor with no parameters.
+	 * 
+	 * @param configCls
+	 * 			  The configuration class
+	 * @return Seb instance
+	 */
 	public <T extends SebConfiguration> Seb withConfiguration(Class<T> configCls) {
 		try {
 			return withConfiguration(configCls.getConstructor().newInstance());
@@ -165,38 +206,60 @@ public class Seb implements SebContext {
 		}
 	}
 	
+	/**
+	 * Set configuration to given configuration instance.
+	 * 
+	 * @param configuration
+	 *            The configuration
+	 * @return Seb instance
+	 */
 	public Seb withConfiguration(SebConfiguration configuration) {
 		this.configuration = configuration;
 		return this;
 	}
 	
 	/**
-	 * Modify Seb label. Pass more labels
-	 * to join them using {@link Seb#LABEL_DELIMITER}.
+	 * Set label
 	 * 
-	 * @param label Seb label
-	 * @param moreLabels More labels joined to first label
+	 * @param label
+	 *            Seb label
 	 * @return Seb instance
 	 */
-	public Seb withLabel(String label, String... moreLabels) {
-		this.label = utils.join(LABEL_DELIMITER, label, utils.join(LABEL_DELIMITER, (Object[]) moreLabels));
+	public Seb withLabel(String label) {
+		this.label = label;
+		return this;
+	}
+
+	/**
+	 * Set label joining given labels.
+	 * 
+	 * @param labels
+	 *            Seb labels
+	 * @return Seb instance
+	 */
+	public Seb withLabel(String... labels) {
+		this.label = utils.join(LABEL_DELIMITER, (Object[]) labels);
 		return this;
 	}
 	
 	public Seb start() {
-		init();
+		if (started)
+			return this;
+		if (label == null)
+			useEnclosingMethodLabel();
+		initConfiguration();
+		initListeners();
+		started = true;
+		triggerEvent(constructEvent(OnSebStartEvent.class));
+		if (!lazyDriver)
+			initDriver();
 		return this;
 	}
 	
-	protected void init() {
+	protected void initConfiguration() {
 		if (configuration == null)
 			withDefaultConfiguration();
 		applyConfiguration();
-		initListeners();
-		triggerEvent(constructEvent(OnSebStartEvent.class));
-		started = true;
-		if (!lazyDriver)
-			initDriver();
 	}
 	
 	protected void applyConfiguration() {
@@ -253,6 +316,15 @@ public class Seb implements SebContext {
 	}
 	
 	/**
+	 * Is driver ready?
+	 * 
+	 * @return Driver status.
+	 */
+	public boolean hasDriver() {
+		return driver != null;
+	}
+	
+	/**
 	 * Adds listener. It is automatically initiated.
 	 * 
 	 * @param listener The added listener
@@ -272,14 +344,29 @@ public class Seb implements SebContext {
 	}
 
 	/**
-	 * Modify Seb label. Pass more labels
-	 * to join them using {@link Seb#LABEL_DELIMITER}.
+	 * Modify Seb label
 	 * 
-	 * @param label Seb label
-	 * @param moreLabels More labels joined to first label
+	 * @param label
+	 *            Seb label
+	 * @deprecated As of Seb version 0.3.22,
+	 * replaced by <code>Seb.withLabel(String label)</code>.
 	 */
-	public void setLabel(String label, String... moreLabels) {
-		this.label = utils.join(LABEL_DELIMITER, label, utils.join(LABEL_DELIMITER, (Object[]) moreLabels));
+	@Deprecated
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	/**
+	 * Modify Seb label joining given labels.
+	 * 
+	 * @param labels
+	 *            Seb labels
+	 * @deprecated As of Seb version 0.3.22,
+	 * replaced by <code>Seb.withLabel(String... labels)</code>.
+	 */
+	@Deprecated
+	public void setLabel(String... labels) {
+		this.label = utils.join(LABEL_DELIMITER, (Object[]) labels);
 	}
 
 	/**
@@ -460,8 +547,14 @@ public class Seb implements SebContext {
 	 * Quits Seb and wrapped {@link WebDriver}.
 	 */
 	public void quit() {
+		if (!started)
+			return;
 		triggerEvent(constructEvent(BeforeSebQuitEvent.class));
-		if (driver != null) driver.quit();
+		if (driver != null) {
+			triggerEvent(constructEvent(BeforeDriverQuitEvent.class));
+			driver.quit();
+			triggerEvent(constructEvent(AfterDriverQuitEvent.class));
+		}
 		triggerEvent(constructEvent(AfterSebQuitEvent.class));
 	}
 
@@ -561,7 +654,6 @@ public class Seb implements SebContext {
 
 	@Override
 	public WebDriver getDriver() {
-		if (!started) start();
 		if (lazyDriver && driver == null) {
 			initDriver();
 		}

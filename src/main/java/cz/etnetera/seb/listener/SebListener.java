@@ -28,6 +28,7 @@ import cz.etnetera.seb.event.SebEvent;
 import cz.etnetera.seb.event.impl.AfterChangeValueOfEvent;
 import cz.etnetera.seb.event.impl.AfterClickOnEvent;
 import cz.etnetera.seb.event.impl.AfterDriverConstructEvent;
+import cz.etnetera.seb.event.impl.AfterDriverQuitEvent;
 import cz.etnetera.seb.event.impl.AfterFindByEvent;
 import cz.etnetera.seb.event.impl.AfterModuleInitEvent;
 import cz.etnetera.seb.event.impl.AfterNavigateBackEvent;
@@ -40,6 +41,7 @@ import cz.etnetera.seb.event.impl.AfterSebQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeChangeValueOfEvent;
 import cz.etnetera.seb.event.impl.BeforeClickOnEvent;
 import cz.etnetera.seb.event.impl.BeforeDriverConstructEvent;
+import cz.etnetera.seb.event.impl.BeforeDriverQuitEvent;
 import cz.etnetera.seb.event.impl.BeforeFindByEvent;
 import cz.etnetera.seb.event.impl.BeforeModuleInitEvent;
 import cz.etnetera.seb.event.impl.BeforeNavigateBackEvent;
@@ -232,6 +234,22 @@ public class SebListener {
 	 * @param event
 	 */
 	public void afterSebQuit(AfterSebQuitEvent event) {
+	}
+	
+	/**
+	 * Called before {@link WebDriver#quit()}.
+	 *
+	 * @param event
+	 */
+	public void beforeDriverQuit(BeforeDriverQuitEvent event) {
+	}
+
+	/**
+	 * Called after {@link WebDriver#quit()}.
+	 *
+	 * @param event
+	 */
+	public void afterDriverQuit(AfterDriverQuitEvent event) {
 	}
 
 	/**
