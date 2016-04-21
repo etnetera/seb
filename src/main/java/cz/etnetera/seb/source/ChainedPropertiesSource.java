@@ -15,7 +15,7 @@
 package cz.etnetera.seb.source;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,7 +46,9 @@ public interface ChainedPropertiesSource extends PropertySource {
 
 	default Properties getMergedProperties() {
 		Properties props = new Properties();
-		getPropertiesHolder().stream().sorted(Collections.reverseOrder()).forEach(v -> props.putAll(v.getProperties()));
+		getPropertiesHolder().stream().collect(Collectors.toCollection(LinkedList::new)).descendingIterator().forEachRemaining(v -> { 
+			props.putAll(v.getProperties());
+		});
 		return props;
 	}
 

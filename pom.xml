@@ -3,7 +3,7 @@
 
 	<groupId>cz.etnetera</groupId>
 	<artifactId>seb</artifactId>
-	<version>0.3.22</version>
+	<version>0.4.0</version>
 	<packaging>jar</packaging>
 
 	<name>Seb</name>

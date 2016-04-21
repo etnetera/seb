@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 import cz.etnetera.seb.Seb;
 import cz.etnetera.seb.SebException;
-import cz.etnetera.seb.event.impl.BeforeSebQuitEvent;
+import cz.etnetera.seb.event.impl.OnSebStartEvent;
 import cz.etnetera.seb.listener.SebListener;
 
 public class ConfigListener extends SebListener {
@@ -18,11 +18,11 @@ public class ConfigListener extends SebListener {
 	@Override
 	public void init(Seb seb) {
 		super.init(seb);
-		enable(BeforeSebQuitEvent.class);
+		enable(OnSebStartEvent.class);
 	}
 
 	@Override
-	public void beforeSebQuit(BeforeSebQuitEvent event) {
+	public void onSebStart(OnSebStartEvent event) {
 		Properties tmp = new Properties() {
 			private static final long serialVersionUID = 3324860429625674641L;
 

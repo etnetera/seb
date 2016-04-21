@@ -61,10 +61,7 @@ public class SebElement implements SebContext, WebElement, WrapsElement, WrapsDr
 	}
 	
 	public WebElement getWebElement() {
-		if (!present && isPresent(webElement)) {
-			present = true;
-			initPresent();
-		}
+		tryInitPresent(isPresent(webElement));
 		return webElement;
 	}
 
@@ -90,6 +87,13 @@ public class SebElement implements SebContext, WebElement, WrapsElement, WrapsDr
 		return this;
 	}
 	
+	protected void tryInitPresent(boolean justPresent) {
+		if (!present && justPresent) {
+			present = true;
+			initPresent();
+		}
+	}
+	
 	/**
 	 * Called when {@link SebElement} is initiated
 	 * and is present or before getting wrapped {@link WebElement}
@@ -100,15 +104,20 @@ public class SebElement implements SebContext, WebElement, WrapsElement, WrapsDr
 	}
 	
 	public void checkIfPresent() throws NoSuchElementException {
-		getContext().checkIfPresent(getWebElement());
+		getContext().checkIfPresent(webElement);
+		tryInitPresent(true);
 	}
 	
 	public boolean isPresent() {
-		return getContext().isPresent(getWebElement());
+		boolean justPresent = getContext().isPresent(webElement);
+		tryInitPresent(justPresent);
+		return justPresent;
 	}
 	
 	public boolean isNotPresent() {
-		return getContext().isNotPresent(getWebElement());
+		boolean justNotPresent = getContext().isNotPresent(webElement);
+		tryInitPresent(!justNotPresent);
+		return justNotPresent;
 	}
 	
 	@Override
