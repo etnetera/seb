@@ -81,9 +81,9 @@ import cz.etnetera.seb.source.PropertySource;
 public class Seb implements SebContext {
 
 	public static final String PROPERTIES_CONFIGURATION_KEY = "properties";
-	
+
 	public static final String DEFAULT_CONFIGURATION_KEY = "default";
-	
+
 	public static final String LABEL_DELIMITER = "-";
 
 	public static final DateTimeFormatter FILE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
@@ -107,59 +107,61 @@ public class Seb implements SebContext {
 	protected String label;
 
 	protected boolean reported;
-	
+
 	protected File reportDir;
 
-	protected List<SebListener> listeners;
-	
+	protected List<SebListener> listeners = new ArrayList<>();
+
 	protected boolean alertSupported;
-	
+
 	protected boolean lazyDriver;
-	
+
 	protected Level logLevel;
-	
+
 	protected boolean started;
-	
+
 	protected Map<String, Object> dataHolder = new HashMap<String, Object>();
-	
+
 	protected SebUtils utils = new SebUtils();
-	
+
 	protected SebElementLoader elementLoader = new SebElementLoader();
-	
+
 	protected JavascriptLibrary javascriptLibrary = new JavascriptLibrary();
-	
+
 	/**
 	 * Constructs a new instance with default configuration. It constructs
-	 * {@link SebConfiguration} with system properties using {@link System#getProperties()}
-	 * and properties from resource named seb.properties.
+	 * {@link SebConfiguration} with system properties using
+	 * {@link System#getProperties()} and properties from resource named
+	 * seb.properties.
 	 */
 	public Seb() {
 		this(false);
 	}
-	
+
 	/**
 	 * Set customStart to true to construct only and calling additional methods
 	 * before manually calling {@link Seb#start()}.
 	 * 
-	 * Set customStart to <code>false</code> to construct a new instance with default configuration. It constructs
-	 * {@link SebConfiguration} with system properties using {@link System#getProperties()}
-	 * and properties from resource named seb.properties.
+	 * Set customStart to <code>false</code> to construct a new instance with
+	 * default configuration. It constructs {@link SebConfiguration} with system
+	 * properties using {@link System#getProperties()} and properties from
+	 * resource named seb.properties.
 	 */
 	public Seb(boolean customStart) {
 		if (!customStart) {
 			start();
 		}
 	}
-	
+
 	/**
-	 * Constructs a new instance with configuration constructed
-	 * from given class. Configuration class needs to have
-	 * constructor with no parameters.
+	 * Constructs a new instance with configuration constructed from given
+	 * class. Configuration class needs to have constructor with no parameters.
 	 * 
 	 * @param configCls
-	 * 			  The configuration class
-	 * @deprecated As of Seb version 0.3.22,
-	 * replaced by <code>new Seb(true).withConfiguration(configCls).start()</code>.
+	 *            The configuration class
+	 * @deprecated As of Seb version 0.3.22, replaced by
+	 *             <code>new Seb(true).withConfiguration(configCls).start()</code>
+	 *             .
 	 */
 	@Deprecated
 	public <T extends SebConfiguration> Seb(Class<T> configCls) {
@@ -172,15 +174,16 @@ public class Seb implements SebContext {
 	 * 
 	 * @param configuration
 	 *            The configuration
-	 * @deprecated As of Seb version 0.3.22,
-	 * replaced by <code>new Seb(true).withConfiguration(configuration).start()</code>.
+	 * @deprecated As of Seb version 0.3.22, replaced by
+	 *             <code>new Seb(true).withConfiguration(configuration).start()</code>
+	 *             .
 	 */
 	@Deprecated
 	public Seb(SebConfiguration configuration) {
 		withConfiguration(configuration);
 		start();
 	}
-	
+
 	/**
 	 * Set configuration to default one. It is {@link BasicSebConfiguration}.
 	 * 
@@ -189,23 +192,24 @@ public class Seb implements SebContext {
 	public Seb withDefaultConfiguration() {
 		return withConfiguration(BasicSebConfiguration.class);
 	}
-	
+
 	/**
-	 * Set configuration to configuration constructed from given class. 
+	 * Set configuration to configuration constructed from given class.
 	 * Configuration class needs to have constructor with no parameters.
 	 * 
 	 * @param configCls
-	 * 			  The configuration class
+	 *            The configuration class
 	 * @return Seb instance
 	 */
 	public <T extends SebConfiguration> Seb withConfiguration(Class<T> configCls) {
 		try {
 			return withConfiguration(configCls.getConstructor().newInstance());
 		} catch (Exception e) {
-			throw new SebConfigurationConstructException("Unable to construct Seb configuration " + configCls.getName(), e);
+			throw new SebConfigurationConstructException("Unable to construct Seb configuration " + configCls.getName(),
+					e);
 		}
 	}
-	
+
 	/**
 	 * Set configuration to given configuration instance.
 	 * 
@@ -217,7 +221,7 @@ public class Seb implements SebContext {
 		this.configuration = configuration;
 		return this;
 	}
-	
+
 	/**
 	 * Set label
 	 * 
@@ -241,7 +245,19 @@ public class Seb implements SebContext {
 		this.label = utils.join(LABEL_DELIMITER, (Object[]) labels);
 		return this;
 	}
-	
+
+	/**
+	 * Adds listener without initiating it. It will be initiated on Seb start.
+	 * 
+	 * @param listener
+	 *            The added listener
+	 * @return Seb instance
+	 */
+	public Seb withListener(SebListener listener) {
+		listeners.add(listener);
+		return this;
+	}
+
 	public Seb start() {
 		if (started)
 			return this;
@@ -255,13 +271,13 @@ public class Seb implements SebContext {
 			initDriver();
 		return this;
 	}
-	
+
 	protected void initConfiguration() {
 		if (configuration == null)
 			withDefaultConfiguration();
 		applyConfiguration();
 	}
-	
+
 	protected void applyConfiguration() {
 		configuration.init();
 		baseUrl = configuration.getBaseUrl();
@@ -287,19 +303,17 @@ public class Seb implements SebContext {
 		if (configuration instanceof DataSource)
 			dataHolder = ((DataSource) configuration).getDataHolder();
 
-		listeners = configuration.getListeners();
-		if (listeners == null) {
-			listeners = new ArrayList<>();
-		}
+		List<SebListener> confListeners = configuration.getListeners();
+		if (confListeners != null)
+			listeners.addAll(confListeners);
 		lazyDriver = configuration.isLazyDriver();
 		logLevel = configuration.getLogLevel();
 	}
-	
+
 	protected void initListeners() {
-		if (listeners != null)
-			listeners.forEach(l -> l.init(this));
+		listeners.forEach(l -> l.init(this));
 	}
-	
+
 	protected void initDriver() {
 		// collect capabilities
 		DesiredCapabilities caps = configuration.getCapabilities();
@@ -307,14 +321,14 @@ public class Seb implements SebContext {
 		BeforeDriverConstructEvent befDriverConstEvent = constructEvent(BeforeDriverConstructEvent.class).with(caps);
 		triggerEvent(befDriverConstEvent);
 		WebDriver drv = configuration.getDriver(befDriverConstEvent.getCapabilities());
-		
+
 		driver = new EventFiringWebDriver(drv).register(new EventFiringSebBridgeListener(this));
 		triggerEvent(constructEvent(AfterDriverConstructEvent.class));
-		
+
 		// set driver specific configurations
 		alertSupported = configuration.isAlertSupported(drv);
 	}
-	
+
 	/**
 	 * Is driver ready?
 	 * 
@@ -323,11 +337,12 @@ public class Seb implements SebContext {
 	public boolean hasDriver() {
 		return driver != null;
 	}
-	
+
 	/**
 	 * Adds listener. It is automatically initiated.
 	 * 
-	 * @param listener The added listener
+	 * @param listener
+	 *            The added listener
 	 */
 	public void addListener(SebListener listener) {
 		listener.init(this);
@@ -348,8 +363,8 @@ public class Seb implements SebContext {
 	 * 
 	 * @param label
 	 *            Seb label
-	 * @deprecated As of Seb version 0.3.22,
-	 * replaced by <code>Seb.withLabel(String label)</code>.
+	 * @deprecated As of Seb version 0.3.22, replaced by
+	 *             <code>Seb.withLabel(String label)</code>.
 	 */
 	@Deprecated
 	public void setLabel(String label) {
@@ -361,8 +376,8 @@ public class Seb implements SebContext {
 	 * 
 	 * @param labels
 	 *            Seb labels
-	 * @deprecated As of Seb version 0.3.22,
-	 * replaced by <code>Seb.withLabel(String... labels)</code>.
+	 * @deprecated As of Seb version 0.3.22, replaced by
+	 *             <code>Seb.withLabel(String... labels)</code>.
 	 */
 	@Deprecated
 	public void setLabel(String... labels) {
@@ -468,16 +483,16 @@ public class Seb implements SebContext {
 	/**
 	 * Toggles storing files using Seb.
 	 * 
-	 * @param reported The reported status.
+	 * @param reported
+	 *            The reported status.
 	 */
 	public void setReported(boolean reported) {
 		this.reported = reported;
 	}
 
 	/**
-	 * Returns directory for storing report files using 
-	 * {@link SebContext#saveFile(File, String, String)}
-	 * and similar methods.
+	 * Returns directory for storing report files using
+	 * {@link SebContext#saveFile(File, String, String)} and similar methods.
 	 * 
 	 * @return The report directory.
 	 */
@@ -487,7 +502,7 @@ public class Seb implements SebContext {
 
 	/**
 	 * Is switching to alerts supported.
-	 *  
+	 * 
 	 * @return Support alert status
 	 */
 	public boolean isAlertSupported() {
@@ -520,22 +535,22 @@ public class Seb implements SebContext {
 	public JavascriptLibrary getJavascriptLibrary() {
 		return javascriptLibrary;
 	}
-	
+
 	public ElementLocator createElementLocator(SearchContext searchContext, Field field) {
 		return new DefaultElementLocator(searchContext, field);
 	}
-	
+
 	public ElementLocator createElementLocator(SearchContext searchContext, By by) {
 		return createElementLocator(searchContext, by, false);
 	}
-	
+
 	public ElementLocator createElementLocator(SearchContext searchContext, By by, boolean lookupCached) {
 		return new DefaultElementLocator(searchContext, new AbstractAnnotations() {
 			@Override
 			public boolean isLookupCached() {
 				return lookupCached;
 			}
-			
+
 			@Override
 			public By buildBy() {
 				return by;
@@ -571,57 +586,70 @@ public class Seb implements SebContext {
 	/**
 	 * Triggers {@link OnReportEvent} with given context and label.
 	 * 
-	 * @param context The report context
-	 * @param label The report label
+	 * @param context
+	 *            The report context
+	 * @param label
+	 *            The report label
 	 */
 	public void report(SebContext context, String label) {
 		triggerEvent(constructEvent(OnReportEvent.class, context).with(label));
 	}
-	
+
 	/**
 	 * Triggers {@link LogEvent} with given context, level and message.
 	 * 
-	 * @param context The log context
-	 * @param level The log level
-	 * @param message The log message
+	 * @param context
+	 *            The log context
+	 * @param level
+	 *            The log level
+	 * @param message
+	 *            The log message
 	 */
 	public void log(SebContext context, Level level, String message) {
 		triggerEvent(constructEvent(LogEvent.class, context).with(level, message));
 	}
-	
+
 	/**
 	 * Triggers {@link LogEvent} with given context, level and throwable.
 	 * 
-	 * @param context The log context
-	 * @param level The log level
-	 * @param throwable The log throwable
+	 * @param context
+	 *            The log context
+	 * @param level
+	 *            The log level
+	 * @param throwable
+	 *            The log throwable
 	 */
 	public void log(SebContext context, Level level, Throwable throwable) {
 		triggerEvent(constructEvent(LogEvent.class, context).with(level, throwable));
 	}
-	
+
 	/**
-	 * Triggers {@link LogEvent} with given context, level, message and throwable.
+	 * Triggers {@link LogEvent} with given context, level, message and
+	 * throwable.
 	 * 
-	 * @param context The log context
-	 * @param level The log level
-	 * @param message The log message
-	 * @param throwable The log throwable
+	 * @param context
+	 *            The log context
+	 * @param level
+	 *            The log level
+	 * @param message
+	 *            The log message
+	 * @param throwable
+	 *            The log throwable
 	 */
 	public void log(SebContext context, Level level, String message, Throwable throwable) {
 		triggerEvent(constructEvent(LogEvent.class, context).with(level, message, throwable));
 	}
 
 	/**
-	 * Constructs a new instance of {@link SebEvent} subclass with given
-	 * context and local time.
+	 * Constructs a new instance of {@link SebEvent} subclass with given context
+	 * and local time.
 	 * 
 	 * @param eventCls
 	 *            The event class to construct
 	 * @param context
 	 *            The context to use
 	 * @return The event instance
-	 */	
+	 */
 	@SuppressWarnings("unchecked")
 	public synchronized <T extends SebEvent> T constructEvent(Class<T> eventCls, SebContext context) {
 		try {
@@ -739,7 +767,8 @@ public class Seb implements SebContext {
 		try {
 			return initOnePage(pages);
 		} catch (WebDriverException e) {
-			log(Level.INFO, "Unable to SAFELY init any of given pages " + String.join(", ", Arrays.asList(pages).stream().map(p -> p.toString()).collect(Collectors.toList())), e);
+			log(Level.INFO, "Unable to SAFELY init any of given pages " + String.join(", ",
+					Arrays.asList(pages).stream().map(p -> p.toString()).collect(Collectors.toList())), e);
 			return null;
 		}
 	}
@@ -781,10 +810,10 @@ public class Seb implements SebContext {
 			if (verifiedPage != null)
 				return verifiedPage;
 		}
-		throw new VerificationException(
-				"Unable to init any of given pages " + String.join(", ", Arrays.asList(pages).stream().map(p -> p.toString()).collect(Collectors.toList())));
+		throw new VerificationException("Unable to init any of given pages "
+				+ String.join(", ", Arrays.asList(pages).stream().map(p -> p.toString()).collect(Collectors.toList())));
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends Page> T constructPage(Class<T> page) {
@@ -795,20 +824,22 @@ public class Seb implements SebContext {
 			throw new PageConstructException("Unable to construct page " + page.getName(), e);
 		}
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends SebElement> T initSebElement(T element) {
 		return (T) element.init();
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T extends SebElement> T initSebElement(Class<T> element, SebContext context, WebElement webElement, boolean optional) {
+	public <T extends SebElement> T initSebElement(Class<T> element, SebContext context, WebElement webElement,
+			boolean optional) {
 		return (T) constructSebElement(element, context, webElement, optional).init();
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T extends SebElement> T constructSebElement(Class<T> element, SebContext context, WebElement webElement, boolean optional) {
+	public <T extends SebElement> T constructSebElement(Class<T> element, SebContext context, WebElement webElement,
+			boolean optional) {
 		try {
 			Constructor<T> ctor = element.getConstructor();
 			return (T) ctor.newInstance().with(context, webElement, optional);
@@ -816,18 +847,18 @@ public class Seb implements SebContext {
 			throw new SebElementConstructException("Unable to construct module " + element.getName(), e);
 		}
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends Logic> T initLogic(T logic) {
 		return (T) logic.init();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T extends Logic> T initLogic(Class<T> logic, SebContext context) {
 		return (T) constructLogic(logic, context).init();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T extends Logic> T constructLogic(Class<T> logic, SebContext context) {
 		try {
@@ -837,24 +868,22 @@ public class Seb implements SebContext {
 			throw new LogicConstructException("Unable to construct logic " + logic.getName(), e);
 		}
 	}
-	
+
 	public void initElements(SebContext context) {
-		PageFactory.initElements(
-				new SebFieldDecorator(context),
-				context);
+		PageFactory.initElements(new SebFieldDecorator(context), context);
 	}
-	
+
 	public SebAlert getAlert(SebContext context) {
 		return new SebAlert(context);
 	}
-	
+
 	@Override
 	public void checkIfPresent(WebElement element) throws NoSuchElementException {
 		if (element == null)
 			throw new NoSuchElementException("Element is null");
 		element.isDisplayed();
 	}
-	
+
 	@Override
 	public boolean isPresent(WebElement element) {
 		try {
@@ -864,12 +893,12 @@ public class Seb implements SebContext {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public boolean isNotPresent(WebElement element) {
 		return !isPresent(element);
 	}
-	
+
 	@Override
 	public List<WebElement> findElements(By by) {
 		return getDriver().findElements(by);
@@ -879,12 +908,12 @@ public class Seb implements SebContext {
 	public WebElement findElement(By by) {
 		return getDriver().findElement(by);
 	}
-	
+
 	@Override
 	public <T extends SebElement> List<T> find(SebContext context, By by, Class<T> elementCls) {
 		return elementLoader.find(context, by, elementCls);
 	}
-	
+
 	@Override
 	public <T extends SebElement> T findOne(SebContext context, By by, Class<T> elementCls, boolean optional) {
 		return elementLoader.findOne(context, by, elementCls, optional);
