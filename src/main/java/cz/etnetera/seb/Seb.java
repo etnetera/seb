@@ -50,6 +50,7 @@ import cz.etnetera.seb.configuration.SebConfiguration;
 import cz.etnetera.seb.configuration.SebConfigurationConstructException;
 import cz.etnetera.seb.element.SebElement;
 import cz.etnetera.seb.element.SebElementConstructException;
+import cz.etnetera.seb.element.SebElementInterceptor;
 import cz.etnetera.seb.element.SebElementLoader;
 import cz.etnetera.seb.element.SebFieldDecorator;
 import cz.etnetera.seb.event.EventConstructException;
@@ -72,6 +73,11 @@ import cz.etnetera.seb.page.Page;
 import cz.etnetera.seb.page.PageConstructException;
 import cz.etnetera.seb.source.DataSource;
 import cz.etnetera.seb.source.PropertySource;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.SuperMethodCall;
+import net.bytebuddy.matcher.ElementMatchers;
 
 /**
  * Wrapper class for {@link WebDriver}. It is configured using
@@ -831,16 +837,23 @@ public class Seb implements SebContext {
 		return (T) element.init();
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T extends SebElement> T initSebElement(Class<T> element, SebContext context, WebElement webElement,
 			boolean optional) {
-		return (T) constructSebElement(element, context, webElement, optional).init();
+		T sebElement = (T) constructSebElement(element, context, webElement, optional);
+		if (!optional)
+			sebElement.init();
+		return sebElement;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends SebElement> T constructSebElement(Class<T> element, SebContext context, WebElement webElement,
 			boolean optional) {
 		try {
+			if (optional) {
+				element = (Class<T>) new ByteBuddy().subclass(element).method(ElementMatchers.isPublic())
+						.intercept(MethodDelegation.to(SebElementInterceptor.class).andThen(SuperMethodCall.INSTANCE))
+						.make().load(context.getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER).getLoaded();
+			}
 			Constructor<T> ctor = element.getConstructor();
 			return (T) ctor.newInstance().with(context, webElement, optional);
 		} catch (Exception e) {
