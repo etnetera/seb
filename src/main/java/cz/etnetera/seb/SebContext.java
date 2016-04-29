@@ -841,6 +841,13 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 		return getSeb().getAlert(this);
 	}
 	
+	/**
+     * Refresh the current page
+     */
+	default void refreshPage() {
+		getSeb().refreshPage();
+	}
+	
 	@Override
 	default WebDriver getWrappedDriver() {
 		WebDriver driver = getDriver();

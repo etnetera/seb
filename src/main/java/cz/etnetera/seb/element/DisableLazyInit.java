@@ -14,19 +14,20 @@
  */
 package cz.etnetera.seb.element;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.This;
-
-public class SebElementInterceptor {
-
-	public static void intercept(@This SebElement element, @Origin(cache = true) Method method,
-			@AllArguments Object[] arguments) throws Exception {
-		if (!method.isAnnotationPresent(DisableLazyInit.class)) {
-			element.init();
-		}
-	}
+/**
+ * Identifies method on {@link SebElement} which is not intercepted by
+ * {@link SebElementInterceptor#intercept(SebElement, java.lang.reflect.Method, Object[])}
+ * . {@link SebElement#init()} method is called before every intercepted and
+ * public method presented on {@link SebElement}. This is used for lazy
+ * initialization of optional {@link SebElement}s.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface DisableLazyInit {
 
 }

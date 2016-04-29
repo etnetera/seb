@@ -57,6 +57,7 @@ public class SebElement implements SebContext, WebElement, WrapsElement, WrapsDr
 	
 	protected boolean initiating;
 	
+	@DisableLazyInit
 	public SebElement with(SebContext context, WebElement webElement, boolean optional) {
 		this.context = context;
 		this.webElement = webElement;
@@ -64,27 +65,9 @@ public class SebElement implements SebContext, WebElement, WrapsElement, WrapsDr
 		return this;
 	}
 	
-	public WebElement getWebElement() {
-		if (!present)
-			tryInitPresent(isPresent(webElement));
-		return webElement;
-	}
-
-	public boolean isOptional() {
-		return optional;
-	}
-	
-	public boolean isInitiated() {
-		return initiated;
-	}
-
-	@Override
-	public SebContext getContext() {
-		return context;
-	}
-
+	@DisableLazyInit
 	public SebElement init() {
-		if (!initiating) {
+		if (!initiated && !initiating) {
 			initiating = true;
 			try {
 				try {
@@ -103,6 +86,31 @@ public class SebElement implements SebContext, WebElement, WrapsElement, WrapsDr
 			}
 		}
 		return this;
+	}
+	
+	@Override
+	@DisableLazyInit
+	public String toString() {
+		return super.toString();
+	}
+
+	public WebElement getWebElement() {
+		if (!present)
+			tryInitPresent(isPresent(webElement));
+		return webElement;
+	}
+
+	public boolean isOptional() {
+		return optional;
+	}
+	
+	public boolean isInitiated() {
+		return initiated;
+	}
+
+	@Override
+	public SebContext getContext() {
+		return context;
 	}
 	
 	protected void tryInitPresent(boolean justPresent) {

@@ -889,6 +889,11 @@ public class Seb implements SebContext {
 	public SebAlert getAlert(SebContext context) {
 		return new SebAlert(context);
 	}
+	
+	@Override
+	public void refreshPage() {
+		driver.navigate().refresh();
+	}
 
 	@Override
 	public void checkIfPresent(WebElement element) throws NoSuchElementException {
