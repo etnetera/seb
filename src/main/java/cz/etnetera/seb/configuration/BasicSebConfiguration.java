@@ -92,10 +92,14 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 
 	public static final String WAIT_TIMEOUT = PREFIX + "waitTimeout";
 	public static final String WAIT_RETRY_INTERVAL = PREFIX + "waitRetryInterval";
+	public static final String WAIT_BEFORE_PAGE_INIT_TIMEOUT = PREFIX + "waitBeforePageInitTimeout";
 
 	public static final String REPORTED = PREFIX + "reported";
 	public static final String REPORTS_ROOT_DIR = PREFIX + "reportsRootDir";
 	public static final String REPORT_DIR = PREFIX + "reportDir";
+	
+	public static final String LAZY_DRIVER = PREFIX + "lazyDriver";
+	public static final String SUPPORTS_ALERT = PREFIX + "supportsAlert";
 
 	public static final String HUB_URL = PREFIX + "hubUrl";
 	public static final String CAPABILITIES_PREFIX = PREFIX + "caps.";
@@ -205,6 +209,15 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	protected double getDefaultWaitRetryInterval() {
 		return 0.1;
 	}
+	
+	/**
+	 * Returns default wait before page initialization timeout. Override this for different value.
+	 * 
+	 * @return The wait before page initialization timeout.
+	 */
+	protected double getDefaultWaitBeforePageInitTimeout() {
+		return 0;
+	}
 
 	/**
 	 * Is storing files using Seb enabled as default? Override this for
@@ -270,6 +283,14 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 				new WebDriverLogListener(), new PageSourceListener(), new ScreenshotListener()));
 	}
 	
+	protected boolean isDefaultAlertSupported(WebDriver driver) {
+		return true;
+	}
+
+	protected boolean isDefaultLazyDriver() {
+		return true;
+	}
+	
 	/**
 	 * Basic log level. Override this for different value.
 	 * 
@@ -330,6 +351,11 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 	public double getWaitRetryInterval() {
 		return getProperty(WAIT_RETRY_INTERVAL, Double.class, getDefaultWaitRetryInterval());
 	}
+	
+	@Override
+	public double getWaitBeforePageInitTimeout() {
+		return getProperty(WAIT_BEFORE_PAGE_INIT_TIMEOUT, Double.class, getDefaultWaitBeforePageInitTimeout());
+	}
 
 	@Override
 	public boolean isReported() {
@@ -355,12 +381,12 @@ public class BasicSebConfiguration implements SebConfiguration, ChainedPropertie
 
 	@Override
 	public boolean isAlertSupported(WebDriver driver) {
-		return true;
+		return getProperty(SUPPORTS_ALERT, Boolean.class, isDefaultAlertSupported(driver));
 	}
 
 	@Override
 	public boolean isLazyDriver() {
-		return true;
+		return getProperty(LAZY_DRIVER, Boolean.class, isDefaultLazyDriver());
 	}
 	
 	@Override

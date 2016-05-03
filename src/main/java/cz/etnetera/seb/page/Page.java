@@ -50,7 +50,7 @@ abstract public class Page implements SebContext {
 	
 	protected Double waitRetryInterval;
 	
-	protected Double waitPageBeforeInitTimeout;
+	protected Double waitBeforePageInitTimeout;
 
 	protected Seb seb;
 	
@@ -113,8 +113,8 @@ abstract public class Page implements SebContext {
 	}
 
 	public Page init() {
-		if (waitPageBeforeInitTimeout != null)
-			waiting(waitPageBeforeInitTimeout).sleep();
+		if (waitBeforePageInitTimeout != null)
+			waiting(waitBeforePageInitTimeout).sleep();
 		try {
 			triggerEvent(constructEvent(BeforePageInitEvent.class).with(this));
 			beforeInit();
@@ -162,6 +162,15 @@ abstract public class Page implements SebContext {
 	
 	public void setWaitRetryInterval(double waitRetryInterval) {
 		this.waitRetryInterval = waitRetryInterval;
+	}
+
+	@Override
+	public double getWaitBeforePageInitTimeout() {
+		return waitBeforePageInitTimeout == null ? 0 : waitBeforePageInitTimeout;
+	}
+
+	public void setWaitBeforePageInitTimeout(double waitBeforePageInitTimeout) {
+		this.waitBeforePageInitTimeout = waitBeforePageInitTimeout;
 	}
 
 	@Override
@@ -222,7 +231,7 @@ abstract public class Page implements SebContext {
 		if (config.waitRetryInterval().length > 0)
 			waitRetryInterval = config.waitRetryInterval()[0];
 		if (config.waitBeforePageInitTimeout().length > 0)
-			waitPageBeforeInitTimeout = config.waitBeforePageInitTimeout()[0];
+			waitBeforePageInitTimeout = config.waitBeforePageInitTimeout()[0];
 	}
 	
 	protected void configureFromSeb() {
@@ -241,6 +250,8 @@ abstract public class Page implements SebContext {
 			waitTimeout = seb.getWaitTimeout();
 		if (waitRetryInterval == null)
 			waitRetryInterval = seb.getWaitRetryInterval();
+		if (waitBeforePageInitTimeout == null)
+			waitBeforePageInitTimeout = seb.getWaitBeforePageInitTimeout();
 	}
 	
 	/**

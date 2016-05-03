@@ -107,6 +107,8 @@ public class Seb implements SebContext {
 	protected double waitTimeout;
 
 	protected double waitRetryInterval;
+	
+	protected double waitBeforePageInitTimeout;
 
 	protected Page page;
 
@@ -291,6 +293,7 @@ public class Seb implements SebContext {
 		urlVerification = configuration.isUrlVerification();
 		waitTimeout = configuration.getWaitTimeout();
 		waitRetryInterval = configuration.getWaitRetryInterval();
+		waitBeforePageInitTimeout = configuration.getWaitBeforePageInitTimeout();
 		reported = configuration.isReported();
 		if (reported) {
 			reportDir = configuration.getReportDir();
@@ -475,6 +478,21 @@ public class Seb implements SebContext {
 	 */
 	public void setWaitRetryInterval(double waitRetryInterval) {
 		this.waitRetryInterval = waitRetryInterval;
+	}
+	
+	@Override
+	public double getWaitBeforePageInitTimeout() {
+		return waitBeforePageInitTimeout;
+	}
+
+	/**
+	 * Sets default wait before page initialization timeout.
+	 * 
+	 * @param waitBeforePageInitTimeout
+	 *            The default wait before page initialization timeout.
+	 */
+	public void setWaitBeforePageInitTimeout(double waitBeforePageInitTimeout) {
+		this.waitBeforePageInitTimeout = waitBeforePageInitTimeout;
 	}
 
 	/**

@@ -178,6 +178,15 @@ public interface SebContext extends SearchContext, PropertySource, DataSource, W
 	}
 	
 	/**
+	 * Returns default wait before page initialization timeout.
+	 * 
+	 * @return The default wait before page initialization timeout.
+	 */
+	default double getWaitBeforePageInitTimeout() {
+		return getSeb().getWaitBeforePageInitTimeout();
+	}
+	
+	/**
 	 * Constructs new wait instance using default
 	 * waiting settings with specific clock to use 
 	 * when measuring the timeout, specific sleeper to use

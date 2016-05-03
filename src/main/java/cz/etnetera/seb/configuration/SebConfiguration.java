@@ -98,6 +98,13 @@ public interface SebConfiguration {
 	double getWaitRetryInterval();
 	
 	/**
+	 * Returns wait before page initialization timeout.
+	 * 
+	 * @return The wait before page initialization timeout.
+	 */
+	double getWaitBeforePageInitTimeout();
+	
+	/**
 	 * Is storing files using Seb enabled?
 	 * 
 	 * @return Reporting status.

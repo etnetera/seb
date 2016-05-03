@@ -28,8 +28,8 @@ public class PageSourceListener extends SebListener {
 	@Override
 	public void init(Seb seb) {
 		super.init(seb);
-		// enable this listener on report and before driver quit as default
-		enable(OnReportEvent.class, BeforeDriverQuitEvent.class);
+		// enable this listener on report as default
+		enable(OnReportEvent.class);
 	}
 	
 	@Override

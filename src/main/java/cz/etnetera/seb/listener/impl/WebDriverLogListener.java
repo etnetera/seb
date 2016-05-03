@@ -3,6 +3,7 @@ package cz.etnetera.seb.listener.impl;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import org.openqa.selenium.WebDriverException;
@@ -22,6 +23,18 @@ public class WebDriverLogListener extends SebListener {
 	
 	protected static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
 	
+	protected Function<WebDriverLogListener, LoggingPreferences> loggingPreferencesFunction;
+	
+	public WebDriverLogListener(Function<WebDriverLogListener, LoggingPreferences> loggingPreferencesFunction) {
+		this.loggingPreferencesFunction = loggingPreferencesFunction;
+	}
+
+	public WebDriverLogListener() {
+		this.loggingPreferencesFunction = l -> {
+			return l.getLoggingPreferences();
+		};
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(Seb seb) {
@@ -31,7 +44,7 @@ public class WebDriverLogListener extends SebListener {
 
 	@Override
 	public void beforeDriverConstruct(BeforeDriverConstructEvent event) {
-		event.getCapabilities().setCapability(CapabilityType.LOGGING_PREFS, getLoggingPreferences(event));
+		event.getCapabilities().setCapability(CapabilityType.LOGGING_PREFS, loggingPreferencesFunction.apply(this));
 	}
 
 	@Override
@@ -40,7 +53,7 @@ public class WebDriverLogListener extends SebListener {
 		logs.getAvailableLogTypes().forEach(type -> storeLogs(logs, type));
 	}
 	
-	protected LoggingPreferences getLoggingPreferences(BeforeDriverConstructEvent event) {
+	protected LoggingPreferences getLoggingPreferences() {
 		Level level = seb.getLogLevel();
 		LoggingPreferences logPrefs = new LoggingPreferences();
         logPrefs.enable(LogType.BROWSER, level);
