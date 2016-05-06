@@ -32,25 +32,46 @@ public interface PropertiesSource extends PropertySource {
 	static final String ENCODING = "UTF-8";
 	
 	static Properties loadProperties(Object source) {
+		return loadProperties(source, true);
+	}
+	
+	static Properties loadProperties(Properties properties) {
+		return loadProperties(properties, true);
+	}
+	
+	static Properties loadProperties(File file) {
+		return loadProperties(file, true);
+	}
+	
+	static Properties loadProperties(String resourceName) {
+		return loadProperties(resourceName, true);
+	}
+	
+	static Properties loadProperties(Object source, boolean required) {
 		if (source instanceof Properties) {
-			return loadProperties((Properties) source);
+			return loadProperties((Properties) source, required);
 		}
 		if (source instanceof File) {
-			return loadProperties((File) source);
+			return loadProperties((File) source, required);
 		}
 		if (source instanceof String) {
-			return loadProperties((String) source);
+			return loadProperties((String) source, required);
 		}
 		throw new SebException("Unsupported properties source type " + source.getClass());
 	}
-
-	static Properties loadProperties(Properties properties) {
+	
+	static Properties loadProperties(Properties properties, boolean required) {
+		if (required && properties == null)
+			throw new SebException("Properties instance is null");
 		return properties;
 	}
-
-	static Properties loadProperties(File file) {
-		if (!file.canRead())
-			throw new SebException("Properties file is not readable " + file);
+	
+	static Properties loadProperties(File file, boolean required) {
+		if (!file.canRead()) {
+			if (required)
+				throw new SebException("Properties file is not readable " + file);
+			return null;
+		}
 		Properties properties = new Properties();
 		try {
 			properties.load(new InputStreamReader(new FileInputStream(file), ENCODING));
@@ -59,11 +80,14 @@ public interface PropertiesSource extends PropertySource {
 		}
 		return properties;
 	}
-
-	static Properties loadProperties(String resourceName) {
+	
+	static Properties loadProperties(String resourceName, boolean required) {
 		InputStream is = PropertiesSource.class.getClassLoader().getResourceAsStream(resourceName);
-		if (is == null)
-			throw new SebException("Properties resource does not exists " + resourceName);
+		if (is == null) {
+			if (required)
+				throw new SebException("Properties resource does not exists " + resourceName);
+			return null;
+		}
 		Properties properties = new Properties();
 		try {
 			properties.load(new InputStreamReader(is, ENCODING));
